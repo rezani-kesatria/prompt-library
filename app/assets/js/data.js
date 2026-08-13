@@ -1,63 +1,25 @@
 /* Prompt Library — prototype data
-   Mood tiles are CSS-rendered style stand-ins; production uses authored WebP screenshots.
+   Mood tiles render the real recreated page in an iframe, not a stand-in.
    Prompt templates are condensed from the real 00-08 markdown library. */
 
 const VIBES = ["All", "Minimalist", "Simplicity", "Modern", "Playful", "Luxury", "Tech"];
 
-/* Six curated 2025–26 directions. Each is a full token set that renders a live
-   mini-mockup (renderMockup) — shown small in the grid, large in Refine.
-   fd = display family, fb = body family (loaded via Google Fonts in index.html). */
-const MOODS = [
-  {
-    id: "nocturne", name: "Nocturne", vibes: ["Minimalist", "Modern"], mode: "dark",
-    bg: "#0B0A12", surface: "#16131F", ink: "#ECEAF6", primary: "#7C6BFF", accent: "#34E5C4",
-    fd: "'Bricolage Grotesque', sans-serif", fb: "'Hanken Grotesk', sans-serif", type: "Bricolage Grotesque · Hanken Grotesk",
-    radius: "Soft", elevation: "Subtle", gradient: "None", icon: "Line", imagery: "Abstract", motion: "Subtle",
-    density: "Airy"
-  },
-  {
-    id: "editorial", name: "Editorial", vibes: ["Minimalist", "Simplicity"], mode: "light",
-    bg: "#F4F1EA", surface: "#FFFFFF", ink: "#17140F", primary: "#17140F", accent: "#E1341E",
-    fd: "'Familjen Grotesk', sans-serif", fb: "'Inter', sans-serif", type: "Familjen Grotesk · Inter",
-    radius: "Sharp", elevation: "Flat", gradient: "None", icon: "Line", imagery: "Photo", motion: "Minimal",
-    density: "Airy"
-  },
-  {
-    id: "botanical", name: "Botanical", vibes: ["Luxury"], mode: "light",
-    bg: "#EEEDE2", surface: "#FAF9F3", ink: "#1E241B", primary: "#2E5C3E", accent: "#B08D4F",
-    fd: "'Fraunces', serif", fb: "'Inter', sans-serif", type: "Fraunces · Inter",
-    radius: "Subtle", elevation: "Flat", gradient: "None", icon: "Line", imagery: "Photo", motion: "Subtle",
-    density: "Airy"
-  },
-  {
-    id: "terminal", name: "Terminal", vibes: ["Tech", "Modern"], mode: "dark",
-    bg: "#080B0A", surface: "#0E1512", ink: "#CFF5E1", primary: "#35E08F", accent: "#37D6E6",
-    fd: "'JetBrains Mono', monospace", fb: "'JetBrains Mono', monospace", type: "JetBrains Mono",
-    radius: "Sharp", elevation: "Flat", gradient: "None", icon: "Line", imagery: "Abstract", motion: "Rich",
-    density: "Compact"
-  },
-  {
-    id: "aurora", name: "Aurora", vibes: ["Playful", "Modern"], mode: "dark",
-    bg: "#0E0A1A", surface: "#191331", ink: "#F3EEFF", primary: "#FF6BC1", accent: "#6B7BFF",
-    fd: "'Syne', sans-serif", fb: "'Hanken Grotesk', sans-serif", type: "Syne · Hanken Grotesk",
-    radius: "Rounded", elevation: "Raised", gradient: "Expressive", icon: "Solid", imagery: "3D", motion: "Rich",
-    density: "Balanced"
-  },
-  {
-    id: "sorbet", name: "Sorbet", vibes: ["Playful", "Simplicity"], mode: "light",
-    bg: "#FFF4EE", surface: "#FFFFFF", ink: "#33231C", primary: "#FF5A3C", accent: "#FFB020",
-    fd: "'Gabarito', sans-serif", fb: "'Inter', sans-serif", type: "Gabarito · Inter",
-    radius: "Rounded", elevation: "Subtle", gradient: "Subtle", icon: "Solid", imagery: "Illustration", motion: "Rich",
-    density: "Balanced"
-  }
-];
+/* Every mood in the library is a real recreation (see REFERENCES below).
+   The six token stand-ins that used to sit here — Nocturne, Editorial,
+   Botanical, Terminal, Aurora, Sorbet — were removed: they rendered the
+   generic template/web.html rather than an actual page, so their tiles all
+   looked alike and, having no spec, they carried no prompt payload. A mood
+   that cannot inject a rule set is worse than no mood at all — it hands the
+   agent a vibe and lets it drift. */
+const MOODS = [];
 
 /* ---------------------------------------------------------------------------
-   REFERENCE MOODS — the five curated recreations in app/designs/.
-   These are NOT token stand-ins: the tile and the Refine preview render the
-   real page, and `spec` points at the design-language block whose "Prompt
-   payload" is injected verbatim into the generated brief. The payload is read
-   from the .md at runtime, so the spec file stays the single source of truth.
+   REFERENCE MOODS — the nine curated recreations in app/designs/, and since
+   the token stand-ins were dropped, the whole mood library.
+   The tile and the Refine preview render the real page, and `spec` points at
+   that page's design-language document, whose "Prompt payload" block is
+   injected verbatim into the generated brief. The payload is read from the .md
+   at runtime, so the spec file stays the single source of truth.
    Token fields below exist so the Refine panels and design-system.json still
    have something to work with — they mirror each page's :root.
 --------------------------------------------------------------------------- */
@@ -478,6 +440,11 @@ const CATEGORIES = [
    it is NOT the default. Seeding it as the default was why every generated
    prompt talked about a landscaping firm regardless of the real client. */
 const EXAMPLE_PROJECT = {
+  /* the brief — added so "Load example" fills EVERY field the Client step
+     shows, including the three project-intent ones */
+  "project brief": "a company-profile site that replaces a dated brochure page — it has to win the first call from estate managers who are comparing three firms",
+  "primary goal": "get a site visit booked without a phone call first",
+  "must avoid": "stock-photo corporate polish, or pricing hidden behind a contact form",
   "Company": "GreenGarden Integrated Services",
   "business type": "landscaping firm",
   "what they do": "designs, builds and maintains gardens and grounds",

@@ -7,29 +7,22 @@
   var g = window.gsap;
 
   /* ---- icons ------------------------------------------------ */
-  var ICON = {
-    "arrow-right": "M5 12h14M13 6l6 6-6 6",
-    "arrow-left": "M19 12H5M11 18l-6-6 6-6",
-    "wand": "M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15l-1.9-4.1L5.5 9l4.6-1.4zM6 16v3M4.5 17.5h3M18 15v2M17 16h2",
-    "grid": "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",
-    "mobile": "M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM10 19h4",
-    "copy": "M8 8h12v12H8zM4 16V4h12v2",
-    "check": "M4 12l5 5L20 6",
-    "sun": "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19",
-    "moon": "M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z",
-    "refresh": "M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6",
-    "download": "M12 3v12M7 10l5 5 5-5M4 21h16",
-    "file": "M6 2h8l4 4v16H6zM14 2v4h4",
-    "braces": "M8 3c-2 0-2 4-2 4s0 2-2 2c2 0 2 2 2 2s0 4 2 4M16 3c2 0 2 4 2 4s0 2 2 2c-2 0-2 2-2 2s0 4-2 4",
-    "list": "M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01",
-    "chevron-right": "M9 6l6 6-6 6",
-    "chevron-down": "M6 9l6 6 6-6",
-    "image": "M4 4h16v16H4zM4 15l4-4 5 5M14 11l2-2 4 4M15 9h.01",
-    "sparkle": "M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15l-1.9-4.1L5.5 9l4.6-1.4z"
+  /* the hand-drawn ICON map is gone — Lucide is the icon system now */
+  /* ICONS — real Lucide (the set shadcn/ui ships), not hand-drawn paths.
+     The app's own short names are kept so every call site stays as it is;
+     this maps them onto Lucide's catalogue. Stroke stays at 1.7 to preserve
+     the app's existing weight — Lucide's own default is 2. */
+  var LUCIDE_NAME = {
+    "grid": "layout-grid", "mobile": "smartphone", "wand": "wand-sparkles",
+    "copy": "copy", "check": "check", "sun": "sun", "moon": "moon",
+    "refresh": "refresh-cw", "download": "download", "file": "file-text",
+    "braces": "braces", "list": "list", "image": "image", "sparkle": "sparkles",
+    "chevron-right": "chevron-right", "chevron-down": "chevron-down",
+    "arrow-left": "arrow-left", "arrow-right": "arrow-right"
   };
   function svg(name, size) {
-    var d = ICON[name] || "";
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="' + (size || 20) + '" height="' + (size || 20) + '">' + (name === "sparkle" || false ? "" : "") + '<path d="' + d + '"/></svg>';
+    var n = LUCIDE_NAME[name] || name, s = size || 20;
+    return '<i data-lucide="' + n + '" width="' + s + '" height="' + s + '"></i>';
   }
   function hydrateIcons(scope) {
     (scope || document).querySelectorAll("[data-icon]").forEach(function (n) {
@@ -37,6 +30,9 @@
       n.innerHTML = svg(n.dataset.icon, n.dataset.size ? +n.dataset.size : 20);
       n.dataset.done = "1";
     });
+    /* createIcons swaps every <i data-lucide> for its <svg>, including the
+       ones written by the direct svg() calls (stepper ticks, theme thumb) */
+    if (window.lucide) lucide.createIcons({ attrs: { "stroke-width": 1.7 } });
   }
 
   /* ---- contextual phase art (geometric, matches the mono language) --- */
@@ -115,6 +111,7 @@
   function setTheme(t) {
     document.documentElement.setAttribute("data-theme", t);
     document.getElementById("theme-thumb").innerHTML = svg(t === "dark" ? "moon" : "sun", 13);
+    if (window.lucide) lucide.createIcons({ attrs: { "stroke-width": 1.7 } });
     try { localStorage.setItem("pl-theme-lite", t); } catch (e) {}
   }
   function toggleTheme() {
@@ -209,6 +206,8 @@
     applyTilt(host);
     hydrateTemplates(host);
     renderStepper();
+    hydrateIcons();   /* the stepper renders after the first pass — its tick
+                         icons need converting too */
     stepIn();
   }
   function nextStep() { if (state.step < STEPS.length - 1) { state.step++; renderStep(); window.scrollTo({ top: 0, behavior: motionOK ? "smooth" : "auto" }); } }
@@ -246,7 +245,9 @@
       '<h2 class="step__title">Who is the client, and what are we making?</h2>' +
       '<p class="step__sub">This is the context every generated prompt is built on. The brief matters most — it is what tells an agent what the thing is <em>for</em>.</p>' +
       '<div class="client-bar" data-pop>' +
-        '<span class="muted">Nothing here yet? Load a worked example to see the shape of it.</span>' +
+        '<span class="muted">' + (named
+          ? 'Building for <strong>' + esc(project["Company"]) + '</strong> — every generated prompt uses these.'
+          : 'Nothing here yet? Load a worked example to see the shape of it.') + '</span>' +
         '<span class="client-bar__btns">' +
           '<button class="btn btn--ghost" data-client-example><span data-icon="sparkle"></span><span>Load example</span></button>' +
           '<button class="btn btn--ghost" data-client-clear><span>Clear all</span></button>' +
@@ -1243,7 +1244,7 @@
     var uOpt = e.target.closest(".ui-select__opt");
     if (uOpt) { chooseOption(uOpt); return; }
     closeAllSelects();
-    var t = e.target.closest("[data-go],[data-cat],[data-target],[data-mood],[data-filter],[data-aud],[data-pos],[data-sec],[data-copy],[data-stack],[data-deliv],[data-a11y],[data-seg],[data-tab],[data-wiz],[data-prompt],[data-lib-back],[data-detail-back],[data-copy-filled],[data-copy-tpl],[data-copy-gen],[data-restart],[data-kit],[data-inspo-btn],[data-inspo]");
+    var t = e.target.closest("[data-go],[data-cat],[data-target],[data-mood],[data-filter],[data-aud],[data-pos],[data-sec],[data-copy],[data-stack],[data-deliv],[data-a11y],[data-seg],[data-tab],[data-wiz],[data-prompt],[data-lib-back],[data-detail-back],[data-copy-filled],[data-copy-tpl],[data-copy-gen],[data-restart],[data-kit],[data-inspo-btn],[data-inspo],[data-client-example],[data-client-clear]");
     if (!t) return;
 
     if (t.dataset.go) { e.preventDefault(); go(t.dataset.go); return; }
