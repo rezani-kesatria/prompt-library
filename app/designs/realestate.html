@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vertex — premium property investment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ------------------------------------------------------------------
+       Design language (from the Vertex reference):
+       · FRAMED CANVAS — the page sits in a rounded panel on a tinted backdrop
+       · separation by tint + gaps outside, hairlines inside grouped cards
+       · ZERO elevation — no shadows
+       · NOTCHED containers — rounded-square bites cut from image edges (signature)
+       · multi-tint pastel card set (yellow / blue / peach / pink)
+       · ONE hot orange accent, on a single element at a time
+       · huge display type for project names; label-above-value spec pairs
+       · geometric motifs: dot grids + starbursts; circular icon buttons
+       ------------------------------------------------------------------ */
+    :root{
+      --maxw:clamp(1040px,92vw,1780px);
+      --gap:clamp(12px,1vw,20px);
+      --pad:clamp(20px,2vw,44px);
+      --r-panel:clamp(20px,2vw,34px);
+      --r-card:clamp(12px,1.2vw,20px);
+      --r-in:clamp(8px,.7vw,12px);
+      --sans:'Archivo',sans-serif;
+      --e:cubic-bezier(.2,.8,.2,1);
+      --eo:cubic-bezier(.16,1,.3,1);
+
+      /* LIGHT (native) */
+      color-scheme:light;
+      --backdrop:#A9CBE3;
+      /* Separation is by TINT only (no borders, no shadows). Page is the pure
+         extreme (white) and cards step IN from it — mirroring dark, where the page
+         is the dark extreme and cards step up. Delta ~10 in both themes. */
+      --panel:#FFFFFF;
+      --card:#F5F6F6;
+      --well:#EAEBEB;
+      --ink:#1E0B09;
+      --ink-2:#5A4A46;
+      --muted:#948985;
+      --line:rgba(30,11,9,.10);
+      --accent:#F0561F;
+      --accent-deep:#B02310;
+      --on-accent:#FFFFFF;
+      --tint-y:#F8EDCE;
+      --tint-b:#D3E3F0;
+      --tint-p:#FADFCF;
+      --tint-r:#F7DED9;
+      --on-tint:#1E0B09;
+      --star:#F0561F;
+    }
+    html[data-theme="dark"]{
+      color-scheme:dark;
+      /* Surfaces stay NEUTRAL — deriving them from the warm brown-black ink made
+         the page read as chocolate at full scale. Warmth lives in the ink and
+         accent, not in the large surfaces. */
+      --backdrop:#0A0A0B;
+      --panel:#0F0F10;
+      --card:#18181A;
+      --well:#212125;
+      --ink:#F6F6F5;
+      --ink-2:#BCBCBA;
+      --muted:#82827E;
+      --line:rgba(246,246,245,.13);
+      --accent:#F0561F;
+      --accent-deep:#C93A16;
+      --on-accent:#FFFFFF;
+      /* tints: deep, low-chroma versions of the light hues — muted, not muddy */
+      --tint-y:#2E2B1F;
+      --tint-b:#1C2A37;
+      --tint-p:#322620;
+      --tint-r:#312329;
+      --on-tint:#F6F6F5;
+      --star:#F58A5C;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--panel);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+    h1,h2,h3{font-weight:500;line-height:1.02;letter-spacing:-.025em}
+    .num{font-variant-numeric:tabular-nums}
+
+    /* the page itself — flush to the viewport, content held to a max width */
+    .panel{position:relative;max-width:var(--maxw);margin:0 auto}
+    .pad{padding:clamp(16px,1.6vw,34px)}
+
+    /* nav */
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:clamp(12px,1.2vw,22px) clamp(16px,1.6vw,34px)}
+    .nav a{font-size:.86rem;color:var(--ink-2);transition:color .25s var(--e)}
+    .nav a:hover{color:var(--ink)}
+    .nav__l,.nav__r{display:flex;align-items:center;gap:clamp(14px,1.5vw,30px)}
+    .logo{font-weight:700;font-size:1.5rem;letter-spacing:-.04em;color:var(--ink)}
+    .tgl{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--muted);border:1px solid var(--line);transition:color .25s var(--e),border-color .25s var(--e)}
+    .tgl:hover{color:var(--ink);border-color:var(--ink)}
+    .tgl svg{width:15px;height:15px}
+    .tgl .moon{display:none}
+    html[data-theme="dark"] .tgl .sun{display:none}
+    html[data-theme="dark"] .tgl .moon{display:block}
+
+    /* pills */
+    .pill{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:11px 24px;font-size:.88rem;font-weight:500;transition:transform .3s var(--e),background-color .3s var(--e),color .3s var(--e)}
+    .pill--light{background:var(--panel);color:var(--ink)}
+    .pill--dark{background:var(--ink);color:var(--panel)}
+    .pill--accent{background:var(--accent);color:var(--on-accent)}
+    .pill:hover{transform:translateY(-2px)}
+    .circ{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;transition:background-color .25s var(--e),color .25s var(--e),border-color .25s var(--e);cursor:pointer}
+    .circ svg{width:16px;height:16px}
+    .circ:hover{background:var(--ink);color:var(--panel)}
+
+    /* ---------- HERO : notched image panel (signature motif) ---------- */
+    .hero{position:relative;margin:0 clamp(16px,1.6vw,34px) clamp(16px,1.6vw,34px)}
+    /* aspect locked to the clip-path's design ratio (200:104) so the corner arcs
+       stay circular — objectBoundingBox scales non-uniformly otherwise */
+    .hero__frame{position:relative;aspect-ratio:200/104;min-height:340px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:clamp(34px,4.5vw,90px) var(--pad)}
+    /* TRUE inverted-radius notches: rounded squares SUBTRACTED from the image via
+       mask + mask-composite, so the page shows through and the junctions are real
+       cut-outs (not opaque squares laid on top, which only fake it on solid backgrounds). */
+    /* Silhouette traced from the reference: crenellated top (3 cuts of differing
+       widths), a large bottom-left cut + comb tabs along the bottom, a left-edge
+       notch, and one isolated floating square inside the image.
+       Each cut is its own SVG whose viewBox ratio MATCHES its rendered size, so
+       scaling stays uniform and corner radii never distort into ellipses. */
+    /* Outline: clip-path from the Corner Inverter generator, authored at 200x104
+       and emitted in objectBoundingBox units — one responsive path for the stepped
+       corners. It can only express the FOUR CORNERS, so the cuts the reference has
+       mid-span (and the floating interior square) are layered on as masks. */
+    .hero__bg{
+      --u:clamp(20px,4.2vw,74px);
+      /* ONLY the floating interior cut is done with a mask. Edge-touching cuts must
+         live in the clip-path: subtracting a rounded rect from an edge leaves hard
+         90° junctions, because the concave fillet is added material, not removed. */
+      --sF:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='83' height='100'%3E%3Crect width='83' height='100' rx='22' fill='%23000'/%3E%3C/svg%3E");
+      --cuts:
+        var(--sF) left 54% top 58% / var(--u) calc(1.2*var(--u)) no-repeat,
+        linear-gradient(#000 0 0);
+      position:absolute;inset:0;z-index:0;
+      background-size:cover;background-position:center;
+      clip-path:url(#vtxClip);
+      -webkit-mask:var(--cuts);
+      mask:var(--cuts);
+      -webkit-mask-composite:xor;
+      mask-composite:exclude;
+    }
+    .hero h1,.hero__cta{position:relative;z-index:2}
+    .hero h1{position:relative;z-index:3;color:#fff;text-align:center;font-size:clamp(2.1rem,5.6vw,5.6rem);letter-spacing:-.03em;line-height:1.02;text-transform:uppercase;font-weight:500}
+    .hero__cta{position:relative;z-index:3;display:flex;gap:10px;margin-top:clamp(18px,2vw,34px)}
+
+    /* ---------- sections ---------- */
+    .sec{padding:clamp(30px,3.4vw,70px) clamp(16px,1.6vw,34px)}
+    .sec__hd{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:clamp(18px,1.8vw,34px)}
+    .sec h2{font-size:clamp(1.5rem,2.6vw,2.9rem)}
+    .sec__hd p{color:var(--ink-2);max-width:44ch;font-size:.95rem}
+    .tag{display:inline-block;font-size:.74rem;color:var(--muted);letter-spacing:.06em;margin-bottom:10px}
+
+    /* pastel feature cards */
+    .feats{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap)}
+    .feat{border-radius:var(--r-card);padding:clamp(18px,1.7vw,30px);display:flex;flex-direction:column;min-height:clamp(180px,15vw,260px);color:var(--on-tint)}
+    .feat .mk{margin-bottom:auto;color:var(--on-tint);opacity:.85}
+    .feat .mk svg{width:clamp(26px,2.4vw,40px);height:auto}
+    .feat h3{font-size:clamp(1rem,1.15vw,1.35rem);margin-top:clamp(14px,1.4vw,24px);font-weight:600}
+    .feat p{font-size:.85rem;margin-top:8px;opacity:.72;line-height:1.45}
+    .fy{background:var(--tint-y)}.fb{background:var(--tint-b)}.fp{background:var(--tint-p)}.fr{background:var(--tint-r)}
+
+    /* ---------- project : photo + spec mosaic ---------- */
+    .proj{display:grid;grid-template-columns:1.05fr 1fr;gap:var(--gap);align-items:stretch}
+    .proj__media{position:relative;border-radius:var(--r-card);overflow:hidden;min-height:clamp(340px,34vw,600px);background-size:cover;background-position:center;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(18px,1.8vw,32px)}
+    .proj__name{color:#fff;font-size:clamp(1.8rem,3.6vw,4rem);text-transform:uppercase;line-height:.98;letter-spacing:-.03em}
+    .proj__name small{display:block;font-size:.3em;letter-spacing:.02em;text-transform:none;margin-top:10px;opacity:.9;font-weight:400}
+    .proj__loc{background:var(--card);border-radius:var(--r-in);padding:12px 16px;align-self:flex-start;max-width:22rem}
+    .proj__loc b{display:block;font-size:.72rem;color:var(--muted);font-weight:500}
+    .proj__loc span{font-size:.88rem}
+    .specs{display:flex;flex-direction:column;gap:var(--gap)}
+    .srow{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
+    .scard{background:var(--card);border-radius:var(--r-card);padding:clamp(14px,1.3vw,24px)}
+    .scard b{display:block;font-size:.72rem;color:var(--muted);font-weight:500;margin-bottom:6px}
+    .scard span{font-size:clamp(1rem,1.25vw,1.5rem);font-weight:500}
+    /* grouped card — inner cells divided by hairlines (the hybrid separation) */
+    .sgroup{background:var(--card);border-radius:var(--r-card);overflow:hidden}
+    .sgrid{display:grid;grid-template-columns:1fr 1fr}
+    .sgrid > div{padding:clamp(14px,1.3vw,24px);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .sgrid > div b{display:block;font-size:.72rem;color:var(--muted);font-weight:500;margin-bottom:6px}
+    .sgrid > div span{display:block;font-size:clamp(1rem,1.25vw,1.5rem);font-weight:500}
+    .sgrid > div:nth-child(2n){border-right:0}
+    .sgrid > div.hot{background:var(--accent);color:var(--on-accent);border-color:transparent}
+    .sgrid > div.hot b{color:rgba(255,255,255,.78)}
+    .sfoot{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:clamp(14px,1.3vw,24px)}
+    .sfoot .badge{width:44px;height:44px;border-radius:50%;background:var(--well);display:grid;place-items:center;font-size:.6rem;color:var(--muted);text-align:center;line-height:1.1}
+    .price{background:var(--card);border-radius:var(--r-card);padding:clamp(14px,1.3vw,24px);display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center}
+    .plan{background:var(--well);border-radius:var(--r-in);height:clamp(110px,10vw,170px);display:grid;place-items:center;color:var(--muted)}
+    .plan svg{width:78%;height:auto}
+
+    /* ---------- calculator ---------- */
+    .calc{display:grid;grid-template-columns:1.15fr 1fr;gap:var(--gap);background:var(--card);border-radius:var(--r-card);padding:clamp(18px,1.8vw,34px)}
+    .calc h3{font-size:clamp(1.1rem,1.5vw,1.7rem);margin-bottom:clamp(16px,1.6vw,28px)}
+    .fgroup{margin-bottom:clamp(14px,1.4vw,24px)}
+    .flabel{font-size:.76rem;color:var(--muted);margin-bottom:9px;display:block}
+    .fpills{display:flex;flex-wrap:wrap;gap:7px}
+    .fpills button{border-radius:999px;padding:8px 16px;font-size:.8rem;border:1px solid var(--line);color:var(--ink-2);transition:all .25s var(--e)}
+    .fpills button:hover{border-color:var(--ink)}
+    .fpills button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+    .slider{position:relative;height:6px;background:var(--well);border-radius:999px;margin:14px 0 8px}
+    .slider i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:999px;width:var(--v,50%)}
+    .slider b{position:absolute;top:50%;left:var(--v,50%);width:18px;height:18px;border-radius:50%;background:var(--card);border:2px solid var(--accent);transform:translate(-50%,-50%)}
+    .sscale{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted)}
+    /* results — the accent panel */
+    .res{background:var(--accent);color:var(--on-accent);border-radius:var(--r-card);padding:clamp(16px,1.6vw,28px);display:flex;flex-direction:column}
+    .res h4{font-size:.9rem;font-weight:600;margin-bottom:14px}
+    .rchart{display:flex;align-items:flex-end;gap:clamp(3px,.35vw,7px);height:clamp(90px,9vw,150px);margin-bottom:16px}
+    .rchart span{flex:1;background:rgba(255,255,255,.92);border-radius:3px 3px 0 0;transform:scaleY(0);transform-origin:bottom;transition:transform .8s var(--eo)}
+    .in .rchart span{transform:scaleY(1)}
+    .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.28)}
+    .rgrid b{display:block;font-size:.7rem;opacity:.8;font-weight:500;margin-bottom:3px}
+    .rgrid span{font-size:clamp(1.05rem,1.35vw,1.6rem);font-weight:600}
+    .res small{font-size:.66rem;opacity:.78;margin:14px 0 12px;line-height:1.4}
+    .res .pill{margin-top:auto;align-self:flex-start}
+
+    /* ---------- testimonials ---------- */
+    .tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap)}
+    .tcard{background:var(--card);border-radius:var(--r-card);padding:clamp(16px,1.6vw,28px);display:flex;flex-direction:column;gap:12px}
+    .stars{color:var(--star);font-size:.85rem;letter-spacing:1px}
+    .tcard p{font-size:.9rem;color:var(--ink-2);line-height:1.5}
+    .tby{display:flex;align-items:center;gap:10px;margin-top:auto}
+    .tby i{width:36px;height:36px;border-radius:50%;background-size:cover;background-position:center;flex:none}
+    .tby b{display:block;font-size:.84rem;font-weight:600}
+    .tby s{text-decoration:none;font-size:.74rem;color:var(--muted)}
+
+    /* ---------- closing ---------- */
+    /* CTA — grey card, big centred statement, wide email capture with a circular
+       arrow button at its right end */
+    .end{margin:0 clamp(16px,1.6vw,34px) var(--gap);border-radius:var(--r-card);background:var(--card);padding:clamp(44px,5.4vw,110px) var(--pad);display:flex;flex-direction:column;align-items:center;text-align:center}
+    .end h2{font-size:clamp(1.9rem,4.2vw,4.6rem);text-transform:uppercase;max-width:16ch;letter-spacing:-.03em;color:var(--ink)}
+    .end p{color:var(--ink-2);margin-top:16px;font-size:clamp(.95rem,1vw,1.1rem);max-width:44ch}
+    .subscribe{display:flex;align-items:center;gap:10px;width:min(100%,760px);margin-top:clamp(26px,2.6vw,44px);background:var(--panel);border-radius:999px;padding:9px 9px 9px clamp(20px,1.8vw,32px);text-align:left}
+    .subscribe input{flex:1;min-width:0;border:0;background:none;outline:0;font:inherit;font-size:clamp(.95rem,1vw,1.08rem);color:var(--ink)}
+    .subscribe input::placeholder{color:var(--muted)}
+    .circ--lg{width:clamp(46px,3.4vw,58px);height:clamp(46px,3.4vw,58px);background:var(--accent);border-color:transparent;color:#fff;flex:none}
+    .circ--lg svg{width:19px;height:19px}
+    .circ--lg:hover{background:var(--accent-deep);color:#fff}
+
+    /* FOOTER — menus in a light-blue container, socials as light-orange pills */
+    .foot{padding:0 clamp(16px,1.6vw,34px) clamp(20px,2vw,38px);display:flex;flex-direction:column;gap:var(--gap)}
+    .foot__menus{background:var(--tint-b);color:var(--on-tint);border-radius:var(--r-card);padding:clamp(24px,2.6vw,52px);display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr;gap:clamp(20px,2vw,40px)}
+    .foot__brand .logo{font-size:1.8rem}
+    .foot__brand p{margin-top:12px;font-size:.9rem;opacity:.7;max-width:26ch}
+    .fcol h5{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;opacity:.55;font-weight:600;margin-bottom:14px}
+    .fcol a{display:block;font-size:.94rem;margin-bottom:10px;opacity:.85;transition:opacity .25s var(--e),transform .25s var(--e)}
+    .fcol a:hover{opacity:1;transform:translateX(3px)}
+    .foot__socials{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap)}
+    .social{background:var(--tint-p);color:var(--on-tint);border-radius:999px;padding:clamp(15px,1.4vw,24px);display:flex;align-items:center;justify-content:center;gap:11px;font-size:.95rem;font-weight:500;transition:transform .3s var(--e),background-color .3s var(--e)}
+    .social:hover{transform:translateY(-2px);background:var(--tint-r)}
+    .social svg{width:18px;height:18px}
+    .foot__bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:.82rem;padding-top:6px}
+
+    /* ---------- motion ---------- */
+    [data-r]{opacity:0;transform:translateY(20px);transition:opacity .8s var(--eo) var(--d,0ms),transform .8s var(--eo) var(--d,0ms)}
+    [data-r].in{opacity:1;transform:none}
+    @media (prefers-reduced-motion:reduce){
+      [data-r]{opacity:1!important;transform:none!important;transition:none}
+      .rchart span{transform:scaleY(1)!important;transition:none}
+    }
+    @media (max-width:1100px){
+      .feats{grid-template-columns:1fr 1fr}
+      .proj,.calc{grid-template-columns:1fr}
+      .tgrid{grid-template-columns:1fr}
+      .nav__l a:not(.logo){display:none}
+    }
+    @media (max-width:620px){.feats{grid-template-columns:1fr}.srow,.sgrid,.price{grid-template-columns:1fr}}
+  </style>
+  <script>(function(){try{var t=localStorage.getItem('vertex-theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
+</head>
+<body>
+
+  <!-- hero silhouette — generated with Corner Inverter at 200x104, objectBoundingBox units -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:block;position:absolute" width="0" height="0" aria-hidden="true">
+    <defs><clipPath id="vtxClip" clipPathUnits="objectBoundingBox">
+      <path d="M0.0418,0H0.905A0.02,0.0385,0,0,1,0.925,0.0385V0.25A0.02,0.0385,0,0,0,0.945,0.2885H0.98A0.02,0.0385,0,0,1,1,0.3269V0.7692A0.02,0.0385,0,0,1,0.98,0.8077H0.87A0.02,0.0385,0,0,0,0.85,0.8462V0.9615A0.02,0.0385,0,0,1,0.83,1H0.28A0.05,0.0962,0,0,1,0.23,0.9038V0.8462A0.02,0.0385,0,0,0,0.21,0.8077H0.05A0.05,0.0962,0,0,1,0,0.7115V0.2404A0.025,0.0481,0,0,1,0.025,0.1923H0.175A0.025,0.0481,0,0,0,0.2,0.1442V0.0481A0.025,0.0481,0,0,1,0.225,0"/>
+    </clipPath></defs>
+  </svg>
+
+  <div class="panel">
+
+    <nav class="nav">
+      <div class="nav__l">
+        <a href="#">Home</a><a href="#">About</a><a href="#">Projects</a><a href="#">Solutions</a>
+      </div>
+      <a class="logo" href="#">V</a>
+      <div class="nav__r">
+        <a href="#">Book a call</a><a href="#">Invest</a>
+        <button class="tgl" id="tgl" aria-label="Toggle light and dark theme">
+          <i class="sun" data-lucide="sun"></i>
+          <i class="moon" data-lucide="moon"></i>
+        </button>
+      </div>
+    </nav>
+
+    <!-- HERO — notched image panel -->
+    <header class="hero">
+      <div class="hero__frame">
+        <div class="hero__bg" style="background-image:url('https://picsum.photos/seed/vertex-facade/1800/1200')"></div>
+        <h1 data-r>Invest in spaces<br>that matter</h1>
+        <div class="hero__cta" data-r style="--d:180ms">
+          <a class="pill pill--light" href="#">Book a call</a>
+          <a class="pill pill--dark" href="#">Invest</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- FEATURES — pastel multi-tint set -->
+    <section class="sec">
+      <div class="sec__hd" data-r>
+        <div><span class="tag">Why Vertex</span><h2>Where quality meets opportunity</h2></div>
+        <p>Vertex creates urban spaces with purpose — combining sustainable design, innovative architecture and connected communities.</p>
+      </div>
+      <div class="feats">
+        <article class="feat fy" data-r>
+          <span class="mk"><svg viewBox="0 0 40 40" fill="currentColor"><circle cx="6" cy="6" r="2.4"/><circle cx="20" cy="6" r="2.4"/><circle cx="34" cy="6" r="2.4"/><circle cx="6" cy="20" r="2.4"/><circle cx="20" cy="20" r="2.4"/><circle cx="34" cy="20" r="2.4"/><circle cx="6" cy="34" r="2.4"/><circle cx="20" cy="34" r="2.4"/><circle cx="34" cy="34" r="2.4"/></svg></span>
+          <h3>Sustainable living</h3><p>Eco-friendly designs and green technologies that reduce impact and enhance comfort.</p>
+        </article>
+        <article class="feat fb" data-r style="--d:90ms">
+          <span class="mk"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 4v32M4 20h32M9 9l22 22M31 9L9 31"/></svg></span>
+          <h3>Smart investments</h3><p>Maximise returns with properties designed for long-term growth and market value.</p>
+        </article>
+        <article class="feat fp" data-r style="--d:180ms">
+          <span class="mk"><svg viewBox="0 0 40 40" fill="currentColor"><circle cx="8" cy="8" r="2.4"/><circle cx="20" cy="8" r="2.4"/><circle cx="32" cy="8" r="2.4"/><circle cx="8" cy="20" r="2.4"/><circle cx="20" cy="20" r="2.4"/><circle cx="32" cy="20" r="2.4"/><circle cx="8" cy="32" r="2.4"/><circle cx="20" cy="32" r="2.4"/><circle cx="32" cy="32" r="2.4"/></svg></span>
+          <h3>Connected people</h3><p>Thoughtfully planned neighbourhoods that foster interaction, accessibility and vibrant city life.</p>
+        </article>
+        <article class="feat fr" data-r style="--d:270ms">
+          <span class="mk"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="6" y="6" width="28" height="28" rx="8"/><path d="M14 20h12M20 14v12"/></svg></span>
+          <h3>Premium design</h3><p>Superior construction, innovative architecture and attention to detail in every project.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- PROJECT — photo + spec mosaic -->
+    <section class="sec" style="padding-top:0">
+      <div class="sec__hd" data-r><div><span class="tag">Featured project</span><h2>Zenith Plaza</h2></div></div>
+      <div class="proj">
+        <div class="proj__media" data-r style="background-image:url('https://picsum.photos/seed/vertex-tower/1200/1400')">
+          <h3 class="proj__name">Zenith Plaza<small>Residential / Premium / Urban</small></h3>
+          <div class="proj__loc"><b>Location</b><span>125 Riverside Avenue, Downtown District, Dubai, UAE</span></div>
+        </div>
+        <div class="specs">
+          <div class="srow">
+            <div class="scard" data-r style="--d:80ms"><b>Completion date</b><span>Q3 2026</span></div>
+            <div class="scard" data-r style="--d:140ms"><b>Status</b><span>Pre-sales open</span></div>
+          </div>
+          <div class="sgroup" data-r style="--d:200ms">
+            <div class="sgrid">
+              <div><b>Site Area</b><span class="num">4,500 m²</span></div>
+              <div class="hot"><b>Construction Stage</b><span class="num" data-count="65" data-suffix="%">65%</span></div>
+              <div><b>Type</b><span>Residential</span></div>
+              <div><b>Structure</b><span>2 Towers</span></div>
+            </div>
+            <div class="sfoot"><div><b style="display:block;font-size:.72rem;color:var(--muted);font-weight:500;margin-bottom:4px">Developer</b><span style="font-size:1.05rem;font-weight:500">URBAN CREST™</span></div><span class="badge">URBAN<br>CREST</span></div>
+          </div>
+          <div class="price" data-r style="--d:260ms">
+            <div class="plan">
+              <svg viewBox="0 0 200 130" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="6" y="6" width="188" height="118"/><path d="M78 6v54M6 60h72M78 34h116M124 60v64M78 92h46"/>
+                <rect x="14" y="68" width="24" height="18"/><rect x="140" y="14" width="30" height="14"/>
+              </svg>
+            </div>
+            <div>
+              <b style="display:block;font-size:.72rem;color:var(--muted);font-weight:500;margin-bottom:5px">Starting Price</b>
+              <span class="num" style="font-size:clamp(1.3rem,1.8vw,2.1rem);font-weight:600">$450,000</span>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px">
+                <div><b style="display:block;font-size:.72rem;color:var(--muted);font-weight:500">Executive (1BR)</b><span class="num" style="font-size:.92rem">70 m²</span></div>
+                <div style="display:flex;gap:7px">
+                  <span class="circ" aria-label="Previous unit"><i data-lucide="arrow-left"></i></span>
+                  <span class="circ" aria-label="Next unit"><i data-lucide="arrow-right"></i></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALCULATOR — forms + chart -->
+    <section class="sec" style="padding-top:0" id="s-calc">
+      <div class="sec__hd" data-r><div><span class="tag">Smart investment insights</span><h2>Calculate your investment return</h2></div></div>
+      <div class="calc">
+        <div>
+          <div class="fgroup" data-r><span class="flabel">Apartment type</span>
+            <div class="fpills"><button>1 Bedroom</button><button class="on">2 Bedrooms</button><button>3 Bedrooms</button><button>Penthouse</button></div>
+          </div>
+          <div class="fgroup" data-r style="--d:70ms"><span class="flabel">Floor</span>
+            <div class="slider" style="--v:42%"><i></i><b></b></div><div class="sscale"><span>1</span><span>34</span></div>
+          </div>
+          <div class="fgroup" data-r style="--d:140ms"><span class="flabel">Size (m²)</span>
+            <div class="slider" style="--v:58%"><i></i><b></b></div><div class="sscale"><span>40</span><span>210</span></div>
+          </div>
+          <div class="fgroup" data-r style="--d:210ms"><span class="flabel">Investment period</span>
+            <div class="fpills"><button>1Y</button><button>2Y</button><button>5Y</button><button class="on">10Y</button><button>20Y</button></div>
+          </div>
+          <div class="fgroup" data-r style="--d:280ms"><span class="flabel">Expected rental yield (%)</span>
+            <div class="slider" style="--v:64%"><i></i><b></b></div><div class="sscale"><span>0</span><span>12</span></div>
+          </div>
+          <div class="fgroup" data-r style="--d:350ms" ><span class="flabel">Down payment (%)</span>
+            <div class="slider" style="--v:35%"><i></i><b></b></div><div class="sscale"><span>0</span><span>100</span></div>
+          </div>
+        </div>
+        <div class="res" data-r style="--d:200ms">
+          <h4>Results</h4>
+          <div class="rchart">
+            <span style="height:22%"></span><span style="height:28%"></span><span style="height:33%"></span><span style="height:39%"></span>
+            <span style="height:46%"></span><span style="height:52%"></span><span style="height:58%"></span><span style="height:65%"></span>
+            <span style="height:71%"></span><span style="height:78%"></span><span style="height:86%"></span><span style="height:100%"></span>
+          </div>
+          <div class="rgrid">
+            <div><b>Total invested</b><span class="num" data-count="61425" data-prefix="$">$61,425</span></div>
+            <div><b>Expected ROI</b><span class="num" data-count="57.6" data-dec="1" data-suffix="%">57.6%</span></div>
+            <div><b>Payback period</b><span class="num">~5.3 Y</span></div>
+            <div><b>Monthly income</b><span class="num" data-count="307" data-prefix="$">$307</span></div>
+          </div>
+          <small>This calculation is only an indication — we will refine specific benefits, calculations and rental yields after a through consultation.</small>
+          <a class="pill pill--light" href="#">Book a call</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="sec" style="padding-top:0">
+      <div class="sec__hd" data-r><div><span class="tag">Trusted</span><h2>Trusted by our residents and investors</h2></div></div>
+      <div class="tgrid">
+        <article class="tcard" data-r><span class="stars">★★★★★</span><p>"Vertex transformed our concept into an architectural masterpiece that exceeded all expectations."</p><div class="tby"><i style="background-image:url('https://picsum.photos/seed/vx1/80')"></i><div><b>Michael Chen</b><s>CEO, Urban Developments Inc.</s></div></div></article>
+        <article class="tcard" data-r style="--d:90ms"><span class="stars">★★★★☆</span><p>"The attention to sustainable detail in Horizon Towers is unmatched. They aren't just building flats — they're building the future."</p><div class="tby"><i style="background-image:url('https://picsum.photos/seed/vx2/80')"></i><div><b>Sarah Jenkins</b><s>CEO, Eco-Investor</s></div></div></article>
+        <article class="tcard" data-r style="--d:180ms"><span class="stars">★★★★★</span><p>"Professionalism and integrity define every interaction I've had with the Vertex team. A truly seamless experience."</p><div class="tby"><i style="background-image:url('https://picsum.photos/seed/vx3/80')"></i><div><b>David Vora</b><s>Homeowner</s></div></div></article>
+      </div>
+    </section>
+
+    <section class="end" data-r>
+      <h2>Build tomorrow's landscapes today</h2>
+      <p>Explore premium developments and investment opportunities with Vertex.</p>
+      <label class="subscribe">
+        <input type="email" placeholder="Enter your email address" aria-label="Email address" />
+        <button class="circ circ--lg" aria-label="Subscribe"><i data-lucide="arrow-right"></i></button>
+      </label>
+    </section>
+
+    <footer class="foot" data-r>
+      <div class="foot__menus">
+        <div class="foot__brand">
+          <a class="logo" href="#">V</a>
+          <p>Vertex creates urban spaces with purpose — sustainable, connected and built to last.</p>
+        </div>
+        <div class="fcol">
+          <h5>Explore</h5>
+          <a href="#">Projects</a><a href="#">Solutions</a><a href="#">About</a>
+        </div>
+        <div class="fcol">
+          <h5>Company</h5>
+          <a href="#">Careers</a><a href="#">Journal</a><a href="#">Contact us</a>
+        </div>
+        <div class="fcol">
+          <h5>Info</h5>
+          <a href="mailto:info@vertex-build.com">info@vertex_build.com</a>
+          <a href="tel:+12125558473">+1 (212) 555-8473</a>
+        </div>
+      </div>
+      <div class="foot__socials">
+        <a class="social" href="#"><i data-lucide="instagram"></i>Instagram</a>
+        <a class="social" href="#"><i data-lucide="x"></i>X</a>
+        <a class="social" href="#"><i data-lucide="facebook"></i>Facebook</a>
+      </div>
+      <div class="foot__bar"><span>© 2026 Vertex</span><span>Real estate / Investment platform</span></div>
+    </footer>
+  </div>
+
+  <script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script>if(window.lucide)lucide.createIcons({attrs:{"stroke-width":2}});</script>
+<script>
+  (function(){
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var t = document.getElementById('tgl');
+    if (t) t.addEventListener('click', function(){
+      var n = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      try { localStorage.setItem('vertex-theme', n); } catch(e){}
+    });
+
+    function fmt(v, el){
+      var dec = +(el.getAttribute('data-dec') || 0),
+          pre = el.getAttribute('data-prefix') || '',
+          suf = el.getAttribute('data-suffix') || '';
+      var s = dec ? v.toFixed(dec) : Math.round(v).toLocaleString('en-US');
+      return pre + s + suf;
+    }
+    function countUp(el){
+      var end = parseFloat(el.getAttribute('data-count')) || 0, dur = 1200, t0 = null;
+      function step(ts){
+        if (t0 === null) t0 = ts;
+        var p = Math.min((ts - t0)/dur, 1);
+        el.textContent = fmt(end * (1 - Math.pow(1 - p, 3)), el);
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    function activate(el){
+      el.classList.add('in');
+      if (el.hasAttribute('data-count')) countUp(el);
+      var counts = el.querySelectorAll ? el.querySelectorAll('[data-count]') : [];
+      for (var i=0;i<counts.length;i++) countUp(counts[i]);
+    }
+
+    var targets = [].slice.call(document.querySelectorAll('[data-r]'));
+    if (reduce || !('IntersectionObserver' in window)) {
+      targets.forEach(function(el){ el.classList.add('in'); });
+      [].slice.call(document.querySelectorAll('[data-count]')).forEach(function(el){
+        el.textContent = fmt(parseFloat(el.getAttribute('data-count')), el);
+      });
+    } else {
+      var io = new IntersectionObserver(function(en){
+        en.forEach(function(e){ if (e.isIntersecting) { activate(e.target); io.unobserve(e.target); } });
+      }, { threshold:.14, rootMargin:'0px 0px -5% 0px' });
+      targets.forEach(function(el){ io.observe(el); });
+    }
+  })();
+  </script>
+</body>
+</html>

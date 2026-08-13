@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vita — retreats catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ------------------------------------------------------------------
+       Design system (from the VITA reference):
+       · flat colour only — NO gradients
+       · full-width, no centred container
+       · NO margins — padding only
+       · 1px hairline borders are the ONLY separators
+       · zero border-radius on structure (pills only for filter chips)
+       Motion follows the same logic: rules DRAW, cells stagger, content masks.
+       ------------------------------------------------------------------ */
+    :root{
+      /* ---- fluid layout tokens (theme-independent) ----
+         the whole layout scales with the viewport, laptop → ultrawide */
+      --col:clamp(250px,16vw,580px);
+      --pad:clamp(20px,2vw,72px);
+      --hdr:clamp(66px,4.2vw,104px);
+      --sans:'Hanken Grotesk',sans-serif;
+      --e:cubic-bezier(.2,.8,.2,1);
+      --eo:cubic-bezier(.16,1,.3,1);
+
+      /* ---- colour: DARK (default) ---- */
+      color-scheme:dark;
+      --bg:#040A0C;
+      --bg-2:#070F11;
+      --surface:#0E1B1E;
+      --line:rgba(255,255,255,.10);
+      --line-strong:rgba(255,255,255,.26);
+      --ink:#FEFEFE;
+      --muted:#8D9A9C;
+      --muted-2:#66757A;
+      --accent:#40A895;
+      --on-accent:#04120E;
+      --star:#E4B65C;
+      --hover:rgba(255,255,255,.03);
+      --hover-row:rgba(255,255,255,.02);
+      --teal:var(--accent); /* legacy alias */
+    }
+    /* ---- colour: LIGHT (same language, re-skinned — not a mechanical inversion) ---- */
+    html[data-theme="light"]{
+      color-scheme:light;
+      --bg:#FFFFFF;
+      --bg-2:#F4F6F5;
+      --surface:#DFE6E4;
+      --line:rgba(8,20,22,.14);
+      --line-strong:rgba(8,20,22,.30);
+      --ink:#081416;
+      --muted:#556365;
+      --muted-2:#8A9698;
+      --accent:#17786A;
+      --on-accent:#FFFFFF;
+      --star:#A9781F;
+      --hover:rgba(8,20,22,.035);
+      --hover-row:rgba(8,20,22,.022);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh}
+    a{color:inherit;text-decoration:none}
+    button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+    h1,h2,h3{font-weight:700;line-height:1.06;letter-spacing:-.02em}
+    .stars{color:var(--star);letter-spacing:.5px}
+
+    /* ================= MOTION PRIMITIVES ================= */
+    /* generic fade-up, delay via --d */
+    [data-in]{opacity:0;transform:translateY(15px);transition:opacity .75s var(--eo) var(--d,0ms),transform .75s var(--eo) var(--d,0ms)}
+    body.ready [data-in]{opacity:1;transform:none}
+    /* a rule that draws itself */
+    .rule-x{position:relative}
+    .rule-x::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--line);transform:scaleX(0);transform-origin:left;transition:transform 1.1s var(--eo) var(--d,0ms)}
+    body.ready .rule-x::after{transform:scaleX(1)}
+    .rule-y{position:relative}
+    .rule-y::after{content:"";position:absolute;top:0;right:-1px;width:1px;height:100%;background:var(--line);transform:scaleY(0);transform-origin:top;transition:transform 1.1s var(--eo) var(--d,0ms)}
+    body.ready .rule-y::after{transform:scaleY(1)}
+    /* word mask for the headline */
+    .w{display:inline-block;overflow:hidden;vertical-align:top}
+    .w>i{display:inline-block;font-style:inherit;transform:translateY(108%);transition:transform .95s var(--eo) var(--d,0ms)}
+    body.ready .w>i{transform:none}
+
+    /* ================= HEADER ================= */
+    .hdr{display:flex;align-items:stretch;background:var(--bg-2);position:sticky;top:0;z-index:50}
+    .hdr__logo{width:var(--col);flex:none;padding:0 var(--pad);display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.16rem;letter-spacing:-.02em;height:var(--hdr)}
+    .hdr__logo i{color:var(--teal);font-style:normal;display:inline-block;transition:transform .6s var(--e)}
+    .hdr__logo:hover i{transform:rotate(90deg)}
+    .hdr__main{flex:1;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 var(--pad)}
+    /* search: minimal like the reference — icon + word, no box, no chrome */
+    .hdr__search{display:flex;align-items:center;gap:10px;flex:none;width:clamp(150px,13vw,260px);cursor:text}
+    .hdr__search svg{width:clamp(16px,1.05vw,21px);height:clamp(16px,1.05vw,21px);flex:none;color:var(--muted-2);transition:color .3s var(--e)}
+    .hdr__search:hover svg,.hdr__search:focus-within svg{color:var(--teal)}
+    .hdr__search input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--ink);font:inherit;font-size:clamp(.92rem,.95vw,1.02rem)}
+    .hdr__search input::placeholder{color:var(--muted-2);transition:color .3s var(--e)}
+    .hdr__search:hover input::placeholder{color:var(--muted)}
+    .hdr__menu{display:flex;align-items:center;gap:28px;font-size:.9rem;color:var(--muted);font-weight:500}
+    .hdr__menu a{position:relative;transition:color .25s var(--e)}
+    .hdr__menu a::after{content:"";position:absolute;left:0;right:0;bottom:-5px;height:1px;background:var(--teal);transform:scaleX(0);transform-origin:right;transition:transform .35s var(--e)}
+    .hdr__menu a:hover{color:var(--ink)}
+    .hdr__menu a:hover::after{transform:scaleX(1);transform-origin:left}
+
+    /* theme toggle — its own header cell, so it obeys the same border grid */
+    .hdr__theme{width:var(--hdr);flex:none;border-left:1px solid var(--line);display:grid;place-items:center;color:var(--muted);transition:color .25s var(--e),background-color .25s var(--e)}
+    .hdr__theme:hover{color:var(--accent);background:var(--hover)}
+    .hdr__theme svg{width:clamp(17px,1.1vw,22px);height:clamp(17px,1.1vw,22px)}
+    .hdr__theme .moon{display:none}
+    html[data-theme="light"] .hdr__theme .sun{display:none}
+    html[data-theme="light"] .hdr__theme .moon{display:block}
+
+    /* ================= HERO ================= */
+    .hero{padding:clamp(30px,3.6vw,52px) var(--pad) clamp(28px,3.2vw,44px)}
+    .crumb{display:inline-flex;align-items:center;gap:9px;font-size:.78rem;color:var(--muted-2);font-weight:500;margin-bottom:22px}
+    .hero h1{font-size:clamp(2rem,4.3vw,9rem);max-width:39ch;font-weight:700;opacity:0}
+    body.ready .hero h1{opacity:1}
+    .hero h1 .thin{font-weight:400;color:var(--muted)}
+
+    /* ================= FILTER STRIP ================= */
+    .filter{display:flex;align-items:stretch;background:var(--bg-2)}
+    .filter__f{flex:1;min-width:0;padding:clamp(16px,1.3vw,30px) var(--pad);cursor:pointer;transition:background-color .25s var(--e)}
+    .filter__f:hover{background:var(--hover)}
+    .filter__f small{display:block;font-size:.72rem;color:var(--muted-2);font-weight:500;margin-bottom:5px}
+    .filter__f b{font-weight:600;font-size:.95rem}
+    .filter__go{width:260px;flex:none;background:var(--ink);color:var(--bg);font-weight:700;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:9px;clip-path:inset(0 100% 0 0);transition:clip-path .9s var(--eo) var(--d,0ms),opacity .3s var(--e)}
+    body.ready .filter__go{clip-path:inset(0 0 0 0)}
+    .filter__go:hover{opacity:.88}
+    .filter__go em{font-style:normal;transition:transform .3s var(--e)}
+    .filter__go:hover em{transform:translateX(4px)}
+
+    /* ================= BODY : sidebar | results ================= */
+    .body{display:flex;align-items:stretch;flex:1}
+    .side{width:var(--col);flex:none}
+    .side__in{padding:var(--pad);position:sticky;top:calc(var(--hdr) + 20px)}
+    .side h4{font-size:.8rem;font-weight:600;color:var(--ink);margin-bottom:16px}
+    .side h4.mt{margin-top:34px}
+    .side__list{display:flex;flex-direction:column;align-items:flex-start;gap:11px}
+    .side__list button{font-size:.88rem;color:var(--muted);font-weight:400;text-align:left;transition:color .25s var(--e),transform .25s var(--e)}
+    .side__list button:hover{color:var(--ink);transform:translateX(3px)}
+    .side__list button.all{color:var(--muted-2);font-size:.82rem}
+    .side__chips{display:flex;flex-wrap:wrap;gap:8px}
+    /* ONE chip component shared by every filter group — always a pill, never a box */
+    .side__list button.on,
+    .side__chips button{padding:7px 14px;border-radius:999px;border:1px solid transparent;transition:border-color .25s var(--e),color .25s var(--e),background-color .25s var(--e),transform .25s var(--e)}
+    .side__chips button{border-color:var(--line);color:var(--muted);font-size:.83rem}
+    .side__chips button:hover{border-color:var(--teal);color:var(--ink)}
+    .side__list button.on:hover{transform:none}
+    /* single shared active state */
+    .side__list button.on,
+    .side__chips button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+
+    .results{flex:1;min-width:0}
+
+    /* ================= RESULT ROW ================= */
+    .row{display:grid;grid-template-columns:clamp(300px,22vw,820px) 1fr;gap:clamp(20px,1.8vw,60px);padding:var(--pad);position:relative;transition:background-color .3s var(--e)}
+    .row:hover{background:var(--hover-row)}
+    .row::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line);transform:scaleX(0);transform-origin:left;transition:transform 1.1s var(--eo) .1s}
+    .row.in::after{transform:scaleX(1)}
+    /* photo: clip-wipe on reveal, zoom on hover, parallax on scroll (background-position) */
+    .row__pic{position:relative;overflow:hidden;height:clamp(200px,14vw,520px);background:var(--surface);clip-path:inset(0 0 100% 0);transition:clip-path 1.1s var(--eo)}
+    .row.in .row__pic{clip-path:inset(0 0 0 0)}
+    .row__pic .im{position:absolute;inset:0;background-size:cover;background-position:center 50%;transform:scale(1.02);transition:transform .9s var(--e)}
+    .row:hover .row__pic .im{transform:scale(1.08)}
+    .row__body{display:flex;flex-direction:column;min-width:0}
+    /* staggered content on reveal */
+    .row__top,.row h3,.row__foot{opacity:0;transform:translateY(16px);transition:opacity .75s var(--eo),transform .75s var(--eo)}
+    .row.in .row__top{opacity:1;transform:none;transition-delay:.14s}
+    .row.in h3{opacity:1;transform:none;transition-delay:.22s}
+    .row.in .row__foot{opacity:1;transform:none;transition-delay:.32s}
+    .row__top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
+    .rate{display:inline-flex;align-items:center;gap:8px;font-size:.86rem;font-weight:600}
+    .rate s{text-decoration:none;color:var(--muted-2);font-weight:400}
+    .price{text-align:right;flex:none}
+    .price small{display:block;font-size:.74rem;color:var(--muted-2);margin-bottom:2px}
+    .price b{font-size:clamp(1.5rem,1.9vw,3.8rem);font-weight:700;letter-spacing:-.02em}
+    .row h3{font-size:clamp(1.3rem,1.7vw,3.4rem);margin-top:clamp(10px,.7vw,26px);max-width:24ch}
+    .row__rule{border-top:1px solid var(--line);margin-top:18px;transform:scaleX(0);transform-origin:left;transition:transform 1s var(--eo) .26s}
+    .row.in .row__rule{transform:scaleX(1)}
+    .row__foot{display:flex;align-items:flex-start;justify-content:space-between;gap:26px;padding-top:16px}
+    .meta{display:flex;flex-direction:column;gap:clamp(9px,.6vw,16px)}
+    .meta span{display:flex;align-items:center;gap:9px;font-size:clamp(.86rem,.95vw,1.5rem);color:var(--muted)}
+    .meta span i{font-style:normal;color:var(--muted-2);width:14px;flex:none}
+    .meta span s{text-decoration:none;color:var(--muted-2)}
+    /* CTAs stacked vertically */
+    .acts{display:flex;flex-direction:column;gap:clamp(9px,.6vw,16px);flex:none;width:clamp(170px,11vw,360px)}
+    .act{display:flex;align-items:stretch;border:1px solid var(--line);transition:border-color .25s var(--e),background-color .25s var(--e),opacity .25s var(--e)}
+    .act span{flex:1;padding:10px 15px;font-size:.86rem;font-weight:600}
+    .act i{font-style:normal;width:38px;flex:none;border-left:1px solid var(--line);display:grid;place-items:center;font-size:.72rem;color:var(--muted);transition:transform .3s var(--e)}
+    .act:hover i{transform:translateX(3px)}
+    .act--pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+    .act--pri i{border-left-color:color-mix(in srgb,var(--on-accent) 24%,transparent);color:color-mix(in srgb,var(--on-accent) 76%,transparent)}
+    .act--pri:hover{opacity:.9}
+    .act:not(.act--pri):hover{border-color:var(--line-strong);background:var(--hover)}
+
+    /* ================= FOOTER ================= */
+    .foot{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px var(--pad);border-top:1px solid var(--line);color:var(--muted-2);font-size:.84rem}
+
+    /* ================= REDUCED MOTION ================= */
+    @media (prefers-reduced-motion:reduce){
+      [data-in],body.ready [data-in]{opacity:1;transform:none;transition:none}
+      .rule-x::after,.rule-y::after,.row::after{transform:none!important;transition:none}
+      .hero h1,body.ready .hero h1{opacity:1}
+      .filter__go{clip-path:none!important;transition:none}
+      .row__pic{clip-path:none!important;transition:none}
+      .row__top,.row h3,.row__foot{opacity:1!important;transform:none!important;transition:none}
+      .row__rule{transform:none!important;transition:none}
+      .w>i{transform:none!important;transition:none}
+    }
+
+    /* ultrawide: lift the type scale so rem-based text keeps pace with the fluid layout */
+    @media (min-width:2100px){ :root{font-size:18px} }
+    @media (min-width:2700px){ :root{font-size:20px} }
+    @media (min-width:3200px){ :root{font-size:22px} }
+
+    @media (max-width:1180px){
+      :root{--col:250px}
+      .filter{flex-wrap:wrap}.filter__f{flex:1 1 40%}.filter__go{width:100%;padding:16px}
+      .acts{width:160px}
+    }
+    @media (max-width:900px){
+      .hdr__logo{width:auto}.hdr__menu{display:none}
+      .body{flex-direction:column}
+      .side{width:100%;border-bottom:1px solid var(--line)}
+      .side .rule-y::after,.side.rule-y::after{display:none}
+      .side__in{position:static}
+      .row{grid-template-columns:1fr}.row__pic{height:220px}
+      .row__foot{flex-direction:column}.acts{width:100%;flex-direction:row}.act{flex:1}
+    }
+  </style>
+  <!-- set theme before first paint so there's no flash -->
+  <script>(function(){try{var t=localStorage.getItem('vita-theme');if(!t)t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+</head>
+<body>
+
+  <header class="hdr rule-x" style="--d:200ms">
+    <a class="hdr__logo rule-y" href="#" style="--d:260ms"><i data-in>✱</i><span data-in style="--d:60ms">Vita Travels</span></a>
+    <div class="hdr__main">
+      <label class="hdr__search" data-in style="--d:120ms">
+        <i data-lucide="search"></i>
+        <input type="text" placeholder="Search" aria-label="Search retreats" />
+      </label>
+      <nav class="hdr__menu">
+        <a href="#" data-in style="--d:140ms">Quiz</a>
+        <a href="#" data-in style="--d:180ms">Retreats</a>
+        <a href="#" data-in style="--d:220ms">Packages</a>
+        <a href="#" data-in style="--d:260ms">Coaches</a>
+        <a href="#" data-in style="--d:300ms">Resources</a>
+        <a href="#" data-in style="--d:340ms">About Us</a>
+        <a href="#" data-in style="--d:380ms">Contacts</a>
+      </nav>
+    </div>
+    <button class="hdr__theme" id="themeBtn" aria-label="Toggle light and dark theme">
+      <i data-lucide="sun"></i>
+      <i data-lucide="moon"></i>
+    </button>
+  </header>
+
+  <section class="hero rule-x" style="--d:700ms">
+    <span class="crumb" data-in style="--d:280ms">⊞ Retreats Catalog</span>
+    <h1>Explore retreats <span class="thin">we've personally vetted across 100+ destinations worldwide</span></h1>
+  </section>
+
+  <div class="filter rule-x" style="--d:1080ms">
+    <div class="filter__f rule-y" data-in style="--d:760ms"><small>Activity / Goal</small><b>Yoga, Surf, Cycling</b></div>
+    <div class="filter__f rule-y" data-in style="--d:830ms"><small>Location</small><b>Where to</b></div>
+    <div class="filter__f rule-y" data-in style="--d:900ms"><small>Dates / Duration</small><b>Anytime / 3 days</b></div>
+    <div class="filter__f rule-y" data-in style="--d:970ms"><small>Budget</small><b>$0–8000</b></div>
+    <button class="filter__go" style="--d:1020ms">Explore <em>→</em></button>
+  </div>
+
+  <div class="body">
+    <aside class="side rule-y" style="--d:900ms"><div class="side__in">
+      <h4 data-in style="--d:940ms">Popular Categories</h4>
+      <div class="side__list">
+        <button class="on" data-in style="--d:980ms">Yoga Retreats</button>
+        <button data-in style="--d:1020ms">Detox Retreats</button>
+        <button data-in style="--d:1060ms">Luxury Retreats</button>
+        <button data-in style="--d:1100ms">Spiritual Retreats</button>
+        <button data-in style="--d:1140ms">Wellness Retreats</button>
+        <button data-in style="--d:1180ms">Introvert Retreats</button>
+        <button class="all" data-in style="--d:1220ms">Show all</button>
+      </div>
+      <h4 class="mt" data-in style="--d:1260ms">Skill Level</h4>
+      <div class="side__chips">
+        <button class="on" data-in style="--d:1300ms">Beginner</button>
+        <button data-in style="--d:1340ms">Intermediate</button>
+        <button data-in style="--d:1380ms">Advanced</button>
+      </div>
+      <h4 class="mt" data-in style="--d:1420ms">Duration</h4>
+      <div class="side__chips">
+        <button data-in style="--d:1460ms">Weekend</button>
+        <button class="on" data-in style="--d:1500ms">1 week</button>
+        <button data-in style="--d:1540ms">2+ weeks</button>
+      </div>
+    </div></aside>
+
+    <div class="results">
+
+      <article class="row">
+        <div class="row__pic"><div class="im" style="background-image:url('https://picsum.photos/seed/vita-norway/900/650')"></div></div>
+        <div class="row__body">
+          <div class="row__top">
+            <span class="rate"><span class="stars">★★★★★</span> 4.9 <s>132 reviews</s></span>
+            <div class="price"><small>from</small><b data-count="1000">$1,000</b></div>
+          </div>
+          <h3>7 Day Mystic Mountain Retreat in Norway</h3>
+          <div class="row__rule"></div>
+          <div class="row__foot">
+            <div class="meta">
+              <span><i>◍</i>Gaura Humoruluk, Norway</span>
+              <span><i>◷</i>Oct 15 – 21, 2025 <s>(7 days, 6 nights)</s></span>
+              <span><i>☺</i>12 guests</span>
+            </div>
+            <div class="acts">
+              <a class="act act--pri" href="#"><span>Book Now</span><i>▸</i></a>
+              <a class="act" href="#"><span>Details</span><i>▸</i></a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="row">
+        <div class="row__pic"><div class="im" style="background-image:url('https://picsum.photos/seed/vita-tuscany/900/650')"></div></div>
+        <div class="row__body">
+          <div class="row__top">
+            <span class="rate"><span class="stars">★★★★★</span> 5.0 <s>120 reviews</s></span>
+            <div class="price"><small>from</small><b data-count="1328">$1,328</b></div>
+          </div>
+          <h3>Yoga &amp; Outdoor Retreat in Tuscany, Italy</h3>
+          <div class="row__rule"></div>
+          <div class="row__foot">
+            <div class="meta">
+              <span><i>◍</i>Province of Grosseto, Tuscany, Italy</span>
+              <span><i>◷</i>Oct 30 – Nov 06, 2025 <s>(7 days, 6 nights)</s></span>
+              <span><i>☺</i>10 guests</span>
+            </div>
+            <div class="acts">
+              <a class="act act--pri" href="#"><span>Book Now</span><i>▸</i></a>
+              <a class="act" href="#"><span>Details</span><i>▸</i></a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="row">
+        <div class="row__pic"><div class="im" style="background-image:url('https://picsum.photos/seed/vita-bali/900/650')"></div></div>
+        <div class="row__body">
+          <div class="row__top">
+            <span class="rate"><span class="stars">★★★★★</span> 4.8 <s>388 reviews</s></span>
+            <div class="price"><small>from</small><b data-count="980">$980</b></div>
+          </div>
+          <h3>Canopy Detox &amp; Reset Villa in Ubud, Bali</h3>
+          <div class="row__rule"></div>
+          <div class="row__foot">
+            <div class="meta">
+              <span><i>◍</i>Ubud, Gianyar Regency, Indonesia</span>
+              <span><i>◷</i>Nov 02 – 09, 2025 <s>(7 days, 6 nights)</s></span>
+              <span><i>☺</i>8 guests</span>
+            </div>
+            <div class="acts">
+              <a class="act act--pri" href="#"><span>Book Now</span><i>▸</i></a>
+              <a class="act" href="#"><span>Details</span><i>▸</i></a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="row">
+        <div class="row__pic"><div class="im" style="background-image:url('https://picsum.photos/seed/vita-morocco/900/650')"></div></div>
+        <div class="row__body">
+          <div class="row__top">
+            <span class="rate"><span class="stars">★★★★★</span> 4.9 <s>156 reviews</s></span>
+            <div class="price"><small>from</small><b data-count="1150">$1,150</b></div>
+          </div>
+          <h3>Dunes Wellness Riad in Merzouga, Morocco</h3>
+          <div class="row__rule"></div>
+          <div class="row__foot">
+            <div class="meta">
+              <span><i>◍</i>Merzouga, Drâa-Tafilalet, Morocco</span>
+              <span><i>◷</i>Nov 12 – 18, 2025 <s>(6 days, 5 nights)</s></span>
+              <span><i>☺</i>14 guests</span>
+            </div>
+            <div class="acts">
+              <a class="act act--pri" href="#"><span>Book Now</span><i>▸</i></a>
+              <a class="act" href="#"><span>Details</span><i>▸</i></a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+
+  <footer class="foot">
+    <span>© 2026 Vita Travels</span>
+    <span>Catalog page</span>
+  </footer>
+
+  <script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script>if(window.lucide)lucide.createIcons({attrs:{"stroke-width":2}});</script>
+<script>
+  (function(){
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var rows = [].slice.call(document.querySelectorAll('.row'));
+
+    /* ---------- 0. light / dark toggle ---------- */
+    var tb = document.getElementById('themeBtn');
+    if (tb) tb.addEventListener('click', function(){
+      var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('vita-theme', next); } catch(e){}
+    });
+
+    /* ---------- 1. split the headline into masked words ---------- */
+    function splitWords(el){
+      var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false), nodes = [], n;
+      while ((n = walker.nextNode())) nodes.push(n);
+      nodes.forEach(function(node){
+        var frag = document.createDocumentFragment();
+        node.nodeValue.split(/(\s+)/).forEach(function(part){
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          var w = document.createElement('span'); w.className = 'w';
+          var i = document.createElement('i'); i.textContent = part;
+          w.appendChild(i); frag.appendChild(w);
+        });
+        node.parentNode.replaceChild(frag, node);
+      });
+    }
+    var h1 = document.querySelector('.hero h1');
+    if (h1 && !reduce) {
+      splitWords(h1);
+      [].forEach.call(h1.querySelectorAll('.w>i'), function(i, k){
+        i.style.setProperty('--d', (330 + k * 34) + 'ms');
+      });
+    }
+
+    /* ---------- 2. fire the intro once fonts are settled ---------- */
+    function start(){ requestAnimationFrame(function(){ document.body.classList.add('ready'); }); }
+    if (reduce) { start(); }
+    else if (document.fonts && document.fonts.ready) { document.fonts.ready.then(start); setTimeout(start, 1200); }
+    else { start(); }
+
+    /* ---------- 3. price count-up ---------- */
+    function countUp(el){
+      var end = parseFloat(el.getAttribute('data-count')) || 0, dur = 1100, t0 = null;
+      function step(ts){
+        if (t0 === null) t0 = ts;
+        var p = Math.min((ts - t0) / dur, 1), v = Math.round(end * (1 - Math.pow(1 - p, 3)));
+        el.textContent = '$' + v.toLocaleString('en-US');
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    /* ---------- 4. reveal rows on scroll ---------- */
+    function revealRow(row){
+      row.classList.add('in');
+      var p = row.querySelector('[data-count]');
+      if (p && !reduce) setTimeout(function(){ countUp(p); }, 260);
+    }
+    if (reduce || !('IntersectionObserver' in window)) {
+      rows.forEach(function(r){ r.classList.add('in'); });
+    } else {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (e.isIntersecting) { revealRow(e.target); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.16, rootMargin: '0px 0px -5% 0px' });
+      /* hold until the intro has played, so the first row doesn't race it */
+      setTimeout(function(){ rows.forEach(function(r){ io.observe(r); }); }, 950);
+    }
+
+    /* ---------- 5. photo parallax (background-position, so hover-zoom still works) ---------- */
+    if (!reduce) {
+      var ims = [].slice.call(document.querySelectorAll('.row__pic')), ticking = false;
+      function park(){
+        var vh = window.innerHeight;
+        ims.forEach(function(pic){
+          var r = pic.getBoundingClientRect();
+          if (r.bottom < -100 || r.top > vh + 100) return;
+          var prog = (r.top + r.height / 2 - vh / 2) / vh;   /* -0.5 … 0.5 */
+          var im = pic.firstElementChild;
+          if (im) im.style.backgroundPosition = 'center ' + (50 + prog * 14).toFixed(2) + '%';
+        });
+        ticking = false;
+      }
+      window.addEventListener('scroll', function(){
+        if (!ticking) { ticking = true; requestAnimationFrame(park); }
+      }, { passive: true });
+      window.addEventListener('resize', park, { passive: true });
+      park();
+    }
+  })();
+  </script>
+</body>
+</html>

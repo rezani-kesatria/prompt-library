@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EcoVolt — go solar, save more</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ------------------------------------------------------------------
+       Design language (EcoVolt, One Week Wonders — read from a 25s video
+       walkthrough + the full-page composite):
+       · SIGNATURE: TWO-TONE TYPE — dark + grey words inside one sentence,
+         reused at display scale for the big stat (450 blue / K black)
+       · FULL viewport width; the inset comes from INSIDE PADDING, never
+         from a narrower column
+       · NO MARGINS — everything separated by BORDERS and SOLID BACKGROUNDS
+       · nav is deliberately NARROW + centred; active page = SOLID BLACK
+       · dark sections are FULL BLEED, no radius
+       · ZERO elevation · pill buttons · circular icon badges · dashed rings
+       ------------------------------------------------------------------ */
+    :root{
+      --pad:clamp(18px,4vw,76px);
+      --r-card:clamp(16px,1.8vw,26px);
+      --sans:'Instrument Sans',sans-serif;
+      --e:cubic-bezier(.2,.8,.2,1);
+      --eo:cubic-bezier(.16,1,.3,1);
+      --eb:cubic-bezier(.34,1.32,.5,1);   /* slight overshoot — used on round objects */
+
+      color-scheme:light;
+      --bg:#FFFFFF;
+      --surface:#F2F3F5;
+      --ink:#0B0B0C;
+      --ink-2:#54585F;
+      --muted:#B9BDC4;          /* second tone of a two-tone headline */
+      --line:rgba(11,11,12,.12);
+      --accent:#2F5BFF;
+      --on-accent:#FFFFFF;
+      --dark:#080809;
+      --on-dark:#F2F3F5;
+    }
+    html[data-theme="dark"]{
+      color-scheme:dark;
+      --bg:#0A0B0C;
+      --surface:#15171A;
+      --ink:#F2F3F5;
+      --ink-2:#B2B7BE;
+      --muted:#5F646C;
+      --line:rgba(242,243,245,.14);
+      --accent:#5B7BFF;
+      --on-accent:#FFFFFF;
+      --dark:#F2F3F5;           /* inverts */
+      --on-dark:#080809;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+    button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+    img{display:block;max-width:100%}
+    h1,h2,h3{font-weight:500;line-height:1.06;letter-spacing:-.03em}
+    /* FULL width; inset comes from padding */
+    .wrap{width:100%;padding-inline:var(--pad)}
+    /* the top block (nav + hero + photo) sits tighter to the edges, with the
+       breathing room moved underneath instead */
+    .wrap--top{padding-inline:calc(var(--pad) / 2);padding-bottom:clamp(22px,3.2vw,64px)}
+    .dim{color:var(--muted)}
+
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:999px;padding:11px 22px;font-size:.86rem;font-weight:500;transition:transform .3s var(--e),opacity .3s var(--e)}
+    .btn--accent{background:var(--accent);color:var(--on-accent)}
+    .btn--light{background:var(--on-dark);color:var(--dark)}
+    .btn:hover{transform:translateY(-2px);opacity:.92}
+    .circ{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--ink);color:var(--bg);transition:transform .3s var(--e),background-color .3s var(--e)}
+    .circ:hover{transform:translateY(-2px);background:var(--accent);color:#fff}
+    .circ svg{width:16px;height:16px}
+    .circ--ghost{background:color-mix(in srgb,var(--on-dark) 22%,transparent);color:var(--on-dark)}
+    .circ--accent{background:var(--accent);color:#fff}
+    .circ--light{background:var(--on-dark);color:var(--dark)}
+    .cta-pair{display:flex;align-items:center;gap:9px}
+
+    /* ---------- NAV : narrow, centred, black active ---------- */
+    /* NAV — sticky and DIRECTION-AWARE: it slides out of the way while you
+       scroll down and comes straight back the moment you scroll up, so the
+       page reads uninterrupted but the menu is never more than a flick away.
+       Stays fully transparent when stuck — the pill floats over the content,
+       it never grows a band or a rule under it. */
+    .navbar{position:sticky;top:0;z-index:60;padding-inline:calc(var(--pad) / 2);transition:transform .42s var(--e)}
+    .navbar.is-away{transform:translateY(-101%)}
+    .nav{display:flex;justify-content:center;padding:clamp(14px,1.5vw,24px) 0}
+    .nav__in{display:inline-flex;align-items:center;gap:clamp(22px,3vw,64px);background:var(--surface);border-radius:999px;padding:6px 6px 6px 16px}
+    .burger{display:grid;gap:3.5px;padding:3px}
+    .burger i{display:block;width:15px;height:1.5px;background:var(--ink);border-radius:2px}
+    .brand{font-weight:600;font-size:.95rem;letter-spacing:-.02em}
+    .nav__l{display:flex;align-items:center;gap:11px}
+    .nav__group{display:flex;align-items:center;gap:5px}
+    .np{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:36px;border-radius:999px;font-size:.84rem;background:var(--bg);color:var(--ink);transition:background-color .25s var(--e),color .25s var(--e)}
+    .np--txt{padding:0 15px}
+    .np--ico{width:36px}
+    .np svg{width:15px;height:15px}
+    .np--on{background:var(--ink);color:var(--bg)}   /* current page = solid black */
+
+    /* ---------- HERO ---------- */
+    .hero{text-align:center;padding:clamp(24px,3.4vw,56px) 0 clamp(24px,3vw,50px)}
+    .avatars{display:flex;justify-content:center;margin-bottom:clamp(12px,1.4vw,22px)}
+    .avatars img{width:clamp(40px,3.6vw,58px);height:clamp(40px,3.6vw,58px);border-radius:50%;object-fit:cover;border:3px solid var(--bg);margin-left:-14px}
+    .avatars img:first-child{margin-left:0}
+    .avatars img:nth-child(2){width:clamp(52px,4.6vw,74px);height:clamp(52px,4.6vw,74px);z-index:2;position:relative}
+    .proof{font-size:.9rem;margin-bottom:clamp(10px,1.1vw,18px)}
+    .proof b{color:var(--accent);font-weight:600}
+    .proof span{color:var(--ink-2)}
+    .hero h1{font-size:clamp(2rem,4.6vw,4.2rem);max-width:20ch;margin:0 auto}
+    .hero .cta-pair{justify-content:center;margin-top:clamp(18px,2vw,34px)}
+
+    .shot{border-radius:var(--r-card);overflow:hidden;aspect-ratio:21/9}
+    .shot img{width:100%;height:100%;object-fit:cover}
+
+    /* ---------- separation is BORDERS, never margins ----------
+       Rules and section dividers are FULL BLEED — edge to edge across the
+       viewport. Only the CONTENT inside them is padded. */
+    .band{border-top:1px solid var(--line)}
+
+    /* ABOUT : full-bleed borders, padded columns */
+    .about{display:grid;grid-template-columns:1fr 1.15fr;border-top:1px solid var(--line)}
+    .about__l{padding:clamp(22px,2.6vw,52px) clamp(22px,2.6vw,52px) clamp(22px,2.6vw,52px) var(--pad);border-right:1px solid var(--line);display:flex;flex-direction:column}
+    .about__r{padding:clamp(22px,2.6vw,52px) var(--pad) clamp(22px,2.6vw,52px) clamp(22px,2.6vw,52px)}
+    .label{color:var(--accent);font-size:.84rem;font-weight:500;margin-bottom:clamp(10px,1.1vw,18px);display:block}
+    .about h2{font-size:clamp(1.35rem,2.4vw,2.5rem);max-width:15ch}
+    .about p{color:var(--ink-2);font-size:.93rem;max-width:54ch}
+    .bignum{font-size:clamp(3.2rem,9vw,9.5rem);line-height:.9;letter-spacing:-.055em;font-weight:500;margin-top:clamp(10px,1.2vw,22px)}
+    .bignum b{color:var(--accent);font-weight:500}
+    .eq{margin-top:auto;padding-top:clamp(24px,3vw,60px)}
+    .eq .ic{width:clamp(34px,2.8vw,44px);height:clamp(34px,2.8vw,44px);border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;margin-bottom:12px}
+    .eq .ic svg{width:16px;height:16px}
+    .eq b{font-size:.9rem;font-weight:500;display:block;max-width:18ch}
+    /* CHART — same tokens as the rest: 1px hairlines, no radius, no shadow,
+       accent blue for the "after" series, muted ink for "before" */
+    .chart{margin-top:clamp(20px,2.4vw,44px);border:1px solid var(--line);padding:clamp(14px,1.4vw,24px)}
+    .chart__hd{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:clamp(14px,1.5vw,26px)}
+    .chart__hd b{font-size:.95rem;font-weight:500;display:block}
+    .chart__hd small{color:var(--ink-2);font-size:.75rem}
+    .legend{display:flex;gap:clamp(10px,1.1vw,18px);font-size:.72rem;color:var(--ink-2)}
+    .legend span{display:inline-flex;align-items:center;gap:6px}
+    .k{width:9px;height:9px;display:inline-block}
+    .k--was{background:color-mix(in srgb,var(--ink) 16%,transparent)}
+    .k--now{background:var(--accent)}
+    .plot{display:flex;align-items:flex-end;gap:clamp(3px,.5vw,9px);height:clamp(88px,8.5vw,146px);border-bottom:1px solid var(--line)}
+    .grp{flex:1;display:flex;align-items:flex-end;gap:2px;height:100%}
+    .grp i,.grp u{flex:1;display:block}
+    .grp i{background:color-mix(in srgb,var(--ink) 13%,transparent)}
+    .grp u{background:var(--accent)}
+    .ax{display:flex;gap:clamp(3px,.5vw,9px);margin-top:7px}
+    .ax span{flex:1;text-align:center;font-size:.6rem;color:var(--muted)}
+    .chart__ft{display:flex;align-items:baseline;gap:9px;margin-top:clamp(12px,1.3vw,22px);padding-top:clamp(12px,1.3vw,22px);border-top:1px solid var(--line)}
+    .chart__ft b{font-size:clamp(1.3rem,1.9vw,2.1rem);font-weight:500;color:var(--accent);letter-spacing:-.03em}
+    .chart__ft small{color:var(--ink-2);font-size:.76rem}
+
+    /* CALCULATOR */
+    /* tall band, content pinned TOP — the height comes from bottom padding */
+    .calc__hd{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:clamp(26px,3vw,62px) 0 clamp(72px,8.5vw,180px)}
+    .calc__hd h2{font-size:clamp(1.35rem,2.4vw,2.5rem);max-width:14ch}
+    .calc{display:grid;grid-template-columns:repeat(3,1fr) 1.15fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .col{padding:clamp(24px,2.8vw,56px) clamp(14px,1.6vw,30px) clamp(54px,6.2vw,124px);border-right:1px solid var(--line);display:flex;flex-direction:column}
+    .col:first-child{padding-left:var(--pad)}
+    .col__t{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.86rem;margin-bottom:clamp(30px,3.6vw,72px)}
+    .col__t svg{width:15px;height:15px;color:var(--accent)}
+    /* ring + badge share one size scale so the badge always overlaps the
+       ring's base by half its own height, at every viewport */
+    .col{--ring:clamp(130px,11.8vw,214px);--bdg:clamp(46px,4vw,66px)}
+    .ring{width:var(--ring);height:var(--ring);border:1px dashed var(--line);border-radius:50%;margin:0 auto;display:grid;place-items:center;position:relative;text-align:center}
+    .ring b{font-size:clamp(.92rem,1.05vw,1.08rem);font-weight:400;line-height:1.3}
+    .badge{position:absolute;left:50%;bottom:calc(var(--bdg) * -.44);translate:-50% 0;width:var(--bdg);height:var(--bdg);border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--bg)}
+    .badge.b-accent{background:var(--accent);color:#fff}
+    .badge::after{content:"";position:absolute;top:2px;right:2px;width:11px;height:11px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
+    .badge.b-accent::after{background:var(--ink)}
+    .badge svg{width:calc(var(--bdg) * .42);height:calc(var(--bdg) * .42)}
+    .calc__cta{padding:clamp(24px,2.8vw,56px) var(--pad) clamp(54px,6.2vw,124px) clamp(20px,2.4vw,46px);display:flex;flex-direction:column;justify-content:center}
+    .calc__cta p{font-size:clamp(1.15rem,1.85vw,2rem);letter-spacing:-.025em;max-width:20ch}
+    .calc__cta .cta-pair{margin-top:clamp(14px,1.6vw,26px)}
+
+    /* ---------- DARK sections : FULL BLEED, no radius ---------- */
+    .dark{background:var(--dark);color:var(--on-dark);padding:clamp(34px,4.4vw,96px) 0}
+    .dark h2{font-size:clamp(1.9rem,4vw,4rem)}
+    .revs{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(20px,2.8vw,60px);margin-top:clamp(24px,3vw,56px)}
+    .rev__pic{border-radius:var(--r-card);overflow:hidden;aspect-ratio:3/4}
+    .rev__pic img{width:100%;height:100%;object-fit:cover}
+    .rev__by{font-size:.92rem;font-weight:500}
+    .rev q{display:block;quotes:none;margin-top:14px;color:color-mix(in srgb,var(--on-dark) 66%,transparent);font-size:.95rem;max-width:42ch}
+    .rev__nav{display:flex;gap:9px;margin-top:clamp(18px,2.2vw,40px)}
+    .rev__line{border-top:1px solid color-mix(in srgb,var(--on-dark) 18%,transparent);margin-top:clamp(20px,2.4vw,46px)}
+    .rev__col{display:flex;flex-direction:column}
+    /* closing line sits to the LEFT of the CTA, on one row */
+    .rev__closing{font-size:clamp(1.05rem,1.6vw,1.7rem);max-width:13ch;flex:none}
+    .rev__foot{display:flex;align-items:center;justify-content:space-between;gap:clamp(16px,2vw,40px);flex-wrap:wrap;margin-top:auto;padding-top:clamp(20px,2.4vw,46px)}
+    /* stacked avatar circles instead of a single block image */
+    .avstack{display:flex;flex:none}
+    .avstack img{width:clamp(36px,3vw,50px);height:clamp(36px,3vw,50px);border-radius:50%;object-fit:cover;border:3px solid var(--dark);margin-left:-13px}
+    .avstack img:first-child{margin-left:0}
+    /* no top border — the press bar sits in the same black field */
+    /* press logos sit as a TIGHT CENTRED CLUSTER, not spread edge to edge */
+    .press{display:flex;align-items:center;justify-content:center;gap:clamp(20px,2.4vw,46px);flex-wrap:wrap;padding-top:clamp(26px,3vw,60px);margin-top:clamp(28px,3.2vw,66px)}
+    .press img{height:clamp(18px,1.9vw,30px);width:auto;opacity:.42;filter:brightness(0) invert(1);transition:opacity .3s var(--e)}
+    html[data-theme="dark"] .press img{filter:brightness(0)}
+    .press img:hover{opacity:.75}
+
+    /* FOOTER */
+    /* NO separating line between testimonials and footer — they run as one black field */
+    .foot{background:var(--dark);color:var(--on-dark);padding:clamp(34px,4.4vw,96px) 0}
+    .foot__top{display:grid;grid-template-columns:1.5fr 1fr 1fr .8fr 1fr;gap:clamp(18px,2.2vw,44px)}
+    .foot h2{font-size:clamp(1.4rem,2.6vw,2.6rem);max-width:14ch}
+    .foot__top p{color:color-mix(in srgb,var(--on-dark) 52%,transparent);font-size:.8rem;margin-top:clamp(20px,2.4vw,48px);max-width:34ch}
+    .fcol h5{font-size:.88rem;font-weight:500;margin-bottom:15px}
+    .fcol a{display:block;font-size:.88rem;margin-bottom:11px;color:color-mix(in srgb,var(--on-dark) 55%,transparent);transition:color .25s var(--e)}
+    .fcol a:hover{color:var(--on-dark)}
+    .foot__bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:clamp(28px,3.2vw,66px);padding-top:18px;border-top:1px solid color-mix(in srgb,var(--on-dark) 14%,transparent)}
+    .foot__bar span{font-size:.78rem;color:color-mix(in srgb,var(--on-dark) 55%,transparent)}
+
+    /* ---------- bottom marquee ---------- */
+    /* the closing marquee sits on BLACK, continuing the footer field */
+    .marq{overflow:hidden;white-space:nowrap;padding:0 0 clamp(10px,1.4vw,26px);background:var(--dark)}
+    .marq__t{display:inline-block;animation:slide 26s linear infinite;font-size:clamp(3rem,9vw,9rem);letter-spacing:-.05em;font-weight:500;line-height:.9;color:color-mix(in srgb,var(--on-dark) 26%,transparent)}
+    .marq__t span{margin-right:clamp(24px,3vw,70px)}
+    @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+    .tgl{width:36px;height:36px;border-radius:999px;display:grid;place-items:center;background:var(--bg);color:var(--ink)}
+    .tgl svg{width:15px;height:15px}
+    .tgl .moon{display:none}
+    html[data-theme="dark"] .tgl .sun{display:none}
+    html[data-theme="dark"] .tgl .moon{display:block}
+
+    /* ================= MOTION =================
+       All scroll-triggered. Each section's order follows its own hierarchy:
+       whatever carries the message arrives last and arrives loudest.
+       Observed in the source video: calm staggered entries that never slide
+       far — plus one signature, the circular button ROLLING OUT from behind
+       the pill it is paired with. */
+
+    /* 1 · base — quiet fade + rise, for supporting blocks */
+    [data-r]{opacity:0;transform:translateY(18px) scale(.99);transition:opacity .8s var(--eo) var(--d,0ms),transform .8s var(--eo) var(--d,0ms)}
+    [data-r].in{opacity:1;transform:none}
+
+    /* 2 · WIPE — imagery. The frame opens upward and the picture settles out
+       of a slight over-scale, so the SUBJECT arrives, not just its opacity. */
+    /* The clip goes on the INNER image, never on the observed element: a
+       clip-path of inset(0 0 100%) collapses the intersection rect to zero
+       area, so IntersectionObserver would never fire and the reveal would
+       deadlock. The frame keeps its own overflow:hidden + radius. */
+    [data-r="wipe"]{opacity:1;transform:none;transition:none}
+    [data-r="wipe"] img{clip-path:inset(0 0 100% 0);transform:scale(1.09);transition:clip-path 1.15s var(--eo) var(--d,0ms),transform 1.7s var(--eo) var(--d,0ms)}
+    [data-r="wipe"].in img{clip-path:inset(0 0 0 0);transform:none}
+
+    /* 3 · WORDS — headlines are the message here, so they rise word by word
+       from behind their own baseline instead of fading as one block. */
+    [data-r="words"]{opacity:1;transform:none;transition:none}
+    .word{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.14em;margin-bottom:-.14em}
+    .word i{display:inline-block;font-style:normal;transform:translateY(115%);transition:transform .9s var(--eo) calc(var(--d,0ms) + var(--w,0)*42ms)}
+    [data-r].in .word i{transform:none}
+
+    /* 4 · STAGGER — sets of peers arrive in reading order, one after another */
+    [data-stagger]>*{opacity:0;transform:translateY(15px);transition:opacity .7s var(--eo),transform .7s var(--eo)}
+    [data-stagger].in>*{opacity:1;transform:none;transition-delay:calc(var(--d,0ms) + var(--i,0)*70ms)}
+    /* round peers (avatars, logos) pop rather than rise */
+    [data-stagger="pop"]>*{transform:scale(.6)}
+    [data-stagger="pop"].in>*{transform:none;transition-timing-function:var(--eb)}
+
+    /* 5 · SIGNATURE — the circular button rolls out from under its pill.
+       Hidden behind the pill at rest (z-index), then spins into place. */
+    .cta-pair{position:relative}
+    .cta-pair .btn{position:relative;z-index:1}
+    .cta-pair .circ{position:relative;z-index:0;opacity:0;transform:translateX(-58px) rotate(-300deg) scale(.62);transition:transform .95s var(--eb) calc(var(--d,0ms) + 430ms),opacity .2s linear calc(var(--d,0ms) + 430ms)}
+    .in .cta-pair .circ,.cta-pair.in .circ{transform:none;opacity:1}
+    /* the lone circle beside a section heading rolls in the same way */
+    .calc__hd .circ{opacity:0;transform:translateX(-46px) rotate(-300deg) scale(.62);transition:transform .95s var(--eb) calc(var(--d,0ms) + 300ms),opacity .2s linear calc(var(--d,0ms) + 300ms)}
+    .calc__hd.in .circ{opacity:1;transform:none}
+    /* the reveal rules outrank .circ:hover, so restate the lift above them */
+    .in .cta-pair .circ:hover,.cta-pair.in .circ:hover,.calc__hd.in .circ:hover{transform:translateY(-2px)}
+
+    /* 6 · DATA — bars grow off the baseline, "before" first, "after" behind
+       it, so the saving is read as a second beat rather than a static pair */
+    .plot .grp i,.plot .grp u{transform:scaleY(0);transform-origin:50% 100%;transition:transform .85s var(--eo)}
+    .in .plot .grp i{transform:none;transition-delay:calc(var(--d,0ms) + var(--b,0)*40ms + 180ms)}
+    .in .plot .grp u{transform:none;transition-delay:calc(var(--d,0ms) + var(--b,0)*40ms + 480ms)}
+    .chart__ft b{opacity:0;transform:translateY(10px);transition:opacity .6s var(--eo) calc(var(--d,0ms) + 1050ms),transform .7s var(--eb) calc(var(--d,0ms) + 1050ms)}
+    .in .chart__ft b{opacity:1;transform:none}
+
+    /* 7 · RINGS — the dashed ring unwinds into place, then the badge lands */
+    .col .ring{opacity:0;transform:scale(.7) rotate(-28deg);transition:opacity .7s var(--eo) calc(var(--d,0ms) + 160ms),transform .95s var(--eb) calc(var(--d,0ms) + 160ms)}
+    .col.in .ring{opacity:1;transform:none}
+    .col .badge{opacity:0;transform:translateY(14px) scale(.4);transition:opacity .35s var(--eo) calc(var(--d,0ms) + 520ms),transform .75s var(--eb) calc(var(--d,0ms) + 520ms)}
+    .col.in .badge{opacity:1;transform:none}
+
+    /* 8 · the oversized stat counts up from its own baseline */
+    .bignum{opacity:0;transform:translateY(22px);transition:opacity .8s var(--eo) calc(var(--d,0ms) + 220ms),transform .9s var(--eb) calc(var(--d,0ms) + 220ms)}
+    .in .bignum{opacity:1;transform:none}
+
+    @media (prefers-reduced-motion:reduce){
+      [data-r],[data-stagger]>*,.cta-pair .circ,.calc__hd .circ,.col .ring,.col .badge,.bignum,.chart__ft b{opacity:1!important;transform:none!important;transition:none!important;clip-path:none!important}
+      .word i{transform:none!important;transition:none!important}
+      .plot .grp i,.plot .grp u{transform:none!important;transition:none!important}
+      .marq__t{animation:none}
+    }
+
+    @media (max-width:1000px){
+      .about,.calc,.revs,.foot__top,.cards{grid-template-columns:1fr}
+      /* when the columns collapse, each cell must re-apply the container's
+         inside padding — the page's whole inset comes from padding, so a
+         stacked cell with padding-inline:0 sits flush against the viewport */
+      .about__l{border-right:0;border-bottom:1px solid var(--line);padding-inline:var(--pad)}
+      .about__r{padding-inline:var(--pad)}
+      .col,.col:first-child{border-right:0;border-bottom:1px solid var(--line);padding-inline:var(--pad)}
+      .calc__cta{padding-inline:var(--pad)}
+      .rev__foot{grid-template-columns:1fr}
+      .nav__in{gap:16px}
+    }
+  </style>
+  <script>(function(){try{var t=localStorage.getItem('ecovolt-theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
+</head>
+<body>
+
+  <!-- NAV : narrow, centred, active = solid black. Lifted out of .wrap--top
+       so it can be sticky for the whole page rather than just the top block. -->
+  <div class="navbar" id="navbar">
+    <nav class="nav"><div class="nav__in">
+      <div class="nav__l">
+        <button class="burger" aria-label="Menu"><i></i><i></i><i></i></button>
+        <a class="brand" href="#">EcoVolt</a>
+      </div>
+      <div class="nav__group">
+        <a class="np np--txt np--on" href="#"><i data-lucide="house"></i>Home</a>
+        <a class="np np--ico" href="#" aria-label="Products"><i data-lucide="package"></i></a>
+        <a class="np np--ico" href="#" aria-label="Resources"><i data-lucide="credit-card"></i></a>
+        <button class="np np--ico tgl" id="tgl" aria-label="Toggle theme">
+          <i class="sun" data-lucide="sun"></i>
+          <i class="moon" data-lucide="moon"></i>
+        </button>
+      </div>
+    </div></nav>
+  </div>
+
+  <div class="wrap wrap--top">
+    <header class="hero">
+      <div class="avatars" data-stagger="pop">
+        <img src="https://i.pravatar.cc/160?img=15" alt="" /><img src="https://i.pravatar.cc/160?img=12" alt="" /><img src="https://i.pravatar.cc/160?img=33" alt="" />
+      </div>
+      <p class="proof" data-r style="--d:80ms"><b>23K User</b> <span>Our Customers Love Solar</span></p>
+      <!-- exactly ONE grey phrase — the device is a single deliberate drop, not alternating bands -->
+      <h1 data-r="words" data-split style="--d:220ms">Go Solar, Save More: <span class="dim">Clean and Renewable</span> Energy for a Brighter Tomorrow</h1>
+      <div class="cta-pair" data-r style="--d:260ms">
+        <a class="btn btn--accent" href="#">Get Solar Estimate</a>
+        <a class="circ" href="#" aria-label="Learn more"><i data-lucide="arrow-up-right"></i></a>
+      </div>
+    </header>
+
+    <div class="shot" data-r="wipe" style="--d:120ms">
+      <img src="https://images.unsplash.com/photo-1548337138-e87d889cc369?w=2000&q=80" alt="Offshore wind turbines under a pale sky" />
+    </div>
+
+  </div>
+
+  <!-- ABOUT — FULL BLEED borders, padded columns -->
+  <section class="about">
+      <div class="about__l" data-stagger>
+        <span class="label">About Us</span>
+        <h2>Solar energy systems reduce carbon emissions by over 3,000 <span class="dim">pounds per year</span></h2>
+        <div class="eq">
+          <span class="ic"><i data-lucide="sprout"></i></span>
+          <b>Equivalent To Planting 150 Trees Annually.</b>
+        </div>
+      </div>
+      <div class="about__r" data-r style="--d:120ms">
+        <p>Solar energy is not just good for the planet — it's great for your wallet. By harnessing the power of the sun you can reduce your monthly energy costs, increase the value of your property, and make a positive impact on the environment.</p>
+        <div class="bignum"><b>450</b>K</div>
+        <!-- relatable chart: monthly bill before vs after solar -->
+        <div class="chart">
+          <div class="chart__hd">
+            <div>
+              <b>Average monthly bill</b>
+              <small>Before vs after installation</small>
+            </div>
+            <div class="legend">
+              <span><i class="k k--was"></i>Before</span>
+              <span><i class="k k--now"></i>After solar</span>
+            </div>
+          </div>
+          <div class="plot" aria-hidden="true">
+            <div class="grp"><i style="height:82%"></i><u style="height:30%"></u></div>
+            <div class="grp"><i style="height:88%"></i><u style="height:27%"></u></div>
+            <div class="grp"><i style="height:79%"></i><u style="height:22%"></u></div>
+            <div class="grp"><i style="height:71%"></i><u style="height:18%"></u></div>
+            <div class="grp"><i style="height:76%"></i><u style="height:15%"></u></div>
+            <div class="grp"><i style="height:90%"></i><u style="height:14%"></u></div>
+            <div class="grp"><i style="height:100%"></i><u style="height:16%"></u></div>
+            <div class="grp"><i style="height:96%"></i><u style="height:17%"></u></div>
+            <div class="grp"><i style="height:84%"></i><u style="height:20%"></u></div>
+            <div class="grp"><i style="height:75%"></i><u style="height:24%"></u></div>
+            <div class="grp"><i style="height:81%"></i><u style="height:28%"></u></div>
+            <div class="grp"><i style="height:87%"></i><u style="height:31%"></u></div>
+          </div>
+          <div class="ax"><span>J</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span></div>
+          <div class="chart__ft"><b>73%</b><small>average reduction in the first year</small></div>
+        </div>
+      </div>
+    </section>
+
+  <!-- CALCULATOR — FULL BLEED -->
+  <div class="band"><div class="wrap"><div class="calc__hd" data-r="words">
+      <h2 data-split>Simple saving calculators</h2>
+      <a class="circ" href="#" aria-label="Open calculator"><i data-lucide="calculator"></i></a>
+    </div></div></div>
+    <section class="calc">
+      <div class="col" data-r>
+        <div class="col__t">Property Type <i data-lucide="arrow-right"></i></div>
+        <div class="ring"><b>Commercials</b>
+          <span class="badge"><i data-lucide="sprout"></i></span>
+        </div>
+      </div>
+      <div class="col" data-r style="--d:100ms">
+        <div class="col__t">Current Shades <i data-lucide="arrow-right"></i></div>
+        <div class="ring"><b>Someshades</b>
+          <span class="badge b-accent"><i data-lucide="sun"></i></span>
+        </div>
+      </div>
+      <div class="col" data-r style="--d:200ms">
+        <div class="col__t">Roof Old <i data-lucide="arrow-right"></i></div>
+        <div class="ring"><b>More than<br>20 years</b>
+          <span class="badge"><i data-lucide="mountain"></i></span>
+        </div>
+      </div>
+      <div class="calc__cta" data-r style="--d:300ms">
+        <p>Enter your location and energy usage to calculate your potential savings with solar power.</p>
+        <div class="cta-pair">
+          <a class="btn btn--accent" href="#">Custom Estimate</a>
+          <a class="circ" href="#" aria-label="Start"><i data-lucide="arrow-up-right"></i></a>
+        </div>
+      </div>
+    </section>
+
+  <!-- TESTIMONIALS — FULL BLEED -->
+  <section class="dark">
+    <div class="wrap">
+      <h2 data-r="words" data-split>Customer<br>Testimonials</h2>
+      <div class="revs">
+        <div class="rev__col">
+          <div class="rev__pic" data-r="wipe"><img src="https://i.pravatar.cc/900?img=12" alt="Jake M." /></div>
+        </div>
+        <div class="rev" data-r style="--d:120ms">
+          <div class="rev__by">Jake M., Denver, CO</div>
+          <q>"Switching to solar was the best decision for our family. We're saving money and contributing to a greener planet." —</q>
+          <div class="rev__nav">
+            <a class="circ circ--accent" href="#" aria-label="Previous"><i data-lucide="arrow-left"></i></a>
+            <a class="circ circ--ghost" href="#" aria-label="Next"><i data-lucide="arrow-right"></i></a>
+          </div>
+          <div class="rev__line"></div>
+          <div class="rev__foot">
+            <h3 class="rev__closing">Our Customers Love Going Solar</h3>
+            <div class="cta-pair">
+              <a class="btn btn--accent" href="#">Read More Reviews</a>
+              <a class="circ circ--light" href="#" aria-label="More"><i data-lucide="arrow-up-right"></i></a>
+            </div>
+            <div class="avstack" data-stagger="pop">
+              <img src="https://i.pravatar.cc/160?img=5" alt="" /><img src="https://i.pravatar.cc/160?img=8" alt="" />
+              <img src="https://i.pravatar.cc/160?img=25" alt="" /><img src="https://i.pravatar.cc/160?img=41" alt="" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="press" data-stagger>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/CBS%20logo.svg" alt="CBS" />
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Forbes%20logo.svg" alt="Forbes" />
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Bloomberg%20logo.svg" alt="Bloomberg" />
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Reuters%20Logo.svg" alt="Reuters" />
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER — FULL BLEED -->
+  <footer class="foot">
+    <div class="wrap">
+      <div class="foot__top" data-stagger>
+        <div>
+          <h2>Ready To Start Saving With Solar?</h2>
+          <p>Start Your Solar Journey Today With A Free Consultation And Customized Solar Solution.</p>
+        </div>
+        <div class="fcol"><h5>About Us</h5><a href="#">About Us</a><a href="#">Our Mission</a><a href="#">Careers</a></div>
+        <div class="fcol"><h5>Products</h5><a href="#">Residential Solar</a><a href="#">Commercial Solar</a></div>
+        <div class="fcol"><h5>Blog</h5><a href="#">News</a><a href="#">Blog</a></div>
+        <div class="fcol"><h5>Contact</h5><a href="#">Support</a><a href="#">Maintenance</a><a href="#">Case Studies</a></div>
+      </div>
+      <div class="foot__bar">
+        <span>Privacy Policy | Terms of Service</span>
+        <a class="btn btn--light" href="#">Get Started Now</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- oversized marquee closes the page -->
+  <div class="marq">
+    <div class="marq__t">
+      <span>Simple saving calculators</span><span>·</span><span>Simple saving calculators</span><span>·</span>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script>if(window.lucide)lucide.createIcons({attrs:{"stroke-width":2}});</script>
+<script>
+  (function(){
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var t = document.getElementById('tgl');
+    if (t) t.addEventListener('click', function(){
+      var n = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      try { localStorage.setItem('ecovolt-theme', n); } catch(e){}
+    });
+    /* NAV — direction-aware sticky ("headroom"). Scrolling down is reading,
+       so the menu gets out of the way; scrolling up is looking for something,
+       so it returns immediately. A small threshold keeps trackpad jitter and
+       scroll bounce from flapping it. */
+    var bar = document.getElementById('navbar');
+    if (bar) {
+      var last = 0, tick = false;
+      var onScroll = function(){
+        tick = false;
+        var y = window.scrollY < 0 ? 0 : window.scrollY;
+        var d = y - last;
+        if (Math.abs(d) < 5) return;
+        if (!reduce) {
+          /* never hide before the nav has actually cleared its own height */
+          if (d > 0 && y > bar.offsetHeight * 1.6) bar.classList.add('is-away');
+          else if (d < 0) bar.classList.remove('is-away');
+        }
+        last = y;
+      };
+      window.addEventListener('scroll', function(){
+        if (!tick) { tick = true; requestAnimationFrame(onScroll); }
+      }, { passive:true });
+      onScroll();
+    }
+
+    /* headline word split — each word gets its own overflow box so it can
+       rise from behind its baseline. Walks the tree so the two-tone
+       <span class="dim"> wrapper (and any <br>) survives intact. */
+    function split(el){
+      var n = 0;
+      (function walk(node){
+        [].slice.call(node.childNodes).forEach(function(c){
+          if (c.nodeType === 3) {
+            var frag = document.createDocumentFragment();
+            c.textContent.split(/(\s+)/).forEach(function(p){
+              if (!p) return;
+              if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(p)); return; }
+              var box = document.createElement('span'); box.className = 'word';
+              var w = document.createElement('i'); w.textContent = p;
+              w.style.setProperty('--w', n++);
+              box.appendChild(w); frag.appendChild(box);
+            });
+            node.replaceChild(frag, c);
+          } else if (c.nodeType === 1) { walk(c); }
+        });
+      })(el);
+    }
+    if (!reduce) [].forEach.call(document.querySelectorAll('[data-split]'), split);
+
+    /* sequence indices: peers in a stagger set, and bars along the plot */
+    [].forEach.call(document.querySelectorAll('[data-stagger]'), function(p){
+      [].forEach.call(p.children, function(c,i){ c.style.setProperty('--i', i); });
+    });
+    [].forEach.call(document.querySelectorAll('.plot .grp'), function(g,i){
+      g.style.setProperty('--b', i);
+    });
+
+    var targets = [].slice.call(document.querySelectorAll('[data-r],[data-stagger]'));
+    if (reduce || !('IntersectionObserver' in window)) { targets.forEach(function(e){e.classList.add('in');}); }
+    else {
+      var io = new IntersectionObserver(function(en){
+        en.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+      }, { threshold:.1, rootMargin:'0px 0px -8% 0px' });
+      targets.forEach(function(el){ io.observe(el); });
+    }
+  })();
+  </script>
+</body>
+</html>

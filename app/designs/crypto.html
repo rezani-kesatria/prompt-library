@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blockio — crypto trading platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ------------------------------------------------------------------
+       Design language (from the Blockio reference):
+       · separation by SURFACE TINT + GAPS — never borders
+       · ZERO ELEVATION — no box-shadow anywhere, at all
+       · card is exactly one step lighter than the field (holds in both themes)
+       · bento: one wide hero card, then rows of narrower cards
+       · stepped radius scale, decreasing with nesting
+       · flat colour only, no gradients; ONE hot accent spent sparingly
+       · primary CTA is near-black, NOT the accent
+       · contained centred column (not full-bleed)
+       ------------------------------------------------------------------ */
+    :root{
+      /* layout (theme-independent) */
+      --maxw:clamp(1040px,88vw,1720px);
+      --gap:clamp(14px,1.1vw,22px);
+      --pad:clamp(22px,2.2vw,46px);
+      --r-card:clamp(18px,1.5vw,26px);
+      --r-inner:clamp(10px,.9vw,15px);
+      --r-btn:8px;
+      --sans:'Onest',sans-serif;
+      --e:cubic-bezier(.2,.8,.2,1);
+      --eo:cubic-bezier(.16,1,.3,1);
+
+      /* colour — LIGHT (native) */
+      color-scheme:light;
+      --field:#FBFBFA;
+      --card:#FFFFFF;
+      --well:#F4F3F1;
+      --ink:#0D0D0D;
+      --ink-2:#413F3D;
+      --muted:#9C9C9C;
+      --sand:#DDC4AB;
+      --accent:#FC4210;
+      --accent-2:#ED8F63;
+      --on-dark:#FBFBFA;
+      /* data layer — deliberately independent of the brand accent */
+      --up:#1F8A4C;
+      --down:#A63A22;
+    }
+    html[data-theme="dark"]{
+      color-scheme:dark;
+      --field:#0D0D0D;
+      --card:#1A1A19;   /* invariant: exactly one step lighter than --field */
+      --well:#232322;
+      --ink:#FBFBFA;
+      --ink-2:#C9C6C2;
+      --muted:#7C7A77;
+      --sand:#C8AE93;
+      --accent:#FC4210;
+      --accent-2:#ED8F63;
+      --up:#3FBE79;
+      --down:#D9694A;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--field);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+    h1,h2,h3{font-weight:500;line-height:1.1;letter-spacing:-.028em}
+    .wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding-inline:clamp(16px,2.4vw,40px)}
+    .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+    /* ---------- buttons: primary CTA is NEAR-BLACK, never the accent ---------- */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:var(--r-btn);padding:11px 20px;font-size:.88rem;font-weight:600;transition:opacity .25s var(--e),transform .25s var(--e),background-color .25s var(--e)}
+    .btn--dark{background:var(--ink);color:var(--field)}
+    .btn--dark:hover{opacity:.86;transform:translateY(-1px)}
+    .btn--plain{color:var(--ink-2)}
+    .btn--plain:hover{color:var(--ink)}
+    .btn--onDark{background:var(--field);color:var(--ink)}
+    .btn--onDark:hover{opacity:.9;transform:translateY(-1px)}
+
+    /* ---------- nav ---------- */
+    .nav{padding:clamp(16px,1.6vw,26px) 0}
+    .nav__in{display:flex;align-items:center;gap:clamp(20px,3vw,54px)}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.18rem;letter-spacing:-.03em}
+    .brand__mark{width:26px;height:26px;border-radius:7px;background:var(--ink);position:relative;flex:none}
+    .brand__mark::after{content:"";position:absolute;left:6px;top:6px;width:8px;height:8px;border-radius:2px;background:var(--field)}
+    .nav__links{display:flex;gap:clamp(16px,1.6vw,30px);font-size:.8rem;font-weight:600;letter-spacing:.08em;color:var(--muted)}
+    .nav__links a{transition:color .25s var(--e)}
+    .nav__links a:hover{color:var(--ink)}
+    .nav__right{margin-left:auto;display:flex;align-items:center;gap:12px}
+    .tgl{width:38px;height:38px;border-radius:var(--r-btn);display:grid;place-items:center;color:var(--muted);background:var(--card);transition:color .25s var(--e)}
+    .tgl:hover{color:var(--ink)}
+    .tgl svg{width:17px;height:17px}
+    .tgl .moon{display:none}
+    html[data-theme="dark"] .tgl .sun{display:none}
+    html[data-theme="dark"] .tgl .moon{display:block}
+
+    /* ---------- bento ---------- */
+    .bento{display:flex;flex-direction:column;gap:var(--gap);padding-bottom:clamp(40px,5vw,90px)}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
+    .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap)}
+    /* the card: one tint step above the field, zero elevation */
+    .card{background:var(--card);border-radius:var(--r-card);padding:var(--pad);position:relative;overflow:hidden}
+
+    /* ---------- hero ---------- */
+    .hero{display:grid;grid-template-columns:1fr .82fr;gap:clamp(20px,2.4vw,54px);align-items:center;padding-bottom:0}
+    .hero h1{font-size:clamp(1.9rem,3.1vw,3.5rem);max-width:15ch}
+    .hero p{color:var(--ink-2);margin-top:clamp(14px,1.2vw,22px);max-width:46ch;font-size:clamp(.94rem,.95vw,1.1rem)}
+    .hero__cta{display:flex;gap:10px;margin-top:clamp(20px,1.8vw,32px)}
+    .hero__viz{align-self:end;justify-self:center;width:100%;display:flex;justify-content:center}
+
+    /* ---------- phone: real UI inside, bleeding past the card edge ---------- */
+    .phone{width:clamp(240px,17vw,330px);flex:none;background:var(--ink);border-radius:clamp(28px,2.2vw,40px) clamp(28px,2.2vw,40px) 0 0;padding:9px 9px 0;margin-bottom:calc(var(--pad) * -1)}
+    .screen{background:var(--card);border-radius:clamp(22px,1.8vw,32px) clamp(22px,1.8vw,32px) 0 0;padding:14px 13px 20px;min-height:clamp(300px,23vw,430px)}
+    .sc__top{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:.78rem}
+    .sc__title{font-size:1.12rem;font-weight:600;margin:12px 0 10px;letter-spacing:-.02em}
+    .sc__search{display:flex;align-items:center;gap:8px;background:var(--well);border-radius:var(--r-inner);padding:8px 11px;color:var(--muted);font-size:.76rem}
+    .sc__hd{display:flex;align-items:center;justify-content:space-between;margin:15px 0 9px}
+    .sc__hd b{font-size:.85rem;font-weight:600}
+    .sc__hd span{font-size:.62rem;font-weight:700;letter-spacing:.06em;color:var(--muted)}
+    .coins{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+    .coin{background:var(--well);border-radius:var(--r-inner);padding:9px 6px;text-align:center}
+    .coin i{width:19px;height:19px;border-radius:50%;display:grid;place-items:center;margin:0 auto 6px;font-style:normal;font-size:.6rem;font-weight:700;color:#fff}
+    .coin b{display:block;font-size:.68rem;font-weight:600}
+    .coin s{text-decoration:none;display:block;font-size:.56rem;color:var(--up);margin-top:2px}
+    .sc__rows{margin-top:6px}
+    .sc__row{display:flex;align-items:center;gap:9px;padding:9px 0}
+    .sc__row i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:.62rem;font-weight:700;color:#fff;flex:none}
+    .sc__row u{font-style:normal;text-decoration:none;flex:1;min-width:0}
+    .sc__row u b{display:block;font-size:.78rem;font-weight:600}
+    .sc__row u s{text-decoration:none;display:block;font-size:.62rem;color:var(--muted)}
+    .sc__row .v{text-align:right}
+    .sc__row .v b{display:block;font-size:.78rem;font-weight:600}
+    .sc__row .v s{text-decoration:none;display:block;font-size:.62rem;color:var(--up)}
+
+    /* ---------- figures: magnitude/precision split ---------- */
+    .fig{font-size:clamp(1.7rem,2.4vw,3rem);font-weight:600;letter-spacing:-.03em;display:block}
+    .fig em{font-style:normal;font-size:.56em;font-weight:500;color:var(--muted)}
+    .delta{display:inline-flex;align-items:center;gap:7px;margin-top:8px;font-size:.85rem;font-weight:600;color:var(--up)}
+    .delta s{text-decoration:none;color:var(--muted);font-weight:500}
+
+    /* ---------- chart: bars grow from the baseline, accent bar last ---------- */
+    .chart{margin:clamp(18px,1.8vw,30px) 0 clamp(16px,1.4vw,24px);height:clamp(110px,10vw,190px);display:flex;align-items:flex-end;gap:clamp(3px,.3vw,6px);position:relative}
+    .bar{flex:1;background:var(--well);border-radius:3px;transform:scaleY(0);transform-origin:bottom;transition:transform .9s var(--eo)}
+    .in .bar{transform:scaleY(1)}
+    .bar.hot{background:var(--accent)}
+    .tip{position:absolute;right:6%;top:6%;background:var(--card);border-radius:var(--r-inner);padding:7px 11px;font-size:.76rem;font-weight:600;opacity:0;transform:translateY(6px);transition:opacity .5s var(--e) .9s,transform .5s var(--e) .9s}
+    html[data-theme="dark"] .tip{background:var(--well)}
+    .in .tip{opacity:1;transform:none}
+
+    /* ---------- portfolio list ---------- */
+    .plist{margin-top:clamp(16px,1.4vw,26px);background:var(--well);border-radius:var(--r-inner);padding:clamp(10px,.9vw,16px)}
+    .prow{display:flex;align-items:center;gap:11px;padding:clamp(9px,.7vw,13px) clamp(6px,.5vw,10px)}
+    .prow i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:.68rem;font-weight:700;color:#fff;flex:none}
+    .prow u{font-style:normal;text-decoration:none;flex:1;min-width:0}
+    .prow u b{display:block;font-size:.9rem;font-weight:600}
+    .prow u s{text-decoration:none;display:block;font-size:.72rem;color:var(--muted)}
+    .prow .v{text-align:right}
+    .prow .v b{display:block;font-size:.92rem;font-weight:600}
+    .prow .v s{text-decoration:none;display:block;font-size:.72rem;color:var(--up)}
+
+    /* ---------- copy blocks ---------- */
+    .lede h2{font-size:clamp(1.3rem,1.7vw,2.1rem)}
+    .lede p{color:var(--ink-2);margin-top:10px;font-size:clamp(.9rem,.9vw,1.02rem);max-width:42ch}
+    .cap{margin-top:auto;padding-top:clamp(16px,1.4vw,26px)}
+
+    /* feature cards */
+    .feat .ic{width:40px;height:40px;border-radius:var(--r-inner);background:var(--well);display:grid;place-items:center;color:var(--ink);margin-bottom:clamp(14px,1.2vw,22px)}
+    .feat .ic svg{width:19px;height:19px}
+    .feat h3{font-size:clamp(1.05rem,1.15vw,1.4rem);font-weight:600}
+    .feat p{color:var(--ink-2);margin-top:8px;font-size:.92rem}
+    /* inverted feature card — near-black, echoing the CTA band.
+       (Not the accent: a full accent wash would break the "spend it sparingly" rule.) */
+    .feat--dark{background:var(--ink)}
+    .feat--dark .ic{background:color-mix(in srgb,var(--field) 14%,transparent);color:var(--field)}
+    .feat--dark h3{color:var(--field)}
+    .feat--dark p{color:color-mix(in srgb,var(--field) 64%,transparent)}
+
+    /* cta band */
+    .cta{background:var(--ink);color:var(--field);text-align:center;padding:clamp(64px,7.5vw,140px) var(--pad);min-height:clamp(400px,34vw,620px);display:flex;flex-direction:column;align-items:center;justify-content:center}
+    /* box particles — rounded squares echoing the brand mark (7/26 ≈ 28% radius).
+       Flat tints only; two small accent pieces keep the accent sparing. Parallax on scroll. */
+    .ptcl{position:absolute;z-index:0;border-radius:28%;will-change:transform;
+          background:color-mix(in srgb,var(--field) 7%,transparent)}
+    .ptcl.t2{background:color-mix(in srgb,var(--field) 12%,transparent)}
+    .ptcl.acc{background:var(--accent)}
+    .cta > h2,.cta > p,.cta > .btn{position:relative;z-index:1}
+    .cta h2{font-size:clamp(1.7rem,2.7vw,3rem);max-width:18ch;margin:0 auto}
+    .cta p{color:rgba(251,251,250,.62);margin-top:14px;font-size:1rem}
+    html[data-theme="dark"] .cta p{color:rgba(13,13,13,.6)}
+    .cta .btn{margin-top:clamp(20px,1.8vw,30px)}
+
+    /* footer */
+    .foot{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:clamp(22px,2vw,34px) 0 clamp(30px,3vw,54px);color:var(--muted);font-size:.84rem}
+
+    /* ---------- motion: reveal order derived from each section's hierarchy ---------- */
+    [data-r]{opacity:0;transform:translateY(18px);transition:opacity .75s var(--eo) var(--d,0ms),transform .75s var(--eo) var(--d,0ms)}
+    [data-r].in{opacity:1;transform:none}
+    @media (prefers-reduced-motion:reduce){
+      [data-r]{opacity:1!important;transform:none!important;transition:none}
+      .bar{transform:scaleY(1)!important;transition:none}
+      .tip{opacity:1!important;transform:none!important;transition:none}
+    }
+    @media (max-width:1000px){
+      .hero{grid-template-columns:1fr}
+      .hero__viz{margin-top:20px}
+      .row2,.row3{grid-template-columns:1fr}
+      .nav__links{display:none}
+    }
+  </style>
+  <script>(function(){try{var t=localStorage.getItem('blockio-theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
+</head>
+<body>
+
+  <nav class="nav"><div class="wrap nav__in">
+    <a class="brand" href="#" data-r><span class="brand__mark"></span>blockio</a>
+    <div class="nav__links">
+      <a href="#" data-r style="--d:60ms">TRADE</a>
+      <a href="#" data-r style="--d:100ms">EXPLORE</a>
+    </div>
+    <div class="nav__right">
+      <button class="tgl" id="tgl" aria-label="Toggle light and dark theme" data-r style="--d:140ms">
+        <i class="sun" data-lucide="sun"></i>
+        <i class="moon" data-lucide="moon"></i>
+      </button>
+      <a class="btn btn--dark" href="#" data-r style="--d:180ms">GET THE APP</a>
+    </div>
+  </div></nav>
+
+  <main class="wrap bento">
+
+    <!-- HERO — text leads, product proves -->
+    <section class="card hero" id="s-hero">
+      <div>
+        <h1 data-r>Trading made easy &amp; instant for everyone</h1>
+        <p data-r style="--d:120ms">Built-in features to buy, sell, or exchange cryptocurrencies directly from your wallet — with security and a seamless user experience.</p>
+        <div class="hero__cta" data-r style="--d:220ms">
+          <a class="btn btn--dark" href="#">Get the app</a>
+          <a class="btn btn--plain" href="#">See how it works →</a>
+        </div>
+      </div>
+      <div class="hero__viz" data-r style="--d:320ms">
+        <div class="phone">
+          <div class="screen">
+            <div class="sc__top">‹ <span>Trade</span></div>
+            <div class="sc__search">⌕ Search</div>
+            <div class="sc__hd"><b>Popular</b><span>VIEW ALL</span></div>
+            <div class="coins">
+              <div class="coin"><i style="background:#F7931A">₿</i><b>BTC</b><s class="num">+4.59%</s></div>
+              <div class="coin"><i style="background:#627EEA">Ξ</i><b>ETH</b><s class="num">+1.15%</s></div>
+              <div class="coin"><i style="background:#159F7A">◎</i><b>SOL</b><s class="num">+2.81%</s></div>
+              <div class="coin"><i style="background:#2775CA">$</i><b>USD</b><s class="num">+0.01%</s></div>
+            </div>
+            <div class="sc__hd"><b>Crypto — 211</b><span>MARKET CAP ↓</span></div>
+            <div class="sc__rows">
+              <div class="sc__row" data-pop><i style="background:#2A5ADA">⬡</i><u><b>Chainlink</b><s>LINK</s></u><span class="v"><b class="num">$23.96</b><s class="num">+2.66%</s></span></div>
+              <div class="sc__row" data-pop><i style="background:#23292F">✕</i><u><b>XRP</b><s>XRP</s></u><span class="v"><b class="num">$2.43</b><s class="num">+2.97%</s></span></div>
+              <div class="sc__row" data-pop><i style="background:#8247E5">⬢</i><u><b>Polygon</b><s>MATIC</s></u><span class="v"><b class="num">$0.52</b><s class="num">+2.87%</s></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="row2">
+      <!-- INSIGHTS — data leads, label is the caption -->
+      <section class="card" id="s-chart">
+        <span class="fig num" data-count="97977.17" data-r>$97 977<em>.17</em></span>
+        <span class="delta num" data-r style="--d:120ms">▲ 2.17 <s>(+$867.43)</s></span>
+        <div class="chart">
+          <div class="tip num">$97 822.56</div>
+          <div class="bar" style="height:34%"></div><div class="bar" style="height:52%"></div>
+          <div class="bar" style="height:41%"></div><div class="bar" style="height:63%"></div>
+          <div class="bar" style="height:48%"></div><div class="bar" style="height:72%"></div>
+          <div class="bar" style="height:58%"></div><div class="bar" style="height:80%"></div>
+          <div class="bar" style="height:66%"></div><div class="bar" style="height:88%"></div>
+          <div class="bar" style="height:74%"></div><div class="bar hot" style="height:100%"></div>
+          <div class="bar" style="height:69%"></div><div class="bar" style="height:83%"></div>
+          <div class="bar" style="height:57%"></div><div class="bar" style="height:76%"></div>
+        </div>
+        <div class="lede cap" data-r style="--d:520ms">
+          <h2>Real-time insights</h2>
+          <p>Access live price charts, market trends, detailed analytics and forecasts for assets.</p>
+        </div>
+      </section>
+
+      <!-- PORTFOLIO — text leads, data proves -->
+      <section class="card" id="s-port">
+        <div class="lede">
+          <h2 data-r>Portfolio overview</h2>
+          <p data-r style="--d:100ms">Track your total holdings, profit/loss, individual crypto performance, portfolio growth, trends and analytics.</p>
+        </div>
+        <div class="plist">
+          <div class="prow" data-r style="--d:220ms"><i style="background:#F7931A">₿</i><u><b>Bitcoin</b><s>0.56 BTC</s></u><span class="v"><b class="num">$54 906.46</b><s class="num">+5.88%</s></span></div>
+          <div class="prow" data-r style="--d:300ms"><i style="background:#23292F">✕</i><u><b>XRP</b><s>1200 XRP</s></u><span class="v"><b class="num">$2 916.00</b><s class="num">+2.97%</s></span></div>
+          <div class="prow" data-r style="--d:380ms"><i style="background:#8247E5">⬢</i><u><b>Polygon</b><s>MATIC</s></u><span class="v"><b class="num">$0.52</b><s class="num">+2.87%</s></span></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="row3">
+      <section class="card feat" data-r>
+        <div class="ic"><i data-lucide="globe"></i></div>
+        <h3>Multi-currency support</h3>
+        <p>Hold, swap and settle across 200+ assets and fiat pairs from a single wallet.</p>
+      </section>
+      <section class="card feat feat--dark" data-r style="--d:110ms">
+        <div class="ic"><i data-lucide="shield-check"></i></div>
+        <h3>Biometric authentication</h3>
+        <p>Face and fingerprint unlock on every device, with hardware-backed key storage.</p>
+      </section>
+      <section class="card feat" data-r style="--d:220ms">
+        <div class="ic"><i data-lucide="refresh-cw"></i></div>
+        <h3>Backup &amp; recovery</h3>
+        <p>Encrypted seed backup and guided recovery, so access is never a single point of failure.</p>
+      </section>
+    </div>
+
+    <section class="card cta" data-r>
+      <span class="ptcl"    style="left:3%;top:9%;width:clamp(60px,7.4vw,112px);aspect-ratio:1"      data-speed="-0.34"></span>
+      <span class="ptcl t2" style="left:12%;bottom:11%;width:clamp(36px,4.2vw,62px);aspect-ratio:1"  data-speed="0.52"></span>
+      <span class="ptcl acc" style="left:19%;top:-7%;width:clamp(26px,2.8vw,42px);aspect-ratio:1"    data-speed="0.78"></span>
+      <span class="ptcl t2" style="left:5%;bottom:-9%;width:clamp(48px,5.8vw,82px);aspect-ratio:1"   data-speed="-0.20"></span>
+      <span class="ptcl"    style="left:24%;bottom:24%;width:clamp(20px,2.2vw,32px);aspect-ratio:1"  data-speed="0.64"></span>
+      <span class="ptcl t2" style="left:31%;top:-8%;width:clamp(30px,3.4vw,48px);aspect-ratio:1"     data-speed="-0.56"></span>
+      <span class="ptcl"    style="right:4%;top:7%;width:clamp(66px,8.2vw,124px);aspect-ratio:1"     data-speed="0.38"></span>
+      <span class="ptcl t2" style="right:15%;bottom:9%;width:clamp(40px,4.8vw,70px);aspect-ratio:1"  data-speed="-0.50"></span>
+      <span class="ptcl acc" style="right:25%;top:-5%;width:clamp(22px,2.4vw,34px);aspect-ratio:1"   data-speed="-0.80"></span>
+      <span class="ptcl"    style="right:7%;bottom:-10%;width:clamp(54px,6.4vw,90px);aspect-ratio:1" data-speed="0.26"></span>
+      <span class="ptcl t2" style="right:29%;top:22%;width:clamp(18px,2vw,28px);aspect-ratio:1"      data-speed="0.70"></span>
+      <h2>Start trading in a few minutes</h2>
+      <p>Fast, secure and seamless — at your fingertips.</p>
+      <a class="btn btn--onDark" href="#">Get the app</a>
+    </section>
+
+  </main>
+
+  <footer class="wrap foot">
+    <span>© 2026 Blockio</span>
+    <span>Fast crypto trading, at your fingertips.</span>
+  </footer>
+
+  <script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script>if(window.lucide)lucide.createIcons({attrs:{"stroke-width":2}});</script>
+<script>
+  (function(){
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* theme */
+    var t = document.getElementById('tgl');
+    if (t) t.addEventListener('click', function(){
+      var n = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      try { localStorage.setItem('blockio-theme', n); } catch(e){}
+    });
+
+    /* figure count-up — space thousands separator, de-emphasised decimals */
+    function fmt(v){
+      var i = Math.floor(v), d = Math.round((v - i) * 100);
+      var s = String(i).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      return '$' + s + '<em>.' + String(d).padStart(2,'0') + '</em>';
+    }
+    function countUp(el){
+      var end = parseFloat(el.getAttribute('data-count')) || 0, dur = 1200, t0 = null;
+      function step(ts){
+        if (t0 === null) t0 = ts;
+        var p = Math.min((ts - t0)/dur, 1);
+        el.innerHTML = fmt(end * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    /* chart bars grow from the baseline; the accent bar lands last */
+    function growBars(scope){
+      var bars = [].slice.call(scope.querySelectorAll('.bar'));
+      bars.forEach(function(b,i){
+        b.style.transitionDelay = (b.classList.contains('hot') ? 780 : 120 + i*42) + 'ms';
+      });
+      scope.classList.add('in');
+    }
+    /* phone frame lands first, then its rows populate */
+    function popRows(scope){
+      [].slice.call(scope.querySelectorAll('[data-pop]')).forEach(function(r,i){
+        r.style.opacity = 0; r.style.transform = 'translateY(10px)';
+        r.style.transition = 'opacity .6s var(--eo), transform .6s var(--eo)';
+        r.style.transitionDelay = (620 + i*110) + 'ms';
+        requestAnimationFrame(function(){ r.style.opacity = 1; r.style.transform = 'none'; });
+      });
+    }
+
+    var seen = new WeakSet();
+    function activate(el){
+      if (seen.has(el)) return; seen.add(el);
+      el.classList.add('in');
+      if (el.hasAttribute('data-count')) countUp(el);
+      var chart = el.querySelector && el.querySelector('.chart');
+      if (chart) growBars(chart);
+      if (el.querySelector && el.querySelector('[data-pop]')) popRows(el);
+    }
+
+    /* particle parallax — driven by the CTA's own progress through the viewport,
+       so it responds to scrolling in both directions */
+    if (!reduce) {
+      var cta = document.querySelector('.cta');
+      var ptcls = [].slice.call(document.querySelectorAll('.ptcl'));
+      if (cta && ptcls.length) {
+        var ticking = false;
+        var park = function(){
+          var vh = window.innerHeight, r = cta.getBoundingClientRect();
+          if (r.bottom > -240 && r.top < vh + 240) {
+            var prog = (r.top + r.height / 2 - vh / 2) / vh;   /* +1 below → -1 above */
+            for (var i = 0; i < ptcls.length; i++) {
+              var s = parseFloat(ptcls[i].getAttribute('data-speed')) || 0;
+              ptcls[i].style.transform =
+                'translate3d(0,' + (prog * s * 300).toFixed(2) + 'px,0) rotate(' + (prog * s * 24).toFixed(2) + 'deg)';
+            }
+          }
+          ticking = false;
+        };
+        window.addEventListener('scroll', function(){
+          if (!ticking) { ticking = true; requestAnimationFrame(park); }
+        }, { passive: true });
+        window.addEventListener('resize', park, { passive: true });
+        park();
+      }
+    }
+
+    var targets = [].slice.call(document.querySelectorAll('[data-r], #s-chart, #s-hero'));
+    if (reduce || !('IntersectionObserver' in window)) {
+      targets.forEach(function(el){
+        el.classList.add('in');
+        if (el.hasAttribute('data-count')) el.innerHTML = fmt(parseFloat(el.getAttribute('data-count')));
+        var c = el.querySelector && el.querySelector('.chart'); if (c) c.classList.add('in');
+      });
+    } else {
+      var io = new IntersectionObserver(function(en){
+        en.forEach(function(e){ if (e.isIntersecting) { activate(e.target); io.unobserve(e.target); } });
+      }, { threshold:.15, rootMargin:'0px 0px -6% 0px' });
+      targets.forEach(function(el){ io.observe(el); });
+    }
+  })();
+  </script>
+</body>
+</html>

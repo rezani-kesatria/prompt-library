@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MoveIQ — fleet &amp; logistics workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  /* ==================================================================
+     MoveIQ — logistics & fleet management workbench
+     Recreated from a design by Ronas IT | UI/UX Team
+     https://dribbble.com/shots/26849863-Logistics-Fleet-Management-Dashboard-UI
+
+     THE RULES
+     · An OPERATIONAL WORKBENCH, not an analytics readout. Orders are
+       ROWS YOU ACT ON. The charts serve the table.
+     · SEPARATION IS HAIRLINE RULES — between table rows and between
+       list items inside cards. No vertical rules, no zebra, no fills.
+     · A RESERVED SEMANTIC STATUS SET, independent of the brand hue,
+       always rendered DOT + LABEL — never colour alone.
+     · FILTER TABS CARRY THEIR COUNTS. Active tab is SOLID BLACK.
+     · A full-width DARK FEATURE PANEL inside a light UI.
+     · ZERO elevation.
+     ⚠️ The source sits inside a tablet bezel on a grey mat. Both are
+        presentation, not product. Neither is a token.
+     ================================================================== */
+
+  :root{
+    --pad:clamp(14px,1.5vw,30px);
+    --gap:clamp(10px,1.1vw,22px);
+    --r-card:clamp(16px,1.5vw,28px);
+    --r-tile:clamp(11px,1vw,18px);
+    --r-btn:clamp(9px,.8vw,14px);
+    --sans:'Plus Jakarta Sans',sans-serif;
+    --e:cubic-bezier(.2,.8,.2,1);
+    --eo:cubic-bezier(.16,1,.3,1);
+    --eb:cubic-bezier(.34,1.3,.5,1);
+
+    /* colour — sampled from the source */
+    color-scheme:light;
+    --paper:#FFFFFF;
+    --surface:#F0F0F0;
+    --ink:#0C0D0D;
+    --ink-2:#6B6B6B;
+    --muted:#A3A3A3;
+    --line:#E6E6E6;
+    --panel:#18181A;            /* the dark feature block */
+    --on-panel:#FFFFFF;
+    --brand:#D2D88F;            /* soft olive — decorative only */
+    --rating:#6E9A4F;
+    /* SEMANTIC STATUS — reserved, never used for branding */
+    --st-move:#F37833;
+    --st-done:#51D060;
+    --st-idle:#ACABAA;
+  }
+  html[data-theme="dark"]{
+    color-scheme:dark;
+    --paper:#0E0E0F;
+    --surface:#1A1A1C;
+    --ink:#F2F2F2;
+    --ink-2:#9B9B9B;
+    --muted:#6A6A6A;
+    --line:rgba(255,255,255,.12);
+    --panel:#F2F2F2;            /* inverts */
+    --on-panel:#0C0D0D;
+    --brand:#D2D88F;            /* brand and status hues do NOT re-skin */
+    --rating:#7FAE5C;
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  img{display:block;max-width:100%}
+  a,button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-decoration:none}
+  svg{display:block}
+  h1,h2,h3{font-weight:600;letter-spacing:-.03em;line-height:1.14}
+
+  .app{min-height:100vh;display:flex;flex-direction:column;padding:var(--pad);gap:var(--gap)}
+
+  /* ---------- NAV — centred group, only the ACTIVE item is labelled ---------- */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:var(--gap)}
+  .logo{display:flex;align-items:center;gap:clamp(8px,.8vw,14px);font-weight:700;font-size:clamp(.95rem,1.15vw,1.35rem);letter-spacing:-.03em}
+  .logo i{width:clamp(28px,2.4vw,44px);height:clamp(28px,2.4vw,44px);border-radius:clamp(8px,.75vw,13px);background:var(--ink);color:var(--paper);display:grid;place-items:center;font-weight:800;font-size:clamp(.8rem,.95vw,1.1rem);font-style:normal}
+  .navgrp{display:flex;align-items:center;gap:clamp(5px,.5vw,9px)}
+  .nv{height:clamp(34px,3vw,54px);min-width:clamp(34px,3vw,54px);border-radius:var(--r-btn);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:0 clamp(9px,.8vw,14px);transition:background-color .25s var(--e),color .25s var(--e)}
+  .nv:hover{background:var(--line)}
+  .nv svg{width:clamp(15px,1.15vw,20px);height:clamp(15px,1.15vw,20px)}
+  .nv b{font-size:clamp(.76rem,.85vw,.95rem);font-weight:600;letter-spacing:-.01em}
+  .nv--on{background:var(--ink);color:var(--paper);padding-inline:clamp(12px,1.1vw,20px)}
+  .nv--on:hover{background:var(--ink)}
+  .who{display:flex;align-items:center;gap:clamp(7px,.7vw,12px)}
+  .who img{width:clamp(30px,2.6vw,46px);height:clamp(30px,2.6vw,46px);border-radius:50%;object-fit:cover}
+  .who b{display:block;font-size:clamp(.76rem,.85vw,.95rem);font-weight:600;white-space:nowrap}
+  .who small{display:block;color:var(--muted);font-size:clamp(.66rem,.72vw,.8rem)}
+
+  /* ---------- BODY GRID ---------- */
+  .body{display:grid;grid-template-columns:0.27fr minmax(0,1fr);gap:var(--gap);flex:1;align-items:start}
+  .col{display:flex;flex-direction:column;gap:var(--gap)}
+
+  /* ---------- CARDS ---------- */
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-card);padding:clamp(14px,1.4vw,28px)}
+  .card h2{font-size:clamp(1rem,1.35vw,1.75rem);margin-bottom:clamp(12px,1.3vw,26px)}
+
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:clamp(8px,.75vw,14px)}
+  .tile{background:var(--surface);border-radius:var(--r-tile);padding:clamp(11px,1.05vw,20px)}
+  .tile span{display:block;font-size:clamp(.72rem,.8vw,.92rem);color:var(--ink)}
+  .tile b{display:block;font-size:clamp(.95rem,1.15vw,1.45rem);font-weight:500;letter-spacing:-.03em;margin-top:clamp(10px,1vw,20px)}
+
+  /* list items separated by HAIRLINES — the design's separation model */
+  .list{margin-top:clamp(12px,1.3vw,26px)}
+  .row{display:flex;align-items:center;gap:clamp(9px,.85vw,15px);padding-block:clamp(10px,1vw,18px)}
+  .row + .row{border-top:1px solid var(--line)}
+  .row__ic{width:clamp(32px,2.7vw,48px);height:clamp(32px,2.7vw,48px);border-radius:clamp(9px,.85vw,15px);background:var(--surface);display:grid;place-items:center;flex:none}
+  .row__ic svg{width:clamp(15px,1.2vw,21px);height:clamp(15px,1.2vw,21px)}
+  .row img.av{width:clamp(32px,2.7vw,48px);height:clamp(32px,2.7vw,48px);border-radius:clamp(9px,.85vw,15px);object-fit:cover;flex:none}
+  .row__t{flex:1;min-width:0}
+  .row__t b{display:block;font-size:clamp(.8rem,.9vw,1.05rem);font-weight:600;letter-spacing:-.02em}
+  .row__t small{display:block;color:var(--muted);font-size:clamp(.72rem,.8vw,.92rem)}
+  .row > svg.chev{width:clamp(14px,1.1vw,19px);height:clamp(14px,1.1vw,19px);flex:none}
+  .rate{display:inline-flex;align-items:center;gap:5px;background:var(--rating);color:#fff;border-radius:clamp(7px,.65vw,11px);padding:clamp(5px,.5vw,9px) clamp(8px,.75vw,13px);font-size:clamp(.72rem,.82vw,.95rem);font-weight:600;flex:none}
+  .rate svg{width:clamp(11px,.9vw,15px);height:clamp(11px,.9vw,15px)}
+
+  /* ---------- PROMO — the one decorative use of the brand hue ---------- */
+  .promo{background:var(--brand);border-radius:var(--r-card);padding:clamp(14px,1.4vw,28px);color:#1A1C12;display:flex;flex-direction:column}
+  .promo__pic{border-radius:var(--r-tile);overflow:hidden;aspect-ratio:16/11;margin-bottom:clamp(12px,1.2vw,22px)}
+  .promo__pic img{width:100%;height:100%;object-fit:cover;mix-blend-mode:multiply}
+  .promo h3{font-size:clamp(.95rem,1.15vw,1.45rem)}
+  .promo p{font-size:clamp(.74rem,.82vw,.95rem);opacity:.75;margin-top:6px}
+  .promo .btn{margin-top:clamp(12px,1.2vw,22px)}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:var(--r-btn);padding:clamp(10px,.95vw,17px) clamp(14px,1.3vw,24px);font-size:clamp(.78rem,.86vw,1rem);font-weight:600}
+  .btn--ink{background:var(--ink);color:var(--paper)}
+  .btn--paper{background:var(--paper);color:var(--ink)}
+  .btn--ghost{border:1px solid var(--line)}
+  .btn svg{width:clamp(14px,1.1vw,19px);height:clamp(14px,1.1vw,19px)}
+
+  /* ---------- DARK FEATURE PANEL ---------- */
+  .panel{background:var(--panel);color:var(--on-panel);border-radius:var(--r-card);padding:clamp(14px,1.4vw,28px);display:flex;flex-direction:column;gap:clamp(14px,1.5vw,30px)}
+  .panel__bar{display:flex;align-items:center;gap:clamp(10px,1vw,18px);flex-wrap:wrap}
+  .panel__search{display:flex;align-items:center;gap:10px;flex:1;min-width:140px;color:color-mix(in srgb,var(--on-panel) 52%,transparent)}
+  .panel__search svg{width:clamp(15px,1.15vw,20px);height:clamp(15px,1.15vw,20px)}
+  .panel__search span{font-size:clamp(.78rem,.88vw,1rem)}
+  .panel .btn--ghost{border-color:color-mix(in srgb,var(--on-panel) 20%,transparent)}
+  /* stretch, so both columns share a bottom edge and their charts can be
+     bottom-aligned against each other */
+  .panel__split{display:grid;grid-template-columns:1.28fr 1fr;gap:clamp(14px,1.6vw,34px);align-items:stretch}
+  .panel__split > div{display:flex;flex-direction:column}
+  #bars,.gauge{margin-top:auto}
+  .panel h3{font-size:clamp(.95rem,1.25vw,1.6rem);font-weight:600}
+  .ico{width:clamp(30px,2.5vw,44px);height:clamp(30px,2.5vw,44px);border-radius:clamp(9px,.8vw,14px);background:color-mix(in srgb,var(--on-panel) 12%,transparent);display:grid;place-items:center;flex:none}
+  .ico svg{width:clamp(14px,1.1vw,19px);height:clamp(14px,1.1vw,19px)}
+  .hd{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .hd__b{display:flex;gap:clamp(6px,.55vw,10px)}
+
+  /* ApexCharts owns both charts — the month axis spaces itself against
+     the data, and the bars sit on a real baseline, which is what the
+     hand-rolled flex version never did properly */
+  .chart{margin-top:clamp(8px,.9vw,16px)}
+  #bars{height:clamp(158px,17vw,320px)}
+  /* Apex derives the pie radius from min(width,height), so a 2:1 box caps
+     the arc at half the width. Give the chart a SQUARE and clip the unused
+     lower half — the semicircle then spans the full width. */
+  .gaugewrap{position:relative;width:100%;aspect-ratio:2 / 1.08;overflow:hidden;margin-top:clamp(8px,.9vw,16px)}
+  #gauge{position:absolute;top:0;left:0;width:100%;aspect-ratio:1}
+  .apexcharts-tooltip{border:0!important;background:var(--on-panel)!important;color:var(--panel)!important;box-shadow:none!important;border-radius:8px!important;font-family:var(--sans)!important}
+  .apexcharts-tooltip-title{display:none!important}
+  .apexcharts-xaxis-annotation-label{font-family:var(--sans)!important;font-weight:600!important}
+
+  /* the legend column gets a guaranteed minimum so it can never be
+     squeezed to nothing or forced to wrap under the arc */
+  .gauge{display:grid;grid-template-columns:minmax(0,1fr) minmax(104px,max-content);gap:clamp(10px,1.3vw,26px);align-items:end;margin-top:clamp(12px,1.2vw,24px)}
+  .gaugewrap{max-width:clamp(170px,88%,300px)}
+  .lg{display:flex;flex-direction:column;gap:clamp(6px,.6vw,11px);font-size:clamp(.66rem,.74vw,.85rem)}
+  .lg div{display:flex;align-items:center;gap:8px;white-space:nowrap}
+  .lg i{width:9px;height:9px;border-radius:2px;flex:none}
+  .lg b{font-weight:600}
+  .lg small{display:block;color:color-mix(in srgb,var(--on-panel) 55%,transparent)}
+  .big{font-size:clamp(1.5rem,2.8vw,3.4rem);font-weight:500;letter-spacing:-.045em;line-height:1}
+  .big i{font-style:normal;color:color-mix(in srgb,var(--on-panel) 45%,transparent)}
+  .pill{display:inline-flex;align-items:center;gap:5px;background:color-mix(in srgb,var(--on-panel) 12%,transparent);border-radius:999px;padding:5px 11px;font-size:clamp(.66rem,.74vw,.85rem);font-weight:600;vertical-align:middle;margin-left:10px}
+  .pill svg{width:11px;height:11px}
+
+  /* ---------- ORDERS TABLE ---------- */
+  .orders__hd{display:flex;align-items:center;justify-content:space-between;gap:clamp(10px,1vw,18px);flex-wrap:wrap;margin-bottom:clamp(12px,1.3vw,26px)}
+  .orders__t{display:flex;align-items:center;gap:clamp(8px,.8vw,14px)}
+  .orders__t h2{font-size:clamp(1.05rem,1.5vw,2rem);margin:0}
+  /* the count travels WITH the label, never as a separate stat */
+  .count{background:var(--surface);color:var(--ink);border-radius:clamp(7px,.65vw,11px);padding:clamp(4px,.4vw,8px) clamp(9px,.8vw,14px);font-size:clamp(.72rem,.8vw,.95rem);font-weight:600}
+  .tabs{display:flex;gap:clamp(6px,.6vw,11px);flex-wrap:wrap}
+  .tab{display:inline-flex;align-items:center;gap:clamp(6px,.6vw,11px);background:var(--surface);border-radius:var(--r-btn);padding:clamp(9px,.9vw,16px) clamp(12px,1.15vw,22px);font-size:clamp(.76rem,.85vw,1rem);font-weight:500;transition:background-color .25s var(--e),color .25s var(--e)}
+  .tab span{font-weight:600}
+  .tab:hover{background:var(--line)}
+  .tab--on{background:var(--ink);color:var(--paper)}
+  .tab--on:hover{background:var(--ink)}
+
+  .tw{overflow-x:auto;scrollbar-width:thin}
+  table{width:100%;border-collapse:collapse;min-width:820px}
+  thead th{text-align:left;font-size:clamp(.72rem,.8vw,.92rem);font-weight:400;color:var(--muted);padding-bottom:clamp(10px,1vw,18px)}
+  /* HAIRLINE ROW RULES — no vertical rules, no zebra, no row fills */
+  tbody tr{border-top:1px solid var(--line)}
+  tbody td{padding-block:clamp(12px,1.3vw,26px);font-size:clamp(.78rem,.88vw,1.02rem);vertical-align:middle}
+  tbody td:first-child{font-weight:500}
+
+  /* the two-line route cell with its connector glyph */
+  .route{display:flex;align-items:center;gap:clamp(7px,.7vw,12px)}
+  .route__arc{width:clamp(13px,1.1vw,19px);height:clamp(28px,2.4vw,42px);flex:none;color:var(--muted)}
+  .route__l{display:flex;flex-direction:column;gap:clamp(5px,.5vw,9px)}
+  .route__l span{display:flex;align-items:center;gap:8px;white-space:nowrap}
+  .flag{width:clamp(17px,1.4vw,24px);height:clamp(17px,1.4vw,24px);border-radius:50%;overflow:hidden;flex:none;display:grid}
+  .flag i{display:block}
+
+  /* STATUS — reserved semantic set, always DOT + LABEL, never colour alone */
+  .st{display:inline-flex;align-items:center;gap:9px;white-space:nowrap}
+  .st i{width:8px;height:8px;border-radius:50%;flex:none}
+  .st--move i{background:var(--st-move)}
+  .st--done i{background:var(--st-done)}
+  .st--idle i{background:var(--st-idle)}
+
+  .acts{display:flex;align-items:center;gap:clamp(6px,.6vw,11px);justify-content:flex-end}
+  .acts .btn{padding-block:clamp(8px,.75vw,13px)}
+  .kebab{width:clamp(34px,2.9vw,50px);height:clamp(34px,2.9vw,50px);border:1px solid var(--line);border-radius:var(--r-btn);display:grid;place-items:center;flex:none}
+  .kebab svg{width:15px;height:15px}
+
+  /* ---------- MOTION — GSAP + ScrollTrigger · Motion · Lenis ----------
+     GSAP owns the entry timeline and the scroll-triggered table.
+     Motion owns spring micro-interactions (hover / press).
+     Lenis owns the scroll itself.
+
+     Pre-hide is gated on html.js, which an inline head script sets — so
+     if the CDNs fail or JS is off, the page still renders fully rather
+     than staying invisible. Every selector hidden here MUST be animated
+     back by the timeline below. */
+  html.js [data-r],
+  html.js .tile,
+  html.js tbody tr{opacity:0}
+  /* hover lift is Motion's job now — CSS keeps only the colour changes */
+  .btn:hover,.nv:hover,.tab:hover{transform:none}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:1100px){
+    .body{grid-template-columns:1fr}
+    .panel__split{grid-template-columns:1fr}
+    .navgrp{order:3;width:100%;justify-content:center}
+    .top{flex-wrap:wrap}
+  }
+  @media (max-width:620px){
+    .who small{display:none}
+    .orders__hd{align-items:flex-start;flex-direction:column}
+  }
+</style>
+<script>(function(){
+  var r=document.documentElement;
+  /* only pre-hide for the entry timeline when JS is actually running */
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches) r.classList.add('js');
+  try{var t=localStorage.getItem('moveiq-theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';r.setAttribute('data-theme',t);}
+  catch(e){r.setAttribute('data-theme','light');}
+})();</script>
+</head>
+<body>
+<div class="app">
+
+  <!-- ======== NAV — only the ACTIVE item carries its label ======== -->
+  <header class="top" data-r>
+    <div class="logo"><i>Q</i>MoveIQ</div>
+    <nav class="navgrp">
+      <a class="nv nv--on" href="#"><i data-lucide="layout-grid"></i><b>Dashboard</b></a>
+      <a class="nv" href="#" aria-label="Shipments"><i data-lucide="package"></i></a>
+      <a class="nv" href="#" aria-label="Fleet"><i data-lucide="truck"></i></a>
+      <a class="nv" href="#" aria-label="Billing"><i data-lucide="credit-card"></i></a>
+      <a class="nv" href="#" aria-label="Reports"><i data-lucide="trending-up"></i></a>
+    </nav>
+    <div class="who">
+      <button class="nv" aria-label="Notifications"><i data-lucide="bell"></i></button>
+      <button class="nv" id="tgl" aria-label="Toggle theme"><i class="sun" data-lucide="sun"></i></button>
+      <img src="https://i.pravatar.cc/120?img=68" alt="" />
+      <div><b>Kent Torres</b><small>Admin</small></div>
+    </div>
+  </header>
+
+  <div class="body">
+
+    <!-- ======== LEFT COLUMN ======== -->
+    <div class="col">
+      <section class="card" data-r style="--d:70ms">
+        <h2>Fleet performance<br>overview</h2>
+        <div class="tiles">
+          <div class="tile" style="--i:0"><span>Utilization</span><b>78%</b></div>
+          <div class="tile" style="--i:1"><span>Fuel Efficiency</span><b>8.7 mpg</b></div>
+          <div class="tile" style="--i:2"><span>On-time Rate</span><b>92%</b></div>
+          <div class="tile" style="--i:3"><span>Idle Time</span><b>1h 12m</b></div>
+        </div>
+        <div class="list">
+          <div class="row">
+            <img class="av" src="https://i.pravatar.cc/120?img=59" alt="" />
+            <div class="row__t"><b>Lukas Weber</b><small>Top driver</small></div>
+            <span class="rate"><i data-lucide="star"></i>9.7</span>
+          </div>
+          <a class="row" href="#">
+            <span class="row__ic"><i data-lucide="truck"></i></span>
+            <span class="row__t"><b>4 vehicles</b><small>Needing service</small></span>
+            <i data-lucide="chevron-right"></i>
+          </a>
+          <a class="row" href="#">
+            <span class="row__ic"><i data-lucide="shield-alert"></i></span>
+            <span class="row__t"><b>3 minor</b><small>Incidents this week</small></span>
+            <i data-lucide="chevron-right"></i>
+          </a>
+        </div>
+      </section>
+
+      <section class="promo" data-r style="--d:140ms">
+        <div class="promo__pic"><img src="https://images.unsplash.com/photo-1586191582151-f73872dfd183?w=700&q=75" alt="" /></div>
+        <h3>Vehicle on the road</h3>
+        <p>Expedite cargo fleet with real-time tracking</p>
+        <a class="btn btn--ink" href="#">Track vehicle
+          <i data-lucide="crosshair"></i></a>
+      </section>
+    </div>
+
+    <!-- ======== RIGHT COLUMN ======== -->
+    <div class="col">
+
+      <!-- dark feature panel inside a light UI -->
+      <section class="panel" data-r style="--d:110ms">
+        <div class="panel__bar">
+          <div class="panel__search">
+            <i data-lucide="search"></i>
+            <span>Search order…</span>
+          </div>
+          <a class="btn" href="#"><i data-lucide="upload"></i>Export</a>
+          <a class="btn btn--paper" href="#"><i data-lucide="plus"></i>Add new shipment</a>
+        </div>
+
+        <div class="panel__split">
+          <div>
+            <div class="hd">
+              <h3>Fulfillment Performance</h3>
+              <div class="hd__b">
+                <span class="ico"><i data-lucide="calendar"></i></span>
+                <span class="ico"><i data-lucide="arrow-up-right"></i></span>
+              </div>
+            </div>
+            <div id="bars" class="chart"></div>
+          </div>
+
+          <div>
+            <div class="hd">
+              <h3>Sales Overview</h3>
+              <div class="hd__b">
+                <span class="ico"><i data-lucide="list-filter"></i></span>
+                <span class="ico"><i data-lucide="arrow-down-up"></i></span>
+              </div>
+            </div>
+            <div style="margin-top:clamp(10px,1vw,20px)">
+              <span class="big"><i>$</i>716,084</span>
+              <span class="pill"><i data-lucide="arrow-up-right"></i>32.2%</span>
+            </div>
+            <div class="gauge">
+              <div class="gaugewrap"><div id="gauge"></div></div>
+              <div class="lg">
+                <div><i style="background:#6BBF59"></i><span><b>Finland</b><small>28%</small></span></div>
+                <div><i style="background:#C9D96B"></i><span><b>Sweden</b><small>27%</small></span></div>
+                <div><i style="background:#EDEDED"></i><span><b>Iceland</b><small>22%</small></span></div>
+                <div><i style="background:#7FA9C0"></i><span><b>Estonia</b><small>14%</small></span></div>
+                <div><i style="background:#E3C77E"></i><span><b>Other</b><small>9%</small></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- the table is what the page is FOR -->
+      <section id="orders" data-r>
+        <div class="orders__hd">
+          <div class="orders__t"><h2>Orders</h2><span class="count">264</span></div>
+          <div class="tabs">
+            <button class="tab">Pending <span>70</span></button>
+            <button class="tab">Responded <span>85</span></button>
+            <button class="tab tab--on">Assigned <span>53</span></button>
+            <button class="tab">Completed <span>56</span></button>
+            <button class="kebab" aria-label="Sort"><i data-lucide="arrow-down-up"></i></button>
+          </div>
+        </div>
+
+        <div class="tw">
+          <table>
+            <thead><tr><th>Order ID</th><th>Order assigned to</th><th>Route</th><th>Vehicle</th><th>Est. delivery</th><th>Status</th><th></th></tr></thead>
+            <tbody id="rows">
+              <tr style="--i:0">
+                <td>#875412903</td><td>Clara Jensen</td>
+                <td><div class="route"><svg class="route__arc" viewBox="0 0 14 34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M11 2C4 2 3 8 3 17s1 15 8 15"/></svg><div class="route__l"><span><span class="flag" data-f="de"></span>Munich, DE</span><span><span class="flag" data-f="nl"></span>Rotterdam, NL</span></div></div></td>
+                <td>Volvo FH16</td><td>05 Oct, 2025</td>
+                <td><span class="st st--move"><i></i>In transit</span></td>
+                <td><div class="acts"><a class="btn btn--ghost" href="#">See more</a><button class="kebab" aria-label="More"><i data-lucide="ellipsis"></i></button></div></td>
+              </tr>
+              <tr style="--i:1">
+                <td>#458729654</td><td>Michael Torres</td>
+                <td><div class="route"><svg class="route__arc" viewBox="0 0 14 34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M11 2C4 2 3 8 3 17s1 15 8 15"/></svg><div class="route__l"><span><span class="flag" data-f="pl"></span>Warsaw, PL</span><span><span class="flag" data-f="at"></span>Vienna, AT</span></div></div></td>
+                <td>Mercedes Actros</td><td>05 Oct, 2025</td>
+                <td><span class="st st--done"><i></i>Delivered</span></td>
+                <td><div class="acts"><a class="btn btn--ghost" href="#">See more</a><button class="kebab" aria-label="More"><i data-lucide="ellipsis"></i></button></div></td>
+              </tr>
+              <tr style="--i:2">
+                <td>#913562478</td><td>Sofia Ricci</td>
+                <td><div class="route"><svg class="route__arc" viewBox="0 0 14 34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M11 2C4 2 3 8 3 17s1 15 8 15"/></svg><div class="route__l"><span><span class="flag" data-f="cz"></span>Prague, CZ</span><span><span class="flag" data-f="ch"></span>Zurich, CH</span></div></div></td>
+                <td>MAN TGX</td><td>05 Oct, 2025</td>
+                <td><span class="st st--idle"><i></i>Picked up</span></td>
+                <td><div class="acts"><a class="btn btn--ghost" href="#">See more</a><button class="kebab" aria-label="More"><i data-lucide="ellipsis"></i></button></div></td>
+              </tr>
+              <tr style="--i:3">
+                <td>#324561327</td><td>Olivia Novak</td>
+                <td><div class="route"><svg class="route__arc" viewBox="0 0 14 34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M11 2C4 2 3 8 3 17s1 15 8 15"/></svg><div class="route__l"><span><span class="flag" data-f="es"></span>Madrid, ES</span><span><span class="flag" data-f="fr"></span>Lyon, FR</span></div></div></td>
+                <td>Scania R500</td><td>15 Sep, 2025</td>
+                <td><span class="st st--move"><i></i>In transit</span></td>
+                <td><div class="acts"><a class="btn btn--ghost" href="#">See more</a><button class="kebab" aria-label="More"><i data-lucide="ellipsis"></i></button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script>if(window.lucide)lucide.createIcons({attrs:{"stroke-width":2}});</script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.54.1/dist/apexcharts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.17/dist/motion.min.js"></script>
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.getElementById('tgl').addEventListener('click', function(){
+    var n = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', n);
+    try { localStorage.setItem('moveiq-theme', n); } catch(e){}
+  });
+
+  /* flags — CSS stripes, no image requests */
+  var F = {
+    de:['#000','#DD0000','#FFCE00'], nl:['#AE1C28','#FFF','#21468B'],
+    pl:['#FFF','#FFF','#DC143C'],    at:['#ED2939','#FFF','#ED2939'],
+    cz:['#11457E','#FFF','#D7141A'], ch:['#D52B1E','#D52B1E','#D52B1E'],
+    es:['#AA151B','#F1BF00','#AA151B'], fr:['#0055A4','#FFF','#EF4135']
+  };
+  [].forEach.call(document.querySelectorAll('.flag'), function(el){
+    var c = F[el.dataset.f] || ['#ccc','#ddd','#eee'];
+    el.style.background = 'linear-gradient(' + c[0] + ' 0 33.4%,' + c[1] + ' 33.4% 66.7%,' + c[2] + ' 66.7% 100%)';
+  });
+
+  /* ================= CHARTS — ApexCharts =================
+     The month axis spaces itself against the data instead of being a
+     separate flex row guessing at alignment, and the bars sit on a real
+     baseline. The 87% marker is an xaxis annotation, not a floating div. */
+  var barChart = null, gaugeChart = null;
+
+  function panelInk(){
+    return getComputedStyle(document.documentElement).getPropertyValue('--on-panel').trim() || '#fff';
+  }
+  function panelBg(){
+    return getComputedStyle(document.documentElement).getPropertyValue('--panel').trim() || '#18181A';
+  }
+  function fade(hex, a){
+    var h = hex.replace('#',''); if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    return 'rgba(' + parseInt(h.slice(0,2),16) + ',' + parseInt(h.slice(2,4),16) + ',' + parseInt(h.slice(4,6),16) + ',' + a + ')';
+  }
+
+  /* 6 readings per month across Feb–Nov = 60 bars; the label sits on the
+     MIDDLE reading of each month, so it lands under its own group */
+  var MONTHS = ['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'];
+  var PER = 6, data = [], cats = [];
+  for (var m = 0; m < MONTHS.length; m++) {
+    for (var k = 0; k < PER; k++) {
+      var i = m * PER + k;
+      data.push(+(42 + Math.abs(Math.sin(i * 1.7) * 34) + Math.abs(Math.cos(i * 0.9) * 20)).toFixed(1));
+      cats.push(i);
+    }
+  }
+  /* Label via a FORMATTER on numeric categories, not an array padded with
+     empty strings — Apex renders a padded array as both a text node and a
+     tspan, which paints every month name twice ("FebFeb"). */
+  function monthLabel(val){
+    var i = Number(val);
+    return (i % PER === Math.floor(PER / 2)) ? MONTHS[Math.floor(i / PER)] : '';
+  }
+
+  /* explicit pixels, not '100%' — Apex resolves a percentage height before
+     the flex/stretch layout settles and can render an SVG far taller than
+     its container, pushing the baseline out of view */
+  function barSide(){
+    var h = document.getElementById('bars');
+    return Math.max(90, h ? h.clientHeight : 180);
+  }
+  function barOptions(){
+    var ink = panelInk();
+    return {
+      chart:{ type:'bar', height:barSide(), background:'transparent', fontFamily:'inherit',
+              parentHeightOffset:0,   /* Apex's default 15px bottom gutter */
+              toolbar:{show:false}, animations:{enabled:!reduce, speed:700, animateGradually:{enabled:true, delay:12}} },
+      series:[{ name:'Fulfillment', data:data }],
+      plotOptions:{ bar:{ columnWidth:'62%', borderRadius:1 } },
+      colors:[ fade(ink, .26) ],
+      dataLabels:{enabled:false},
+      /* negative bottom padding reclaims the bottom-axis strip Apex still
+         reserves after the labels are moved to the top */
+      grid:{ show:false, padding:{left:0,right:0,top:0,bottom:-24} },
+      /* months sit ABOVE the bars, as in the source */
+      xaxis:{ categories:cats, position:'top',
+              labels:{ formatter:monthLabel, style:{ colors:fade(ink,.48), fontSize:'12px', fontWeight:500 }, rotate:0, hideOverlappingLabels:false },
+              axisBorder:{show:false}, axisTicks:{show:false}, tooltip:{enabled:false},
+              crosshairs:{show:false} },
+      yaxis:{ show:false },
+      tooltip:{ enabled:!reduce, x:{show:false}, marker:{show:false},
+                y:{ formatter:function(v){ return v.toFixed(0) + '%'; }, title:{formatter:function(){return '';}} } },
+      annotations:{ xaxis:[{ x:cats[21], strokeDashArray:0, borderColor:ink, borderWidth:2,
+        label:{ text:'87%', orientation:'horizontal', position:'top', offsetY:-6,
+                borderWidth:0, borderRadius:999,
+                style:{ background:ink, color:panelBg(), fontSize:'12px', fontWeight:600, padding:{left:9,right:9,top:4,bottom:4} } } }] }
+    };
+  }
+
+  var GAUGE = [
+    {n:'Finland', v:28, c:'#6BBF59'}, {n:'Sweden', v:27, c:'#C9D96B'},
+    {n:'Iceland', v:22, c:'#EDEDED'}, {n:'Estonia', v:14, c:'#7FA9C0'},
+    {n:'Other',   v:9,  c:'#E3C77E'}
+  ];
+  /* an explicit SQUARE in pixels — height:'100%' resolves against the
+     clipping wrapper's height, which caps the radius at half the width */
+  function gaugeSide(){
+    var w = document.querySelector('.gaugewrap');
+    return Math.max(120, w ? w.clientWidth : 300);
+  }
+  function gaugeOptions(){
+    var side = gaugeSide();
+    return {
+      chart:{ type:'donut', width:side, height:side, background:'transparent', fontFamily:'inherit',
+              animations:{enabled:!reduce, speed:800} },
+      series:GAUGE.map(function(g){return g.v;}),
+      labels:GAUGE.map(function(g){return g.n;}),
+      colors:GAUGE.map(function(g){return g.c;}),
+      /* A true semicircle. Apex sizes the pie for a FULL circle, so a
+         half-circle wastes the lower half of the box — customScale grows
+         it and offsetY drops the flat edge toward the bottom. */
+      /* a slimmer ring — donut.size is the HOLE, so larger = thinner arc */
+      plotOptions:{ pie:{ startAngle:-90, endAngle:90, offsetY:0, customScale:1,
+        donut:{ size:'84%', labels:{show:false} }, expandOnClick:false } },
+      grid:{ padding:{ top:0, right:0, bottom:0, left:0 } },
+      stroke:{ width:0 },
+      dataLabels:{enabled:false},
+      legend:{show:false},
+      tooltip:{ enabled:!reduce, y:{ formatter:function(v){ return v + '%'; } } }
+    };
+  }
+
+  if (typeof ApexCharts !== 'undefined') {
+    barChart = new ApexCharts(document.getElementById('bars'), barOptions()); barChart.render();
+    gaugeChart = new ApexCharts(document.getElementById('gauge'), gaugeOptions()); gaugeChart.render();
+    /* the panel inverts with the theme, so the charts must re-skin too */
+    new MutationObserver(function(){
+      if (barChart) barChart.updateOptions(barOptions(), false, false);
+      if (gaugeChart) gaugeChart.updateOptions(gaugeOptions(), false, false);
+    }).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme'] });
+
+    /* the gauge is sized in pixels, so it has to be re-squared on resize */
+    var rt;
+    window.addEventListener('resize', function(){
+      clearTimeout(rt);
+      rt = setTimeout(function(){
+        if (barChart) barChart.updateOptions({ chart:{ height:barSide() } }, false, false);
+        if (gaugeChart) gaugeChart.updateOptions({ chart:{ width:gaugeSide(), height:gaugeSide() } }, false, false);
+        alignChartBaselines();
+      }, 140);
+    });
+
+    /* ALIGN: the bars' baseline and the half-pie's flat edge should sit on
+       one line. The bar chart reserves a label strip below its baseline and
+       the gauge does not, so the gap is measured and applied rather than
+       guessed — it changes with font size and breakpoint. */
+    function alignChartBaselines(){
+      var bar = document.querySelector('#bars .apexcharts-bar-area');
+      var host = document.getElementById('bars');
+      var wrap = document.querySelector('.gaugewrap');
+      if (!bar || !host || !wrap) return;
+      /* Measure ONLY within the bar chart: how much space its x-axis label
+         strip occupies below the baseline. Comparing the two charts'
+         positions instead would feed back — moving the gauge changes the
+         row height, which moves the bars, which changes the answer. */
+      var areas = document.querySelectorAll('#gauge .apexcharts-pie-area');
+      if (!areas.length) return;
+      /* Seed with the x-axis label strip, then correct. Each pass reads
+         layout back, so this is a fixed-point iteration, not a guess —
+         it converges in 2-3 passes and bails if it ever doesn't. */
+      var strip = Math.round(host.getBoundingClientRect().bottom - bar.getBoundingClientRect().bottom);
+      wrap.style.marginBottom = Math.max(0, strip) + 'px';
+      for (var pass = 0; pass < 6; pass++) {
+        var flat = -1e9;
+        [].forEach.call(areas, function(a){ flat = Math.max(flat, a.getBoundingClientRect().bottom); });
+        var off = Math.round(flat - bar.getBoundingClientRect().bottom);
+        if (Math.abs(off) <= 1) break;
+        wrap.style.marginBottom = ((parseFloat(wrap.style.marginBottom) || 0) + off) + 'px';
+      }
+    }
+    setTimeout(alignChartBaselines, 260);
+    window.__align = alignChartBaselines;
+  }
+
+  /* ================= MOTION LAYER =================
+     GSAP + ScrollTrigger — orchestration. Motion — spring micro-
+     interactions. Lenis — the scroll itself.
+     If any library failed to load, drop the pre-hide and show the page
+     rather than leaving it blank. */
+  var hasGsap = typeof gsap !== 'undefined';
+  if (reduce || !hasGsap) { document.documentElement.classList.remove('js'); return; }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* --- Lenis, driven off GSAP's ticker (the canonical wiring: one rAF
+     loop, and ScrollTrigger stays in sync with the smoothed position).
+     Kept SHORT here — inertia fights a data table, so a workbench wants
+     far less easing than an editorial page would. --- */
+  if (typeof Lenis !== 'undefined') {
+    var lenis = new Lenis({ duration: 0.7, smoothWheel: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(function(t){ lenis.raf(t * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  /* --- entry timeline: chrome, then the panel, then the data ---
+     fromTo with EXPLICIT end values, never .from(). The CSS pre-hide
+     sets opacity:0, and .from() reads the current computed value as its
+     destination — so .from({opacity:0}) would tween 0 → 0 and the page
+     would never appear. Same trap for the bars' scaleY. */
+  var tl = gsap.timeline({
+    defaults:{ ease:'power3.out', duration:.7 },
+    /* SAFETY NET: drop the pre-hide once the entry is done, so a selector
+       that is hidden by CSS but missed by the timeline can never leave
+       content permanently invisible. Rows keep their own inline opacity
+       from fromTo's immediateRender, so their ScrollTrigger still works. */
+    onComplete: function(){ document.documentElement.classList.remove('js'); }
+  });
+  tl.fromTo('.top',          { y:-14, opacity:0 }, { y:0, opacity:1, duration:.55 })
+    .fromTo('.card, .promo', { y:18, opacity:0 },  { y:0, opacity:1, stagger:.09 }, '-=.3')
+    .fromTo('.tile',         { scale:.94, opacity:0 }, { scale:1, opacity:1, duration:.5, stagger:.06, ease:'back.out(1.7)' }, '-=.5')
+    .fromTo('.panel',        { y:18, opacity:0 },  { y:0, opacity:1 }, '-=.62')
+    .fromTo('#orders',       { y:18, opacity:0 },  { y:0, opacity:1 }, '-=.5');
+  /* the charts animate themselves — ApexCharts owns its own entry, so
+     GSAP deliberately does not touch their internals */
+
+  /* the rows are what the page is FOR, so they get their own scroll trigger */
+  gsap.fromTo('#rows tr',
+    { y:12, opacity:0 },
+    { y:0, opacity:1, duration:.55, stagger:.08, ease:'power3.out',
+      scrollTrigger:{ trigger:'#rows', start:'top 92%', once:true } });
+
+  /* --- Motion: spring hover + press on every interactive control --- */
+  if (typeof Motion !== 'undefined' && Motion.animate) {
+    var animate = Motion.animate;
+    document.querySelectorAll('.btn, .tab, .nv, .kebab, .row[href]').forEach(function(el){
+      el.addEventListener('pointerenter', function(){ animate(el, { y:-2 }, { type:'spring', stiffness:420, damping:20 }); });
+      el.addEventListener('pointerleave', function(){ animate(el, { y:0 },  { type:'spring', stiffness:420, damping:26 }); });
+      el.addEventListener('pointerdown',  function(){ animate(el, { scale:.96 }, { type:'spring', stiffness:700, damping:26 }); });
+      el.addEventListener('pointerup',    function(){ animate(el, { scale:1 },  { type:'spring', stiffness:500, damping:18 }); });
+    });
+  }
+})();
+</script>
+</body>
+</html>

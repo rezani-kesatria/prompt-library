@@ -1,0 +1,17 @@
+# scratch / temp working files
+app/_*
+*.tmp
+*.bak
+
+# os
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# editors
+.vscode/
+.idea/
+
+# node (serve.js has no deps, but just in case)
+node_modules/
+npm-debug.log*

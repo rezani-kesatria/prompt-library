@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HireLaw® — trusted legal solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  /* ==================================================================
+     HIRELAW® — law firm landing page
+     Recreated from a design by Odama
+     https://dribbble.com/shots/26248762-HireLaw-Law-Firm-Landing-Page
+
+     THE RULES
+     · WARM CREAM canvas. Ink is SOFT CHARCOAL, never black — pure
+       black is reserved for BUTTONS and the FOOTER.
+     · A SIX-HUE PASTEL PALETTE, one hue promoted to a full-bleed
+       section colour. The library's first multi-hue reference.
+     · Buttons are ROUNDED RECTS, not pills. Chips are pills.
+     · LEFT-GUTTER SECTION LABELS — small caps, two lines, far left,
+       with the content offset to the right of them.
+     · CUT-OUT FIGURES on flat pastel blocks, duotone-washed, heads
+       breaking above the block's top edge.
+     · The footer closes on an OVERSIZED WORDMARK bleeding off the
+       bottom edge.
+     ================================================================== */
+
+  :root{
+    --pad:clamp(18px,3.4vw,64px);
+    --gut:clamp(74px,9vw,168px);         /* the left label column */
+    --maxw:1500px;
+    --r-btn:9px;                          /* ROUNDED RECT — not a pill */
+    --r-card:12px;
+    --sans:'Figtree',sans-serif;
+    --e:cubic-bezier(.2,.8,.2,1);
+    --eo:cubic-bezier(.16,1,.3,1);
+    --eb:cubic-bezier(.34,1.3,.5,1);
+
+    /* colour — sampled from the source */
+    color-scheme:light;
+    --cream:#F5F3ED;
+    --ink:#3C3C3C;                        /* SOFT charcoal, not black */
+    --ink-2:#6E6C67;
+    --grey:#868583;                       /* second tone of a heading */
+    --line:rgba(60,60,60,.22);
+    --tan:#E7E2D3;
+    --solid:#000000;                      /* buttons + footer only */
+    --on-solid:#FFFFFF;
+    --lav:#B9B5ED;                        /* the promoted pastel */
+    --on-lav:#3C3C3C;
+    /* the pastel set — brand identity, identical in both themes */
+    --p1:#B8B4ED; --p2:#F5B0AD; --p3:#B2F3B6; --p4:#B2EEED; --p5:#F5D5A6;
+  }
+  html[data-theme="dark"]{
+    color-scheme:dark;
+    --cream:#141310;
+    --ink:#EDEBE4;
+    --ink-2:#9C9992;
+    --grey:#7A7871;
+    --line:rgba(237,235,228,.2);
+    --tan:#2B2922;
+    --solid:#F5F3ED;                      /* inverts */
+    --on-solid:#141310;
+    --lav:#8F8BD0;
+    --on-lav:#14130F;
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--cream);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  img{display:block;max-width:100%}
+  a,button{font:inherit;color:inherit;text-decoration:none;background:none;border:0;cursor:pointer}
+  svg{display:block}
+  h1,h2,h3{font-weight:600;letter-spacing:-.028em;line-height:1.12}
+  /* the two-tone heading — a library-wide constant, not this design's own */
+  .dim{color:var(--grey)}
+
+  .wrap{width:min(100% - var(--pad) * 2,var(--maxw));margin-inline:auto}
+
+  /* left-gutter section labels */
+  .sec{padding-block:clamp(46px,6.5vw,124px)}
+  /* minmax(0,1fr), not 1fr — a bare fr track has min-width:auto, so the
+     attorney rail's fixed-width cards would inflate the column instead of
+     scrolling inside it */
+  .sec__in{display:grid;grid-template-columns:var(--gut) minmax(0,1fr);gap:clamp(14px,2vw,44px);align-items:start}
+  .sec__in > *{min-width:0}
+  /* sections with no gutter label collapse to a single full-width column */
+  .sec__in--full{grid-template-columns:minmax(0,1fr)}
+  .lab{font-size:clamp(.6rem,.68vw,.72rem);letter-spacing:.055em;text-transform:uppercase;line-height:1.3;color:var(--ink-2);font-weight:500}
+
+  /* ---------- buttons: ROUNDED RECT, never a pill ---------- */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:var(--r-btn);padding:clamp(11px,1vw,15px) clamp(18px,1.6vw,26px);font-size:clamp(.82rem,.92vw,.98rem);font-weight:600;transition:transform .3s var(--e),opacity .3s var(--e)}
+  .btn:hover{transform:translateY(-2px);opacity:.92}
+  .btn--solid{background:var(--solid);color:var(--on-solid)}
+  .btn--tan{background:var(--tan);color:var(--ink)}
+  /* chips ARE pills — the one exception */
+  .chip{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:clamp(7px,.7vw,11px) clamp(14px,1.2vw,20px);font-size:clamp(.76rem,.85vw,.92rem);transition:border-color .25s var(--e),background-color .25s var(--e)}
+  .chip:hover{border-color:var(--ink)}
+
+  /* ---------- NAV ---------- */
+  .nav{padding-block:clamp(16px,1.7vw,30px)}
+  .nav__in{display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .brand{font-size:clamp(1rem,1.15vw,1.28rem);font-weight:700;letter-spacing:-.03em}
+  .nav__links{display:flex;align-items:center;gap:clamp(14px,1.9vw,38px)}
+  .nav__links a{font-size:clamp(.8rem,.88vw,.94rem);color:var(--ink-2);transition:color .25s var(--e)}
+  .nav__links a:hover{color:var(--ink)}
+  .tgl{width:34px;height:34px;border-radius:var(--r-btn);display:grid;place-items:center;border:1px solid var(--line)}
+  .tgl svg{width:15px;height:15px}
+  .tgl .moon{display:none}
+  html[data-theme="dark"] .tgl .sun{display:none}
+  html[data-theme="dark"] .tgl .moon{display:block}
+
+  /* ---------- HERO ---------- */
+  .hero{text-align:center;padding-top:clamp(30px,4.6vw,86px)}
+  .hero h1{font-size:clamp(2rem,4.6vw,4.6rem);letter-spacing:-.035em}
+  .hero p{max-width:44ch;margin:clamp(14px,1.5vw,26px) auto 0;color:var(--ink-2);font-size:clamp(.88rem,.98vw,1.05rem)}
+  .hero p b{color:var(--ink);font-weight:600}
+  .hero .btn{margin-top:clamp(18px,2vw,34px)}
+
+  /* THE SIGNATURE — one pastel hue per person, duotone-washed, blocks
+     staggered in height along a shared baseline.
+     ⚠️ The source uses true CUT-OUTS whose heads break above the block's
+     top edge. That needs transparent-PNG assets; with rectangular stock
+     the honest equivalent is a luminosity duotone filling each block —
+     the photo's luminance over the block's hue. Works with any photo,
+     unlike a multiply blend, which only cuts out on a white background. */
+  .cast{display:flex;align-items:flex-end;gap:clamp(4px,.55vw,11px);margin-top:clamp(28px,3.6vw,68px);height:clamp(200px,26vw,430px)}
+  .fig{position:relative;flex:1;height:100%;display:flex;align-items:flex-end}
+  .fig__b{position:relative;width:100%;height:var(--h,70%);background:var(--c);overflow:hidden;border-radius:2px}
+  .fig__b img{width:100%;height:100%;object-fit:cover;object-position:50% 14%;filter:grayscale(1) contrast(1.14);mix-blend-mode:luminosity}
+
+  /* ---------- ABOUT ---------- */
+  .about__grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(20px,3vw,60px);align-items:start}
+  .about h2{font-size:clamp(1.4rem,2.5vw,2.6rem)}
+  .about p{margin-top:clamp(14px,1.5vw,26px);max-width:46ch;color:var(--ink-2);font-size:clamp(.88rem,.98vw,1.05rem)}
+  .chips{display:flex;flex-direction:column;align-items:flex-start;gap:clamp(8px,.8vw,13px);margin-top:clamp(18px,2vw,34px)}
+  /* a photographic OBJECT as decoration, bleeding off the right edge */
+  .bloom{position:relative;min-height:clamp(150px,18vw,320px)}
+  .bloom img{position:absolute;left:0;top:0;width:min(150%,760px);max-width:none;mix-blend-mode:multiply}
+  html[data-theme="dark"] .bloom img{mix-blend-mode:screen;filter:invert(1) hue-rotate(180deg)}
+
+  /* ---------- PRESS MARQUEE ---------- */
+  .press{overflow:hidden;padding-block:clamp(20px,2.4vw,44px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .press__t{display:flex;align-items:center;gap:clamp(34px,5vw,96px);width:max-content;animation:slide 34s linear infinite}
+  .press__t span{font-size:clamp(1rem,1.5vw,1.6rem);font-weight:700;letter-spacing:-.02em;color:var(--ink);opacity:.62;white-space:nowrap}
+  .press__t span:nth-child(3n){font-family:Georgia,'Times New Roman',serif;font-weight:600}
+  @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ---------- EXPERTISE ---------- */
+  .exp h2{font-size:clamp(1.4rem,2.5vw,2.6rem);margin-bottom:clamp(20px,2.4vw,46px)}
+  .exp__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,1.2vw,22px)}
+  .exp__c{border:1px solid var(--line);border-radius:var(--r-card);padding:clamp(16px,1.6vw,30px);display:flex;flex-direction:column;gap:clamp(20px,2.6vw,52px);transition:border-color .3s var(--e),background-color .3s var(--e)}
+  .exp__c:hover{border-color:var(--ink)}
+  .exp__c svg{width:clamp(30px,3vw,52px);height:clamp(30px,3vw,52px);stroke-width:1.1}
+  .exp__c h3{font-size:clamp(.94rem,1.05vw,1.18rem);font-weight:600}
+  .exp__c p{margin-top:7px;color:var(--ink-2);font-size:clamp(.74rem,.82vw,.88rem);line-height:1.5}
+
+  /* ---------- TESTIMONIALS — full-bleed promoted pastel ---------- */
+  .quotes{background:var(--lav);color:var(--on-lav)}
+  .quotes h2{font-size:clamp(1.4rem,2.5vw,2.6rem);margin-bottom:clamp(20px,2.4vw,46px)}
+  .quotes .lab{color:rgba(60,60,60,.66)}
+  html[data-theme="dark"] .quotes .lab{color:rgba(20,19,15,.66)}
+  .q__grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.2vw,22px)}
+  .q{background:rgba(255,255,255,.42);border-radius:var(--r-card);padding:clamp(16px,1.6vw,30px);display:flex;flex-direction:column}
+  .q blockquote{font-style:italic;font-size:clamp(.8rem,.9vw,.96rem);line-height:1.6}
+  .q__by{display:flex;align-items:center;gap:11px;margin-top:clamp(18px,2.2vw,42px)}
+  .q__by img{width:clamp(30px,2.6vw,44px);height:clamp(30px,2.6vw,44px);border-radius:50%;object-fit:cover}
+  .q__by b{display:block;font-size:clamp(.78rem,.85vw,.92rem);font-weight:600}
+  .q__by small{display:block;font-size:clamp(.66rem,.74vw,.8rem);opacity:.7}
+
+  /* ---------- ATTORNEYS ---------- */
+  .team h2{font-size:clamp(1.4rem,2.5vw,2.6rem);margin-bottom:clamp(20px,2.4vw,46px)}
+  .team__rail{display:flex;gap:clamp(10px,1.2vw,22px);overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+  .team__rail::-webkit-scrollbar{display:none}
+  .who{position:relative;flex:none;width:clamp(180px,20vw,320px);aspect-ratio:3/4;border-radius:var(--r-card);overflow:hidden}
+  .who img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--eo)}
+  .who:hover img{transform:scale(1.05)}
+  .who__arw{position:absolute;top:clamp(10px,1vw,18px);right:clamp(10px,1vw,18px);color:#fff}
+  .who__arw svg{width:16px;height:16px}
+  .who__f{position:absolute;left:0;right:0;bottom:0;padding:clamp(11px,1.1vw,20px);display:flex;align-items:flex-end;justify-content:space-between;gap:10px;color:#fff;background:linear-gradient(to top,rgba(0,0,0,.55),transparent)}
+  .who__f b{font-size:clamp(.8rem,.9vw,1rem);font-weight:600;line-height:1.2}
+  .who__f small{font-size:clamp(.6rem,.66vw,.72rem);opacity:.85;text-align:right;line-height:1.25}
+
+  /* ---------- CTA (authored) ---------- */
+  /* The source shows only a sliver: a full-bleed desaturated photo with
+     a centred white restatement of the hero line. Built to that shape. */
+  .cta{position:relative;overflow:hidden;isolation:isolate}
+  .cta img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) brightness(.86);z-index:-1}
+  .cta::after{content:"";position:absolute;inset:0;background:rgba(20,19,15,.28);z-index:-1}
+  .cta .sec__in{align-items:center}
+  .cta .lab{color:rgba(255,255,255,.72)}
+  .cta__t{text-align:center;color:#fff}
+  .cta__t h2{font-size:clamp(1.7rem,3.6vw,3.6rem);letter-spacing:-.035em}
+  .cta__t .dim{color:rgba(255,255,255,.6)}
+  .cta__t p{max-width:42ch;margin:clamp(12px,1.3vw,22px) auto 0;color:rgba(255,255,255,.78);font-size:clamp(.85rem,.95vw,1rem)}
+  .cta__t .btn{margin-top:clamp(16px,1.8vw,30px)}
+  .cta .btn--solid{background:#fff;color:#141310}
+
+  /* ---------- FOOTER ---------- */
+  /* the bottom padding is the "imaginary space" that keeps the wordmark
+     clear of the footer's bottom edge */
+  .foot{background:var(--solid);color:var(--on-solid);padding-top:clamp(34px,4.4vw,88px);padding-bottom:clamp(34px,4.6vw,96px);overflow:hidden}
+  .foot__top{display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(20px,3vw,60px);align-items:start}
+  .foot__brand{font-size:clamp(1.7rem,3.4vw,3.6rem);font-weight:700;letter-spacing:-.035em;line-height:1}
+  .foot__top p{margin-top:clamp(10px,1.1vw,20px);max-width:34ch;font-size:clamp(.72rem,.8vw,.88rem);opacity:.62;line-height:1.55}
+  .foot__nav{display:flex;flex-direction:column;gap:clamp(4px,.5vw,9px);align-items:flex-start}
+  .foot__nav a{font-size:clamp(.95rem,1.35vw,1.5rem);font-weight:600;letter-spacing:-.025em;transition:opacity .25s var(--e)}
+  .foot__nav a:hover{opacity:.6}
+  /* the oversized wordmark — dead centre on the footer at any width.
+     text-align:center keeps it centred even when it is wider than the
+     viewport, so it clips symmetrically rather than running off to one side */
+  .foot__mark{margin-top:clamp(20px,2.8vw,58px);width:100%;text-align:center;font-size:clamp(4rem,15.5vw,17rem);font-weight:700;letter-spacing:-.045em;line-height:.9;white-space:nowrap;opacity:.13;pointer-events:none;user-select:none}
+  .foot__bar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:clamp(38px,5vw,80px);padding-block:clamp(12px,1.3vw,24px);border-top:1px solid rgba(255,255,255,.14);font-size:clamp(.68rem,.76vw,.82rem);opacity:.6}
+  html[data-theme="dark"] .foot__bar{border-top-color:rgba(0,0,0,.16)}
+  .foot__soc{display:flex;gap:12px}
+  .foot__soc svg{width:15px;height:15px}
+
+  /* ---------- MOTION ----------
+     Reading order per section: label → heading → body → the visual.
+     The hero's cast is the payoff, so the pastel blocks GROW UP from
+     the baseline and the figures settle in after them. */
+  [data-r]{opacity:0;transform:translateY(16px);transition:opacity .75s var(--eo) var(--d,0ms),transform .75s var(--eo) var(--d,0ms)}
+  [data-r].in{opacity:1;transform:none}
+  [data-stagger] > *{opacity:0;transform:translateY(14px);transition:opacity .65s var(--eo),transform .65s var(--eo)}
+  [data-stagger].in > *{opacity:1;transform:none;transition-delay:calc(var(--d,0ms) + var(--i,0) * 80ms)}
+
+  .fig__b{transform:scaleY(0);transform-origin:50% 100%;transition:transform .9s var(--eo) calc(var(--i,0) * 70ms + 120ms)}
+  .cast.in .fig__b{transform:none}
+  .fig__b img{opacity:0;transition:opacity .8s var(--eo) calc(var(--i,0) * 70ms + 420ms)}
+  .cast.in .fig__b img{opacity:1}
+
+  @media (prefers-reduced-motion:reduce){
+    [data-r],[data-stagger] > *,.fig__b img{opacity:1!important;transform:none!important;transition:none!important}
+    .fig__b{transform:none!important;transition:none!important}
+    .press__t{animation:none}
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:960px){
+    .sec__in{grid-template-columns:1fr;gap:clamp(10px,1.6vw,18px)}
+    .about__grid,.foot__top,.q__grid{grid-template-columns:1fr}
+    .exp__grid{grid-template-columns:1fr}
+    .bloom{min-height:210px}
+    .bloom img{width:min(120%,520px)}
+    .cast{height:clamp(150px,34vw,260px);gap:3px}
+    .nav__links a:not(.btn){display:none}
+  }
+</style>
+<script>(function(){try{var t=localStorage.getItem('hirelaw-theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
+</head>
+<body>
+
+<!-- ======== NAV ======== -->
+<div class="wrap nav"><div class="nav__in">
+  <a class="brand" href="#">HireLaw&reg;</a>
+  <nav class="nav__links">
+    <a href="#">Home</a><a href="#">Sourching</a><a href="#">Evaluation</a><a href="#">Communication</a>
+    <a class="btn btn--tan" href="#">Sign In</a>
+    <button class="tgl" id="tgl" aria-label="Toggle theme">
+      <i class="sun" data-lucide="sun"></i>
+      <i class="moon" data-lucide="moon"></i>
+    </button>
+  </nav>
+</div></div>
+
+<!-- ======== HERO ======== -->
+<header class="wrap hero">
+  <h1 data-r><span class="dim">Trusted Legal Solutions for</span><br>Your Peace of Mind</h1>
+  <p data-r style="--d:90ms">At <b>HireLaw</b>, we are committed to providing exceptional legal services tailored to your unique needs.</p>
+  <a class="btn btn--solid" href="#" data-r style="--d:170ms">Schedule Meet</a>
+
+  <!-- cut-out cast on pastel blocks -->
+  <div class="cast" id="cast" aria-hidden="true">
+    <figure class="fig" style="--c:var(--p1);--i:0"><span class="fig__b" style="--h:76%"><img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=520&q=70" alt="" /></span></figure>
+    <figure class="fig" style="--c:var(--p2);--i:1"><span class="fig__b" style="--h:64%"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=520&q=70" alt="" /></span></figure>
+    <figure class="fig" style="--c:var(--p3);--i:2"><span class="fig__b" style="--h:72%"><img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=520&q=70" alt="" /></span></figure>
+    <figure class="fig" style="--c:var(--p4);--i:3"><span class="fig__b" style="--h:60%"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=520&q=70" alt="" /></span></figure>
+    <figure class="fig" style="--c:var(--p2);--i:4"><span class="fig__b" style="--h:84%"><img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=520&q=70" alt="" /></span></figure>
+    <figure class="fig" style="--c:var(--p5);--i:5"><span class="fig__b" style="--h:68%"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=520&q=70" alt="" /></span></figure>
+  </div>
+</header>
+
+<!-- ======== ABOUT ======== -->
+<section class="sec about"><div class="wrap"><div class="sec__in">
+  <span class="lab" data-r>About<br>Us</span>
+  <div class="about__grid">
+    <div data-stagger data-r>
+      <h2 style="--i:0">About HireLaw&reg;</h2>
+      <p style="--i:1">HireLaw is a full-service law firm offering comprehensive legal support across a broad range of practice areas. Our attorneys combine in-depth legal knowledge with a practical, client-focused approach to deliver results you can rely on.</p>
+      <div class="chips" style="--i:2">
+        <span class="chip">Personalized attention</span>
+        <span class="chip">Proven track record of success</span>
+        <span class="chip">Transparent and honest communication</span>
+      </div>
+    </div>
+  </div>
+</div></div></section>
+
+<!-- ======== PRESS ======== -->
+<div class="press" aria-label="Recognised by">
+  <div class="press__t">
+    <span>Baker McKenzie.</span><span>Weil</span><span>Jones Day</span><span>DLA Piper</span><span>Skadden</span><span>Mills &amp; Cahill</span><span>Ballard Spahr</span>
+    <span>Baker McKenzie.</span><span>Weil</span><span>Jones Day</span><span>DLA Piper</span><span>Skadden</span><span>Mills &amp; Cahill</span><span>Ballard Spahr</span>
+  </div>
+</div>
+
+<!-- ======== EXPERTISE ======== -->
+<section class="sec exp"><div class="wrap"><div class="sec__in">
+  <span class="lab" data-r>Our<br>Expertise</span>
+  <div>
+    <h2 data-r><span class="dim">Expertise in</span> Every Corner of the Law</h2>
+    <div class="exp__grid" data-stagger data-r>
+      <article class="exp__c" style="--i:0">
+        <i data-lucide="scale"></i>
+        <div><h3>Corporate Law</h3><p>Supporting entrepreneurs, startups, and established companies with contracts and compliance.</p></div>
+      </article>
+      <article class="exp__c" style="--i:1">
+        <i data-lucide="users"></i>
+        <div><h3>Family Law</h3><p>Compassionate guidance for divorce, custody, and child support matters.</p></div>
+      </article>
+      <article class="exp__c" style="--i:2">
+        <i data-lucide="building"></i>
+        <div><h3>Real Estate Law</h3><p>Helping clients navigate complex property and land use matters.</p></div>
+      </article>
+    </div>
+  </div>
+</div></div></section>
+
+<!-- ======== TESTIMONIALS — full-bleed promoted pastel ======== -->
+<section class="sec quotes"><div class="wrap"><div class="sec__in">
+  <span class="lab" data-r>Client<br>Testimonials</span>
+  <div>
+    <h2 data-r>What Our Clients Are Saying</h2>
+    <div class="q__grid" data-stagger data-r>
+      <article class="q" style="--i:0">
+        <blockquote>"Working with HireLaw was a game changer for our business. We needed clear, actionable advice for a complex acquisition, and their team navigated us through the entire process seamlessly. Their expertise saved us time and money, and we couldn't have asked for a better outcome."</blockquote>
+        <div class="q__by"><img src="https://i.pravatar.cc/120?img=13" alt="" /><div><b>David L. Williams</b><small>CEO, Williams Technologies</small></div></div>
+      </article>
+      <article class="q" style="--i:1">
+        <blockquote>"When our company was hit with a lawsuit, we were unsure of our next steps. HireLaw not only gave us clear, confident advice but also led us through mediation that resulted in a successful resolution. Their team was always responsive and made us feel like we were in good hands."</blockquote>
+        <div class="q__by"><img src="https://i.pravatar.cc/120?img=52" alt="" /><div><b>Charles M. Green</b><small>Founder, Green &amp; Associates Consulting</small></div></div>
+      </article>
+    </div>
+  </div>
+</div></div></section>
+
+<!-- ======== ATTORNEYS ======== -->
+<section class="sec team"><div class="wrap"><div class="sec__in">
+  <span class="lab" data-r>Our<br>Attorneys</span>
+  <div>
+    <h2 data-r><span class="dim">Our Lawyers</span> Are Dedicated To Upholding The Highest Standards Of Ethics &amp; Professionalism</h2>
+    <div class="team__rail" data-stagger data-r>
+      <article class="who" style="--i:0">
+        <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=700&q=75" alt="David L. Patel" />
+        <span class="who__arw"><i data-lucide="arrow-up-right"></i></span>
+        <div class="who__f"><b>David L.<br>Patel</b><small>Real Estate &amp;<br>Property Law</small></div>
+      </article>
+      <article class="who" style="--i:1">
+        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=700&q=75" alt="Sophia R. Chen" />
+        <span class="who__arw"><i data-lucide="arrow-up-right"></i></span>
+        <div class="who__f"><b>Sophia<br>R. Chen</b><small>Business &amp;<br>Corporate Law</small></div>
+      </article>
+      <article class="who" style="--i:2">
+        <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=700&q=75" alt="Michael O. Brown" />
+        <span class="who__arw"><i data-lucide="arrow-up-right"></i></span>
+        <div class="who__f"><b>Michael<br>O. Brown</b><small>Dispute<br>Resolution</small></div>
+      </article>
+      <article class="who" style="--i:3">
+        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=700&q=75" alt="John Carter" />
+        <span class="who__arw"><i data-lucide="arrow-up-right"></i></span>
+        <div class="who__f"><b>John<br>Carter</b><small>Employment<br>Law</small></div>
+      </article>
+      <article class="who" style="--i:4">
+        <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=700&q=75" alt="Amara Okafor" />
+        <span class="who__arw"><i data-lucide="arrow-up-right"></i></span>
+        <div class="who__f"><b>Amara<br>Okafor</b><small>Intellectual<br>Property</small></div>
+      </article>
+    </div>
+  </div>
+</div></div></section>
+
+<!-- ======== CTA — AUTHORED (only a sliver of the source is visible) ======== -->
+<section class="sec cta">
+  <img src="https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?w=2000&q=75" alt="" />
+  <div class="wrap"><div class="sec__in sec__in--full">
+    <div class="cta__t">
+      <h2 data-r><span class="dim">Trusted Legal Solutions for</span><br>Your Peace of Mind</h2>
+      <p data-r style="--d:90ms">Tell us what you are facing. We will tell you honestly whether we can help, and what it will take.</p>
+      <a class="btn btn--solid" href="#" data-r style="--d:170ms">Schedule Meet</a>
+    </div>
+  </div></div>
+</section>
+
+<!-- ======== FOOTER ======== -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__top" data-r>
+      <div>
+        <div class="foot__brand">HireLaw&reg;</div>
+        <p>At HireLaw, we are committed to providing exceptional legal services tailored to your unique needs.</p>
+      </div>
+      <nav class="foot__nav">
+        <a href="#">Home</a><a href="#">About Us</a><a href="#">Practice Areas</a><a href="#">Attorneys</a><a href="#">Testimonials</a>
+      </nav>
+    </div>
+    <div class="foot__bar">
+      <span>&copy;2025</span>
+      <div class="foot__soc">
+        <a href="#" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+        <a href="#" aria-label="Facebook"><i data-lucide="facebook"></i></a>
+        <a href="#" aria-label="LinkedIn"><i data-lucide="linkedin"></i></a>
+      </div>
+    </div>
+  </div>
+  <!-- outside .wrap so it centres on the FOOTER, not on the content column —
+       stays dead centre at any viewport width -->
+  <div class="foot__mark" aria-hidden="true">HireLaw&reg;</div>
+</footer>
+
+<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script>if(window.lucide)lucide.createIcons({attrs:{"stroke-width":2}});</script>
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var t = document.getElementById('tgl');
+  t.addEventListener('click', function(){
+    var n = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', n);
+    try { localStorage.setItem('hirelaw-theme', n); } catch(e){}
+  });
+
+  [].forEach.call(document.querySelectorAll('[data-stagger]'), function(p){
+    [].forEach.call(p.children, function(c,i){ if (!c.style.getPropertyValue('--i')) c.style.setProperty('--i', i); });
+  });
+
+  var targets = [].slice.call(document.querySelectorAll('[data-r],[data-stagger],.cast'));
+  if (reduce || !('IntersectionObserver' in window)) { targets.forEach(function(e){ e.classList.add('in'); }); }
+  else {
+    var io = new IntersectionObserver(function(en){
+      en.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold:.08, rootMargin:'0px 0px -6% 0px' });
+    targets.forEach(function(el){ io.observe(el); });
+  }
+})();
+</script>
+</body>
+</html>

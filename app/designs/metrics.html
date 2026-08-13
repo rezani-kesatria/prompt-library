@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Metric — growth overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+<style>
+  /* ==================================================================
+     METRIC — SaaS growth analytics board
+     Recreated from a design by Igor Zeru
+     https://dribbble.com/shots/27207977-Dark-Dashboard-UI-SaaS-Startup-Metrics-Analytics-Panel
+
+     THE RULES
+     · DARK-NATIVE. Only the second in the library after VITA.
+     · TWO TONES, and one does THREE JOBS: the canvas tone is also the
+       divider colour and the active-state fill. Dividers are the page
+       showing through the panel.
+     · PANELS RECEDE from the canvas — they never lift. (True of every
+       dashboard in this library, in both themes.)
+     · SEMANTIC PAIRS: tinted fill + saturated text. The same green pair
+       serves KPI deltas and status chips — one system, two contexts.
+     · DELTA COLOUR ENCODES GOOD/BAD, NOT DIRECTION. Churn falling is
+       GREEN with a DOWN arrow.
+     · Sidebar group rules BLEED full width; the nav items are INSET.
+     · ZERO elevation.
+     ⚠️ The photograph around the UI is presentation backdrop, not a token.
+     ================================================================== */
+
+  :root{
+    /* measured off the source at its 1440 artboard: 40px content inset,
+       27px panel inset, 12px gap. The first build ran ~two-thirds of this
+       and read tight and busy against the original's calm. */
+    --pad:clamp(16px,2.78vw,44px);
+    --pad-panel:clamp(16px,1.875vw,32px);
+    --gap:clamp(9px,.85vw,16px);
+    /* ⚠️ ZERO RADIUS EVERYWHERE — the identity-defining rule of this design.
+       Verified at the pixel: a delta chip's fill is exactly 48px tall at its
+       very first column and stays 48px across; a rounded corner would start
+       shorter and grow. Panels, controls, chips, icon wells, legend swatches
+       and bars are ALL square. There is not one curve in the design. */
+    --r-card:0;
+    --r-ctl:0;
+    --side:clamp(180px,15vw,268px);
+    --sans:'DM Sans',sans-serif;
+    --e:cubic-bezier(.2,.8,.2,1);
+    --eo:cubic-bezier(.16,1,.3,1);
+
+    /* DARK — native. Sampled from the source. */
+    color-scheme:dark;
+    --canvas:#1F1F1F;
+    --panel:#171717;          /* recedes from the canvas */
+    --step:#1F1F1F;           /* canvas tone: dividers AND active fills */
+    --ink:#F8F8F8;
+    --ink-2:#A0A0A0;
+    --muted:#6E6E6E;
+    --ok-fg:#09A55A;  --ok-bg:#16251E;
+    --warn-fg:#C39E09; --warn-bg:#282516;
+    --series-1:#F8F8F8;       /* charts are monochrome: white + grey */
+    --series-2:#999999;       /* measured off the source, not estimated */
+    --grid:rgba(248,248,248,.13);
+  }
+  html[data-theme="light"]{
+    color-scheme:light;
+    --canvas:#FFFFFF;
+    --panel:#F7F7F7;          /* still recedes */
+    --step:#FFFFFF;           /* still the canvas tone doing both jobs */
+    --ink:#141414;
+    --ink-2:#5A5A5A;
+    --muted:#909090;
+    --ok-fg:#0B8F4E;  --ok-bg:#DFF3E8;
+    --warn-fg:#8A6D06; --warn-bg:#FBF0CE;
+    --series-1:#141414;
+    --series-2:#B4B4B4;
+    --grid:rgba(20,20,20,.14);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--canvas);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  img{display:block;max-width:100%}
+  a,button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-decoration:none}
+  svg{display:block}
+  h1,h2,h3{font-weight:500;letter-spacing:-.03em;line-height:1.15}
+
+  .app{display:grid;grid-template-columns:var(--side) minmax(0,1fr);min-height:100vh}
+
+  /* ---------- SIDEBAR ---------- */
+  /* group rules BLEED edge to edge; the items inside are INSET */
+  .side{background:var(--panel);display:flex;flex-direction:column}
+  .side__hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:clamp(14px,1.35vw,26px) clamp(12px,1.15vw,22px)}
+  .brand{display:flex;align-items:center;gap:9px;font-size:clamp(.95rem,1.1vw,1.3rem);font-weight:700;letter-spacing:-.035em}
+  .brand svg{width:clamp(16px,1.3vw,22px);height:clamp(16px,1.3vw,22px)}
+  .iconbtn{width:clamp(26px,2.2vw,34px);height:clamp(26px,2.2vw,34px);border-radius:var(--r-ctl);display:grid;place-items:center;color:var(--ink-2);transition:background-color .2s var(--e),color .2s var(--e)}
+  .iconbtn:hover{background:var(--step);color:var(--ink)}
+  .iconbtn svg{width:clamp(14px,1.15vw,18px);height:clamp(14px,1.15vw,18px)}
+
+  .search{margin:0 clamp(12px,1.15vw,22px) clamp(12px,1.15vw,22px);background:var(--step);border-radius:var(--r-ctl);display:flex;align-items:center;gap:9px;padding:clamp(8px,.75vw,12px) clamp(10px,.9vw,14px);color:var(--muted)}
+  .search svg{width:clamp(14px,1.1vw,17px);height:clamp(14px,1.1vw,17px);flex:none}
+  .search span{font-size:clamp(.78rem,.86vw,.95rem)}
+
+  .navgrp{padding:clamp(10px,1vw,18px) clamp(8px,.75vw,14px);border-top:1px solid var(--step)}
+  .navgrp:first-of-type{border-top:0}
+  .nav{display:flex;align-items:center;gap:clamp(9px,.8vw,13px);padding:clamp(8px,.72vw,12px) clamp(9px,.8vw,14px);border-radius:var(--r-ctl);color:var(--ink-2);font-size:clamp(.8rem,.88vw,.98rem);transition:background-color .2s var(--e),color .2s var(--e)}
+  .nav svg{width:clamp(15px,1.2vw,19px);height:clamp(15px,1.2vw,19px);flex:none}
+  .nav:hover{color:var(--ink)}
+  .nav--on{background:var(--step);color:var(--ink)}   /* fill + white icon AND label */
+  .side__me{margin-top:auto;border-top:1px solid var(--step);display:flex;align-items:center;gap:10px;padding:clamp(12px,1.15vw,22px)}
+  .side__me span{flex:1;font-size:clamp(.78rem,.86vw,.95rem);color:var(--ink-2)}
+
+  /* ---------- MAIN ---------- */
+  .main{display:flex;flex-direction:column;min-width:0}
+  /* a SOLID BAND in the panel tone, not a transparent strip with a rule —
+     a border isn't in this design's vocabulary for structural separation */
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:clamp(12px,1.15vw,22px) var(--pad);background:var(--panel)}
+  .crumb{display:flex;align-items:center;gap:9px;color:var(--ink-2);font-size:clamp(.78rem,.86vw,.95rem);flex-wrap:wrap}
+  .crumb b{color:var(--ink);font-weight:400}
+  .bar__r{display:flex;align-items:center;gap:clamp(9px,.85vw,16px);color:var(--ink-2);font-size:clamp(.75rem,.83vw,.92rem);white-space:nowrap}
+  .bar__r svg{width:clamp(14px,1.1vw,17px);height:clamp(14px,1.1vw,17px)}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--step);border-radius:var(--r-ctl);padding:clamp(7px,.65vw,11px) clamp(11px,.95vw,16px);color:var(--ink);font-size:clamp(.76rem,.84vw,.93rem)}
+
+  .body{padding:var(--pad);display:flex;flex-direction:column;gap:var(--gap);flex:1}
+  h1{font-size:clamp(1.5rem,2.4vw,2.7rem)}
+  .sub{color:var(--ink-2);font-size:clamp(.82rem,.9vw,1rem);margin-top:6px}
+
+  /* segmented range control — one track, active = the canvas tone */
+  .range{display:flex;align-items:center;gap:clamp(6px,.55vw,10px);flex-wrap:wrap;margin-top:clamp(6px,.6vw,12px)}
+  .seg{display:flex;align-items:center;gap:2px;background:var(--panel);border-radius:var(--r-ctl);padding:4px}
+  .seg button{display:inline-flex;align-items:center;gap:7px;border-radius:0;padding:clamp(6px,.55vw,9px) clamp(9px,.85vw,14px);color:var(--ink-2);font-size:clamp(.76rem,.84vw,.93rem);transition:background-color .2s var(--e),color .2s var(--e)}
+  .seg button:hover{color:var(--ink)}
+  .seg button.on{background:var(--step);color:var(--ink)}
+  .seg svg{width:clamp(13px,1.05vw,16px);height:clamp(13px,1.05vw,16px)}
+  .drop{display:inline-flex;align-items:center;gap:9px;background:var(--panel);border-radius:var(--r-ctl);padding:clamp(9px,.8vw,13px) clamp(11px,.95vw,16px);color:var(--ink-2);font-size:clamp(.76rem,.84vw,.93rem)}
+  .drop svg{width:10px;height:10px}
+
+  /* ---------- PANELS ---------- */
+  .panel{background:var(--panel);border-radius:var(--r-card);padding:var(--pad-panel)}
+  .panel h2{font-size:clamp(.92rem,1.05vw,1.2rem);font-weight:500}
+
+  /* KPI strip — one panel, five cells, no dividers */
+  .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(10px,1vw,20px)}
+  /* direct child only — a descendant selector here outranks .chip--ok and
+     repaints the semantic chip with the label colour */
+  .kpi > span{display:block;color:var(--ink-2);font-size:clamp(.76rem,.85vw,.95rem)}
+  .kpi__v{display:flex;align-items:center;gap:clamp(7px,.7vw,12px);margin-top:clamp(6px,.55vw,11px);flex-wrap:wrap}
+  .kpi b{font-size:clamp(1.15rem,1.65vw,1.95rem);font-weight:500;letter-spacing:-.035em}
+
+  /* SEMANTIC CHIP — tinted fill + saturated text, small radius (not a pill).
+     Colour means GOOD/BAD, never direction: churn down is positive. */
+  .chip{display:inline-flex;align-items:center;gap:4px;border-radius:0;padding:3px 7px;font-size:clamp(.68rem,.75vw,.83rem);font-weight:500;white-space:nowrap}
+  .chip--ok{background:var(--ok-bg);color:var(--ok-fg)}
+  .chip--warn{background:var(--warn-bg);color:var(--warn-fg)}
+  .chip--flat{background:var(--step);color:var(--muted)}
+  .chip svg{width:9px;height:9px}
+
+  .row2{display:grid;grid-template-columns:1.52fr 1fr;gap:var(--gap)}
+  .panel__hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:clamp(8px,.8vw,14px)}
+  .legend{display:flex;gap:clamp(10px,1vw,18px);color:var(--ink-2);font-size:clamp(.72rem,.79vw,.87rem)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .legend i{width:9px;height:9px;border-radius:0}
+
+  /* the library's tooltips ship with their own radius — square them too,
+     the no-curve rule has no exceptions */
+  .apexcharts-tooltip,.apexcharts-tooltip-marker,
+  .apexcharts-yaxistooltip,.apexcharts-xaxistooltip{border-radius:0!important}
+  .apexcharts-tooltip{border:0!important;background:var(--step)!important;color:var(--ink)!important;box-shadow:none!important;font-family:var(--sans)!important}
+  .apexcharts-tooltip-title{display:none!important}
+
+  .chart{width:100%}
+  /* sized so the whole charts row lands at ~292px, matching the source */
+  #revenue{height:clamp(150px,14vw,240px)}
+  #plans{height:clamp(150px,14vw,240px)}
+
+  /* ---------- TABLE ---------- */
+  .tw{overflow-x:auto;scrollbar-width:thin}
+  table{width:100%;border-collapse:collapse;min-width:860px}
+  thead th{text-align:left;font-weight:400;color:var(--ink-2);font-size:clamp(.78rem,.86vw,.95rem);padding-bottom:clamp(10px,.9vw,16px)}
+  tbody tr{border-top:1px solid var(--step)}
+  tbody td{padding-block:clamp(11px,1vw,18px);font-size:clamp(.8rem,.88vw,.98rem);color:var(--ink-2)}
+  tbody td:first-child{color:var(--ink)}
+  .user{display:flex;align-items:center;gap:clamp(9px,.8vw,14px)}
+  .user i{width:clamp(24px,2vw,32px);height:clamp(24px,2vw,32px);border-radius:0;background:var(--step);display:grid;place-items:center;flex:none;color:var(--ink-2)}
+  .user i svg{width:60%;height:60%}
+  td.num{color:var(--ink)}
+  .kebab{width:clamp(24px,2vw,32px);height:clamp(24px,2vw,32px);border-radius:0;display:grid;place-items:center;color:var(--muted);margin-left:auto}
+  .kebab:hover{background:var(--step);color:var(--ink)}
+  .kebab svg{width:14px;height:14px}
+
+  /* ---------- MOTION — GSAP · ScrollTrigger · Motion · Lenis ----------
+     Pre-hide gated on html.js so the page still renders if the CDNs fail.
+     EVERY selector hidden here must be animated back — a forgotten one
+     hides its section permanently. The timeline drops .js on complete as
+     a structural guard against exactly that. */
+  html.js [data-r]{opacity:0}
+  html.js tbody tr{opacity:0}
+
+  @media (max-width:1080px){
+    .app{grid-template-columns:1fr}
+    .side{flex-direction:row;align-items:center;flex-wrap:wrap;gap:8px;padding:8px}
+    .side__hd,.search,.navgrp,.side__me{padding:6px;margin:0;border:0}
+    .navgrp{display:flex;gap:4px;overflow-x:auto}
+    .side__me{margin-top:0}
+    .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .row2{grid-template-columns:1fr}
+  }
+  @media (max-width:560px){ .kpis{grid-template-columns:1fr} }
+</style>
+<script>(function(){
+  var r=document.documentElement;
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches) r.classList.add('js');
+  try{var t=localStorage.getItem('metric-theme');if(!t)t='dark';r.setAttribute('data-theme',t);}
+  catch(e){r.setAttribute('data-theme','dark');}
+})();</script>
+</head>
+<body>
+<div class="app">
+
+  <!-- ======== SIDEBAR ======== -->
+  <aside class="side">
+    <div class="side__hd">
+      <span class="brand">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 4h7v5H2zM11 9h5v5h-5zM2 11h7v9H2zM18 4h4v16h-4z"/></svg>Metric
+      </span>
+      <button class="iconbtn" aria-label="Collapse sidebar"><i data-lucide="panel-left"></i></button>
+    </div>
+
+    <div class="search">
+      <i data-lucide="search"></i>
+      <span>Search</span>
+    </div>
+
+    <div class="navgrp">
+      <a class="nav" href="#"><i data-lucide="house"></i>Overview</a>
+      <a class="nav nav--on" href="#"><i data-lucide="circle-dashed"></i>Boards</a>
+      <a class="nav" href="#"><i data-lucide="shapes"></i>Analyze</a>
+      <a class="nav" href="#"><i data-lucide="download"></i>Export</a>
+    </div>
+
+    <div class="navgrp">
+      <a class="nav" href="#"><i data-lucide="plug"></i>Sources</a>
+      <a class="nav" href="#"><i data-lucide="refresh-cw"></i>Syncs</a>
+      <a class="nav" href="#"><i data-lucide="target"></i>Targets</a>
+    </div>
+
+    <div class="navgrp">
+      <a class="nav" href="#"><i data-lucide="trending-up"></i>Metrics</a>
+      <a class="nav" href="#"><i data-lucide="tag"></i>Labels</a>
+      <a class="nav" href="#"><i data-lucide="dollar-sign"></i>Rates</a>
+      <a class="nav" href="#"><i data-lucide="workflow"></i>Rules</a>
+    </div>
+
+    <div class="side__me">
+      <button class="iconbtn" aria-label="Account"><i data-lucide="circle-user"></i></button>
+      <span>Igor Zeru</span>
+      <button class="iconbtn" aria-label="More"><i data-lucide="ellipsis-vertical"></i></button>
+    </div>
+  </aside>
+
+  <!-- ======== MAIN ======== -->
+  <main class="main">
+    <header class="bar" data-r>
+      <nav class="crumb">Boards <span>→</span> Startup <span>→</span> <b>Growth overview</b></nav>
+      <div class="bar__r">
+        <span style="display:inline-flex;align-items:center;gap:8px">
+          <i data-lucide="refresh-cw"></i>
+          Refreshed 4 min ago
+        </span>
+        <button class="btn"><i data-lucide="pencil"></i>Edit</button>
+        <button class="iconbtn" id="tgl" aria-label="Toggle theme"><i data-lucide="sun"></i></button>
+      </div>
+    </header>
+
+    <div class="body">
+      <div data-r>
+        <h1>Growth overview</h1>
+        <p class="sub">Track key growth metrics across all connected sources.</p>
+      </div>
+
+      <div class="range" data-r>
+        <div class="seg">
+          <button><i data-lucide="calendar"></i>Custom</button>
+          <button>Today</button><button>Yesterday</button><button>7D</button>
+          <button class="on">30D</button><button>3M</button><button>6M</button><button>12M</button>
+        </div>
+        <span class="drop">Exclude <i data-lucide="chevron-down"></i></span>
+        <button class="iconbtn" aria-label="Add filter"><i data-lucide="plus"></i></button>
+      </div>
+
+      <!-- KPI strip: one panel, five cells, no dividers -->
+      <section class="panel kpis" data-r>
+        <div class="kpi"><span>MRR</span><div class="kpi__v"><b>$48.2K</b><span class="chip chip--ok"><i data-lucide="arrow-up"></i>14%</span></div></div>
+        <div class="kpi"><span>Active users</span><div class="kpi__v"><b>12.4K</b><span class="chip chip--ok"><i data-lucide="arrow-up"></i>8%</span></div></div>
+        <!-- churn FALLING is good, so the chip is GREEN with a DOWN arrow -->
+        <div class="kpi"><span>Churn rate</span><div class="kpi__v"><b>2.1%</b><span class="chip chip--ok"><i data-lucide="arrow-down"></i>0.3%</span></div></div>
+        <div class="kpi"><span>New signups</span><div class="kpi__v"><b>842</b><span class="chip chip--ok"><i data-lucide="arrow-up"></i>12%</span></div></div>
+        <div class="kpi"><span>Conversion rate</span><div class="kpi__v"><b>3.6%</b><span class="chip chip--ok"><i data-lucide="arrow-up"></i>0.8%</span></div></div>
+      </section>
+
+      <div class="row2">
+        <section class="panel" data-r>
+          <div class="panel__hd"><h2>Revenue over time</h2></div>
+          <div id="revenue" class="chart"></div>
+        </section>
+        <section class="panel" data-r>
+          <div class="panel__hd">
+            <h2>Users by plan</h2>
+            <div class="legend">
+              <span><i style="background:var(--series-1)"></i>This month</span>
+              <span><i style="background:var(--series-2)"></i>Last month</span>
+            </div>
+          </div>
+          <div id="plans" class="chart"></div>
+        </section>
+      </div>
+
+      <section class="panel" data-r>
+        <div class="panel__hd"><h2>Recent activity</h2></div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>User</th><th>Plan</th><th>MRR</th><th>Status</th><th>Joined</th><th>Usage</th><th>Growth</th><th></th></tr></thead>
+            <tbody id="rows">
+              <tr>
+                <td><span class="user"><i><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 14c0-4 3-7 7-7h9l-4 5H11a2 2 0 0 0 0 4h6l-4 5H9a5 5 0 0 1-5-5z"/></svg></i>Raynode</span></td>
+                <td>Enterprise</td><td class="num">$2,400</td>
+                <td><span class="chip chip--ok">Active</span></td>
+                <td>Sep 12</td><td class="num">94%</td>
+                <td><span class="chip chip--ok"><i data-lucide="arrow-up"></i>14%</span></td>
+                <td><button class="kebab" aria-label="Row actions"><i data-lucide="ellipsis-vertical"></i></button></td>
+              </tr>
+              <tr>
+                <td><span class="user"><i><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1.4 2.4 1.4 5.6 0 8-1.4-2.4-1.4-5.6 0-8zM22 12c-2.4 1.4-5.6 1.4-8 0 2.4-1.4 5.6-1.4 8 0zM12 22c-1.4-2.4-1.4-5.6 0-8 1.4 2.4 1.4 5.6 0 8zM2 12c2.4-1.4 5.6-1.4 8 0-2.4 1.4-5.6 1.4-8 0z"/></svg></i>Copperly</span></td>
+                <td>Pro</td><td class="num">$149</td>
+                <td><span class="chip chip--warn">Trial</span></td>
+                <td>Sep 10</td><td class="num">71%</td>
+                <td><span class="chip chip--flat">—</span></td>
+                <td><button class="kebab" aria-label="Row actions"><i data-lucide="ellipsis-vertical"></i></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.54.1/dist/apexcharts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.17/dist/motion.min.js"></script>
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var root = document.documentElement;
+
+  /* ICONS — real Lucide (the set shadcn/ui ships), not hand-drawn paths.
+     One system, one 24px grid, stroke-width 2, round caps and joins. */
+  function icons(){ if (window.lucide) lucide.createIcons({ attrs:{ 'stroke-width':2 } }); }
+  icons();
+
+  document.getElementById('tgl').addEventListener('click', function(){
+    var n = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    try { localStorage.setItem('metric-theme', n); } catch(e){}
+    /* createIcons replaced the <i> with an <svg>, so swap the glyph itself */
+    var b = document.getElementById('tgl');
+    b.innerHTML = '<i data-lucide="' + (n === 'dark' ? 'sun' : 'moon') + '"></i>';
+    icons();
+  });
+
+  /* ---------- CHARTS (ApexCharts) ---------- */
+  function tok(n){ return getComputedStyle(root).getPropertyValue(n).trim(); }
+  /* explicit pixel heights — a '%' height resolves before flex layout
+     settles and can render an SVG far taller than its container */
+  function h(id, fb){ var e = document.getElementById(id); return Math.max(120, e ? e.clientHeight : fb); }
+
+  var revenue = null, plans = null;
+
+  function revenueOptions(){
+    return {
+      chart:{ type:'area', height:h('revenue',240), background:'transparent', fontFamily:'inherit',
+              parentHeightOffset:0, toolbar:{show:false},
+              animations:{ enabled:!reduce, speed:900 } },
+      series:[{ name:'Revenue', data:[21,22,23,26,29,33,36,31,28,27,27,29,39,40,40,41,45,48] }],
+      colors:[ tok('--series-1') ],
+      stroke:{ width:3, curve:'straight', lineCap:'round' },
+      /* measured: the fill runs #2E2E2E just under the line to #1A1A1A at
+         the baseline, over a #171717 panel — white at ~10%, not 22% */
+      fill:{ type:'gradient', gradient:{ shadeIntensity:0, opacityFrom:.10, opacityTo:.015, stops:[0,100] } },
+      dataLabels:{ enabled:false },
+      grid:{ borderColor:tok('--grid'), strokeDashArray:3, xaxis:{lines:{show:false}}, yaxis:{lines:{show:true}}, padding:{left:6,right:6,top:0,bottom:0} },
+      /* rotate:0 + rotateAlways:false — Apex tilts x labels diagonally when
+         the plot narrows, which the source never does */
+      xaxis:{ categories:['Mar 1','','','','Mar 8','','','','Mar 15','','','','Mar 22','','','','','Mar 31'],
+              labels:{ style:{ colors:tok('--ink-2'), fontSize:'12px' }, hideOverlappingLabels:false,
+                       rotate:0, rotateAlways:false, trim:false },
+              axisBorder:{show:false}, axisTicks:{show:false}, tooltip:{enabled:false} },
+      yaxis:{ min:10, max:50, tickAmount:4,
+              labels:{ formatter:function(v){ return '$' + Math.round(v) + 'k'; }, style:{ colors:tok('--ink-2'), fontSize:'12px' } } },
+      tooltip:{ theme:'dark', x:{show:false}, y:{ formatter:function(v){ return '$' + v + 'k'; }, title:{formatter:function(){return '';}} } }
+    };
+  }
+
+  function plansOptions(){
+    return {
+      chart:{ type:'bar', height:h('plans',240), background:'transparent', fontFamily:'inherit',
+              parentHeightOffset:0, toolbar:{show:false},
+              animations:{ enabled:!reduce, speed:800 } },
+      series:[{ name:'This month', data:[7.9,5.2,3.1] }, { name:'Last month', data:[6.1,4.0,2.7] }],
+      colors:[ tok('--series-1'), tok('--series-2') ],
+      /* measured: 16px bars, 4px pair gap, 113px group pitch = ~32%,
+         and SQUARE corners — the source has no radius on bars */
+      plotOptions:{ bar:{ columnWidth:'32%', borderRadius:0 } },
+      dataLabels:{ enabled:false },
+      legend:{ show:false },
+      grid:{ borderColor:tok('--grid'), strokeDashArray:3, xaxis:{lines:{show:false}}, padding:{left:6,right:6,top:0,bottom:0} },
+      xaxis:{ categories:['Starter','Pro','Enterprise'],
+              labels:{ style:{ colors:tok('--ink-2'), fontSize:'12px' } },
+              axisBorder:{show:false}, axisTicks:{show:false}, tooltip:{enabled:false} },
+      yaxis:{ min:0, max:8, tickAmount:4,
+              labels:{ formatter:function(v){ return v ? v + 'k' : '0'; }, style:{ colors:tok('--ink-2'), fontSize:'12px' } } },
+      tooltip:{ theme:'dark', y:{ formatter:function(v){ return (v*1000).toLocaleString() + ' users'; } } }
+    };
+  }
+
+  if (typeof ApexCharts !== 'undefined') {
+    revenue = new ApexCharts(document.getElementById('revenue'), revenueOptions()); revenue.render();
+    plans   = new ApexCharts(document.getElementById('plans'),   plansOptions());   plans.render();
+    /* both themes must re-skin the chart ink, grid and series */
+    new MutationObserver(function(){
+      revenue.updateOptions(revenueOptions(), false, false);
+      plans.updateOptions(plansOptions(), false, false);
+    }).observe(root, { attributes:true, attributeFilter:['data-theme'] });
+    var rt;
+    window.addEventListener('resize', function(){
+      clearTimeout(rt);
+      rt = setTimeout(function(){
+        revenue.updateOptions({ chart:{ height:h('revenue',240) } }, false, false);
+        plans.updateOptions({ chart:{ height:h('plans',240) } }, false, false);
+      }, 150);
+    });
+  }
+
+  /* ---------- MOTION ---------- */
+  if (reduce || typeof gsap === 'undefined') { root.classList.remove('js'); return; }
+  gsap.registerPlugin(ScrollTrigger);
+
+  if (typeof Lenis !== 'undefined') {
+    var lenis = new Lenis({ duration:0.7, smoothWheel:true });   /* short: inertia fights a table */
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(function(t){ lenis.raf(t * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  /* fromTo with explicit end values — .from() would read the CSS pre-hide
+     as its destination and tween 0 → 0 */
+  gsap.timeline({
+      defaults:{ ease:'power3.out', duration:.6 },
+      onComplete:function(){ root.classList.remove('js'); }   /* guard */
+    })
+    .fromTo('.bar',            { y:-10, opacity:0 }, { y:0, opacity:1, duration:.5 })
+    .fromTo('[data-r]:not(.bar)', { y:16, opacity:0 }, { y:0, opacity:1, stagger:.07 }, '-=.25');
+
+  gsap.fromTo('#rows tr',
+    { y:10, opacity:0 },
+    { y:0, opacity:1, duration:.5, stagger:.07, ease:'power3.out',
+      scrollTrigger:{ trigger:'#rows', start:'top 94%', once:true } });
+
+  if (typeof Motion !== 'undefined' && Motion.animate) {
+    var animate = Motion.animate;
+    document.querySelectorAll('.nav, .btn, .seg button, .iconbtn, .kebab, .drop').forEach(function(el){
+      el.addEventListener('pointerenter', function(){ animate(el, { y:-1.5 }, { type:'spring', stiffness:430, damping:20 }); });
+      el.addEventListener('pointerleave', function(){ animate(el, { y:0 },    { type:'spring', stiffness:430, damping:26 }); });
+      el.addEventListener('pointerdown',  function(){ animate(el, { scale:.97 }, { type:'spring', stiffness:700, damping:26 }); });
+      el.addEventListener('pointerup',    function(){ animate(el, { scale:1 },   { type:'spring', stiffness:500, damping:18 }); });
+    });
+  }
+})();
+</script>
+</body>
+</html>
