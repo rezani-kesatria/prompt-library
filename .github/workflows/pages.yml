@@ -24,7 +24,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # v5 runs on node24; v4 is node20 and triggers the deprecation warning.
+      # The Pages actions below are still node20 at their latest majors — that
+      # is GitHub's choice, not ours, and there is no newer version to move to.
+      - uses: actions/checkout@v5
 
       # .nojekyll must survive into the artifact — without it Jekyll rewrites
       # the *.design-language.md spec files into HTML and every runtime
