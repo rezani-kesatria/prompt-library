@@ -35,8 +35,12 @@ jobs:
       - name: Verify .nojekyll is present
         run: test -f app/.nojekyll || (echo "::error::app/.nojekyll is missing" && exit 1)
 
-      # enablement:true turns Pages on via the API if it is not already, so a
-      # fresh clone of this repo deploys without a manual Settings step first
+      # Pages must be enabled ONCE by hand: Settings -> Pages -> Source:
+      # "GitHub Actions". enablement:true cannot do it — creating a Pages site
+      # is an admin-scope call and GITHUB_TOKEN never has admin, so it fails
+      # with "Resource not accessible by integration". Kept because it is a
+      # no-op once the site exists and covers setups where the token is
+      # granted more.
       - uses: actions/configure-pages@v5
         with:
           enablement: true
