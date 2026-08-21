@@ -133,6 +133,21 @@ const REFERENCES = [
     fd: "'DM Sans', sans-serif", fb: "'DM Sans', sans-serif", type: "DM Sans",
     radius: "Sharp", elevation: "Flat", gradient: "None", icon: "Line", imagery: "Abstract",
     motion: "Rich", density: "Compact"
+  },
+  {
+    id: "atelier", name: "TENON", ref: true, vibes: ["Luxury", "Minimalist"], mode: "dark",
+    kind: "Craft atelier", note: "15px root · hue-only accent · crossing hairlines",
+    nativeTheme: "dark",
+    src: "designs/atelier.html", spec: "designs/atelier.design-language.md",
+    /* the library's only ORIGINAL design — content and layout are ours, the
+       design language was studied from unanim.studio */
+    original: true,
+    credit: "Original — design language studied from unanim.studio",
+    source: "https://unanim.studio",
+    bg: "#121212", surface: "#121212", ink: "#EFEFEB", primary: "#FBE9CB", accent: "#FBE9CB",
+    fd: "'Instrument Serif', serif", fb: "'Instrument Sans', sans-serif", type: "Instrument Serif · Instrument Sans",
+    radius: "Sharp", elevation: "Flat", gradient: "None", icon: "Line", imagery: "Photo",
+    motion: "Rich", density: "Airy"
   }
 ];
 

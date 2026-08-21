@@ -14,7 +14,7 @@ memory — never reconstructed from a URL slug or a filename.
 
 ---
 
-## Built — the five recreations
+## Built — the nine recreations
 
 Each ships an HTML recreation plus a `*.design-language.md` spec ending in a copy-paste prompt payload.
 
@@ -29,6 +29,35 @@ Each ships an HTML recreation plus a `*.design-language.md` spec ending in a cop
 | **HireLaw** — law firm<br>[`law.html`](law.html) · [spec](law.design-language.md) | [HireLaw – Law Firm Landing Page](https://dribbble.com/shots/26248762-HireLaw-Law-Firm-Landing-Page) | **Odama** | — |
 | **MoveIQ** — fleet workbench<br>[`fleet.html`](fleet.html) · [spec](fleet.design-language.md) | [Logistics & Fleet Management Dashboard UI](https://dribbble.com/shots/26849863-Logistics-Fleet-Management-Dashboard-UI) | **Ronas IT \| UI/UX Team** | — |
 | **Metric** — analytics board<br>[`metrics.html`](metrics.html) · [spec](metrics.design-language.md) | [Dark Dashboard UI — SaaS Startup Metrics & Analytics Panel](https://dribbble.com/shots/27207977-Dark-Dashboard-UI-SaaS-Startup-Metrics-Analytics-Panel) | **Igor Zeru** | — |
+
+## Original designs — ours, in a studied language
+
+Not recreations. Content, copy, layout and imagery are ours; only the **design language** — the
+rule set — was extracted from the site named below. These exist to prove a payload transfers: the
+spec was written *before* the page, and the page was then built from the spec alone.
+
+**The influence is credited as an influence, not as a source.** Please go and look at it — the
+original is a far better piece of work than our exercise.
+
+| Design | Design language studied from | Studio |
+|---|---|---|
+| **TENON** — furniture &amp; objects atelier<br>[`atelier.html`](atelier.html) · [spec](atelier.design-language.md) | [unanim.studio](https://unanim.studio) | **unanim.studio**, Braine-l'Alleud, Belgium |
+
+What was taken: a 15px root on a 3.75px spacing grid · a warm off-white ink that is never pure
+white · an accent that matches the ink's *luminance* and separates by **hue alone** · zero radius
+except pill CTAs · a high-contrast serif at line-height 1.1 · the `( PARENTHETICAL UPPERCASE )`
+micro-label as the only eyebrow device · a quadrant grid divided by crossing full-bleed hairlines ·
+a per-character manifesto reveal.
+
+What was **not** taken: any copy, any image, any project, the four video-backed project cards
+(replaced by a metadata index, because furniture carries material and dimensions), or the
+brand palette — TENON's shellac amber `#FBE9CB` is its own, tuned to satisfy the luminance rule.
+
+> ⚠️ Fonts: the source uses **Cardinal Fruit** and **Helvetica Now Display**, both commercially
+> licensed. We substitute **Instrument Serif** + **Instrument Sans** and say so in the payload —
+> an unnamed "high-contrast serif" instruction silently falls back to Times.
+
+---
 
 ### Secondary references
 
@@ -82,5 +111,5 @@ the same ground is not re-covered.
 
 ---
 
-*Last updated 7 August 2026. When a shortlisted shot gets built, move it into the table above and
+*Last updated 19 August 2026. When a shortlisted shot gets built, move it into the table above and
 record its designer in the spec's Source row as well.*
