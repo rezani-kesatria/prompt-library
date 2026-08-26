@@ -149,6 +149,26 @@ LAYOUT LANGUAGE (non-negotiable):
   · Section order: header row / filter strip / [sidebar | result rows] — and nothing after.
 - Ship BOTH light and dark themes as a token re-skin — the layout language is identical in both.
 
+MOTION — THE BORDERS THEMSELVES ANIMATE. This design is built from hairlines, so the hairlines are
+what move; do not bolt a generic fade-up onto it.
+- INTRO, in order: header appears → THE RULES DRAW LEFT-TO-RIGHT → the headline reveals WORD BY WORD
+  FROM A MASK → the filter cells stagger in, EACH DIVIDER DRAWING DOWN as its cell lands → the
+  Explore button WIPES in → the sidebar facets cascade.
+- ON SCROLL, per result row: the photo CLIP-WIPES open, then content staggers in reading order
+  (rating → title → rule → meta/CTAs), the row's own rule draws across, and the price COUNTS UP.
+  Give the photo a subtle parallax via BACKGROUND-POSITION, not transform, so it does not fight the
+  hover-zoom.
+- MICRO: nav underline wipes, CTA arrow slides, photo zooms on row hover.
+- CRISP EASING, NO BOUNCE ANYWHERE. This is a utility tool; springy motion reads as toy-like and
+  fights the hairline discipline.
+
+BUILD MOTION WITH REAL LIBRARIES, NEVER HAND-ROLLED CSS TRANSITIONS: GSAP + ScrollTrigger for the
+reveal choreography, Lenis for smooth scroll, Motion (motion.dev) for hover/press springs. Two traps
+that cost a debugging round each: gsap.from({opacity:0}) against a CSS pre-hide is a NO-OP because
+.from() tweens TO the current computed value, which is also 0 — use fromTo() with explicit end
+values; and every pre-hidden selector must be animated back, so drop the pre-hide class on timeline
+complete as a structural guard. Disable all of it under prefers-reduced-motion.
+
 TUNABLE: padding magnitude, motion intensity, responsive breakpoints.
 SWAPPABLE: logo, brand name, palette hues, typeface, imagery.
 ```

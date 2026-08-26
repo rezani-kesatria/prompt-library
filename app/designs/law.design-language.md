@@ -186,6 +186,13 @@ MOTION (authored — the source is a still):
   idea, the faces fill them.
 - Elsewhere quiet fade-and-rise, ~80ms staggers within a set, and a continuously running marquee.
 
+BUILD MOTION WITH REAL LIBRARIES, NEVER HAND-ROLLED CSS TRANSITIONS: GSAP + ScrollTrigger for the
+reveal choreography, Lenis for smooth scroll, Motion (motion.dev) for hover/press springs. Two traps
+that cost a debugging round each: gsap.from({opacity:0}) against a CSS pre-hide is a NO-OP because
+.from() tweens TO the current computed value, which is also 0 — use fromTo() with explicit end
+values; and every pre-hidden selector must be animated back, so drop the pre-hide class on timeline
+complete as a structural guard. Disable all of it under prefers-reduced-motion.
+
 IMPLEMENTATION: a grid track written as `1fr` has min-width:auto, so an overflow-scrolling rail of
 fixed-width cards inflates its column instead of scrolling inside it. Use minmax(0,1fr).
 

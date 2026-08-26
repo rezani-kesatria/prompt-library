@@ -266,6 +266,13 @@ MOTION (authored — the source is a still):
 - IMPLEMENTATION: a self-drawing path must take its stroke-dasharray from getTotalLength() at
   runtime. A hard-coded value longer than the real path wastes most of the timeline drawing nothing.
 
+BUILD MOTION WITH REAL LIBRARIES, NEVER HAND-ROLLED CSS TRANSITIONS: GSAP + ScrollTrigger for the
+reveal choreography, Lenis for smooth scroll, Motion (motion.dev) for hover/press springs. Two traps
+that cost a debugging round each: gsap.from({opacity:0}) against a CSS pre-hide is a NO-OP because
+.from() tweens TO the current computed value, which is also 0 — use fromTo() with explicit end
+values; and every pre-hidden selector must be animated back, so drop the pre-hide class on timeline
+complete as a structural guard. Disable all of it under prefers-reduced-motion.
+
 TUNABLE: padding/gap magnitude, motion intensity, breakpoints, chart data.
 SWAPPABLE: logo, brand name, accent hue, typeface, avatar.
 ```
