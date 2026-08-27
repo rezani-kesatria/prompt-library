@@ -65,6 +65,11 @@ brand palette — TENON's shellac amber `#FBE9CB` is its own, tuned to satisfy t
 |---|---|---|
 | Blockio — motion study | [Blockio landing page interaction](https://dribbble.com/shots/25757294-Blockio-landing-page-interaction) | Taras Migulko for Emote |
 
+> ✅ **Verified 21 Aug 2026:** `/shots/26666273` resolves to *"SaaS Dashboard by Juice Lab UI/UX
+> Development Agency"*. The shot presents the UI inside a **MacBook render**; the frame is
+> presentation, not design — analyse only what is inside the screen. The shot carries a video and a
+> still below it: the **still is the layout reference**, the **video is the motion reference**.
+
 > ⚠️ Dribbble serves shots by **ID and ignores the slug**, so a stale URL silently returns a
 > *different* design rather than 404-ing. `/shots/25111403-Ecovolt-…` now resolves to an unrelated
 > skincare shot — the correct EcoVolt source is `25062959`, above. Always re-open a link before
@@ -72,14 +77,14 @@ brand palette — TENON's shellac amber `#FBE9CB` is its own, tuned to satisfy t
 
 ---
 
-## Shortlist — dashboards ⏸ *(ON HOLD)*
+## Shortlist — dashboards ▶ *(ACTIVE)*
 
-Candidates for the library's first data-dense product UI. **Paused** — one dashboard
-([Numéro](finance.design-language.md)) was built and is flagged provisional; the rest are parked.
+Candidates for data-dense product UI. Three are built (Numéro 🚩 provisional, MoveIQ, Metric);
+**ARCHE is in progress** — see the row below.
 
 | Shot | Designer | Studio / team |
 |---|---|---|
-| [SaaS Dashboard](https://dribbble.com/shots/26666273-SaaS-Dashboard) | **Juice Lab** | UI/UX Development Agency |
+| ▶ **IN PROGRESS — recreated as `ARCHE`**<br>[SaaS Dashboard](https://dribbble.com/shots/26666273-SaaS-Dashboard) | **Juice Lab** | UI/UX Development Agency |
 | [AI SaaS Dashboard – Dark Mode](https://dribbble.com/shots/25825708-AI-SaaS-Dashboard-Dark-Mode) | **Robert Licau** | — |
 | [RIVA – AI Integrations Dashboard \| Dark SaaS UI](https://dribbble.com/shots/27285217-RIVA-AI-Integrations-Dashboard-Dark-SaaS-UI-Qudra) | **Md Forhad Alam** | for Qudra |
 | ~~[ShiftPulse — Healthcare Workforce Scheduling](https://dribbble.com/shots/27578135-Healthcare-Workforce-Scheduling-SaaS-Dashboard-ShiftPulse)~~ ✗ **rejected** — shown on an *angled* laptop mockup; perspective corrupts every proportion and radius, so no rule set can be extracted | **Noryn** | — |
@@ -111,5 +116,5 @@ the same ground is not re-covered.
 
 ---
 
-*Last updated 19 August 2026. When a shortlisted shot gets built, move it into the table above and
+*Last updated 21 August 2026. When a shortlisted shot gets built, move it into the table above and
 record its designer in the spec's Source row as well.*
