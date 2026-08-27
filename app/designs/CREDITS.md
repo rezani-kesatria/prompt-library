@@ -14,7 +14,7 @@ memory — never reconstructed from a URL slug or a filename.
 
 ---
 
-## Built — the nine recreations
+## Built — the ten recreations
 
 Each ships an HTML recreation plus a `*.design-language.md` spec ending in a copy-paste prompt payload.
 
@@ -28,6 +28,7 @@ Each ships an HTML recreation plus a `*.design-language.md` spec ending in a cop
 | **Numéro** — finance dashboard 🚩<br>[`finance.html`](finance.html) · [spec](finance.design-language.md) | [Finance Management Dashboard](https://dribbble.com/shots/23245345-Finance-Management-Dashboard) | **Bogdan Falin** | for QClay |
 | **HireLaw** — law firm<br>[`law.html`](law.html) · [spec](law.design-language.md) | [HireLaw – Law Firm Landing Page](https://dribbble.com/shots/26248762-HireLaw-Law-Firm-Landing-Page) | **Odama** | — |
 | **MoveIQ** — fleet workbench<br>[`fleet.html`](fleet.html) · [spec](fleet.design-language.md) | [Logistics & Fleet Management Dashboard UI](https://dribbble.com/shots/26849863-Logistics-Fleet-Management-Dashboard-UI) | **Ronas IT \| UI/UX Team** | — |
+| **ARCHE** — commerce board<br>[`saas.html`](saas.html) · [spec](saas.design-language.md) | [SaaS Dashboard](https://dribbble.com/shots/26666273-SaaS-Dashboard) | **Juice Lab** | UI/UX Development Agency |
 | **Metric** — analytics board<br>[`metrics.html`](metrics.html) · [spec](metrics.design-language.md) | [Dark Dashboard UI — SaaS Startup Metrics & Analytics Panel](https://dribbble.com/shots/27207977-Dark-Dashboard-UI-SaaS-Startup-Metrics-Analytics-Panel) | **Igor Zeru** | — |
 
 ## Original designs — ours, in a studied language
@@ -80,11 +81,10 @@ brand palette — TENON's shellac amber `#FBE9CB` is its own, tuned to satisfy t
 ## Shortlist — dashboards ▶ *(ACTIVE)*
 
 Candidates for data-dense product UI. Three are built (Numéro 🚩 provisional, MoveIQ, Metric);
-**ARCHE is in progress** — see the row below.
+ARCHE is **built** and has moved to the table above.
 
 | Shot | Designer | Studio / team |
 |---|---|---|
-| ▶ **IN PROGRESS — recreated as `ARCHE`**<br>[SaaS Dashboard](https://dribbble.com/shots/26666273-SaaS-Dashboard) | **Juice Lab** | UI/UX Development Agency |
 | [AI SaaS Dashboard – Dark Mode](https://dribbble.com/shots/25825708-AI-SaaS-Dashboard-Dark-Mode) | **Robert Licau** | — |
 | [RIVA – AI Integrations Dashboard \| Dark SaaS UI](https://dribbble.com/shots/27285217-RIVA-AI-Integrations-Dashboard-Dark-SaaS-UI-Qudra) | **Md Forhad Alam** | for Qudra |
 | ~~[ShiftPulse — Healthcare Workforce Scheduling](https://dribbble.com/shots/27578135-Healthcare-Workforce-Scheduling-SaaS-Dashboard-ShiftPulse)~~ ✗ **rejected** — shown on an *angled* laptop mockup; perspective corrupts every proportion and radius, so no rule set can be extracted | **Noryn** | — |

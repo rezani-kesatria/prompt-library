@@ -55,6 +55,25 @@ const RULES = {
     unboxed: [".quad__cell"],
     present: [".cross-v", ".cross-h"],
     monochromeDegrades: { set: "--accent", to: "--ink" }
+  },
+
+  saas: {
+    url: "designs/saas.html",
+    /* 9999px = search pill, 50% = avatar/circles/donut, 75px = the bar sweep.
+       Everything structural must still be 0. */
+    allowedRadii: ["0px", "9999px", "50%", "75px"],
+    inkNotPureWhite: "--ink",
+    /* ARCHE inverts the "panels recede" rule that Metric states as a constant */
+    panelDirection: { canvas: "--canvas", panel: "--panel", expect: "lift" },
+    /* the accent is a FOCUS MARKER: exactly one per grouping, never a series */
+    singletons: { ".card--accent": 1, ".fill--accent": 1, ".chip--accent": 1 },
+    /* bars: one large top-LEFT radius, square top-right — an asymmetric sweep */
+    asymmetricRadius: { selector: ".fill", minTopLeft: 20, topRight: "0px" },
+    /* hatch is an ENCODING, not decoration — it must actually be applied */
+    /* NB: the ACCENT chip must NOT be hatched -- hatch means "not highlighted",
+       so requiring it on every .chip would assert the opposite of the rule. */
+    texture: { selectors: [".track", ".chip:not(.chip--accent)", ".sw__box--hatch"], contains: "repeating-linear-gradient" },
+    present: [".kpis", ".ticks", ".bars", ".circles"]
   }
 };
 
@@ -260,6 +279,58 @@ function PAGE_RUNNER(cfg) {
 
   if (cfg.present) {
     cfg.present.forEach(sel => ok("present: " + sel, !!document.querySelector(sel), ""));
+  }
+
+  /* --- does the panel step toward the viewer or away from it? Metric states
+         "panels recede" as a library constant; ARCHE disproves it, so the
+         direction is asserted per design rather than assumed. --- */
+  if (cfg.panelDirection) {
+    const c = hex(css(cfg.panelDirection.canvas)), p = hex(css(cfg.panelDirection.panel));
+    const lifts = L(p) > L(c);
+    const want = cfg.panelDirection.expect === "lift";
+    ok("panels " + cfg.panelDirection.expect + " relative to the canvas", lifts === want,
+      "canvas lum " + Math.round(L(c) * 255) + " vs panel " + Math.round(L(p) * 255) +
+      " => " + (lifts ? "lift" : "recede"));
+  }
+
+  /* --- accent as a focus marker: exactly N of each, never more --- */
+  if (cfg.singletons) {
+    Object.keys(cfg.singletons).forEach(sel => {
+      const want = cfg.singletons[sel], got = document.querySelectorAll(sel).length;
+      ok("exactly " + want + " of " + sel, got === want, got + " found");
+    });
+  }
+
+  /* --- the asymmetric bar sweep: large top-left radius, square top-right --- */
+  if (cfg.asymmetricRadius) {
+    const els = [...document.querySelectorAll(cfg.asymmetricRadius.selector)];
+    const bad = els.filter(el => {
+      const s = getComputedStyle(el);
+      return parseFloat(s.borderTopLeftRadius) < cfg.asymmetricRadius.minTopLeft ||
+             s.borderTopRightRadius !== cfg.asymmetricRadius.topRight;
+    });
+    ok("bars sweep top-left and stay square top-right", bad.length === 0 && els.length > 0,
+      els.length === 0 ? "VACUOUS — no " + cfg.asymmetricRadius.selector + " found"
+        : (bad.length ? bad.length + " wrong" : els.length + " bars, TL " +
+           getComputedStyle(els[0]).borderTopLeftRadius + " / TR " + getComputedStyle(els[0]).borderTopRightRadius));
+  }
+
+  /* --- texture is an encoding: it must be present where the spec says --- */
+  if (cfg.texture) {
+    const missing = [];
+    let checked = 0;
+    cfg.texture.selectors.forEach(sel => {
+      const els = [...document.querySelectorAll(sel)];
+      if (!els.length) { missing.push(sel + " (none found)"); return; }
+      els.forEach(el => {
+        checked++;
+        if (getComputedStyle(el).backgroundImage.indexOf(cfg.texture.contains) === -1) {
+          if (missing.indexOf(sel) === -1) missing.push(sel);
+        }
+      });
+    });
+    ok("hatch texture applied where the encoding requires it", missing.length === 0 && checked > 0,
+      missing.length ? "missing on " + missing.join(", ") : checked + " elements carry the hatch");
   }
 
   /* --- graceful degradation: collapsing the accent must not move anything --- */

@@ -51,7 +51,9 @@ Rules are tagged **`observed`**, **`inferred`**, or **`authored`**. Measurements
 
 Only two values do all the structural work, and **the canvas tone returns as both the divider colour and the active-state fill**. Dividers are literally the page showing through the panel. No borders are used for structure anywhere.
 
-**PANELS RECEDE — they never lift.** The panel is a step *away* from the canvas, not toward the viewer. (True of every dashboard in this library, in both themes — a genuine constant.)
+**PANELS RECEDE — they never lift.** The panel is a step *away* from the canvas, not toward the viewer.
+
+> 🚩 **Correction — this is NOT a library constant, though this spec used to claim it was.** ARCHE (Juice Lab) measures canvas `#111111` against panel `#171717`: its panels are *lighter* than the canvas and therefore **lift**. The claim held for the three dashboards that existed when it was written and was over-generalised into a law. **Panel direction is a per-design axis**, like radius (Numéro 34px, MoveIQ 24px, Metric 0, ARCHE 0). It stays FIXED *for Metric* — just not for the library.
 
 ## 2 · Semantic pairs 🔑 🔒 `observed`
 **Tinted fill + saturated text**, square, never a dot and never a pill:

@@ -148,6 +148,18 @@ const REFERENCES = [
     fd: "'Instrument Serif', serif", fb: "'Instrument Sans', sans-serif", type: "Instrument Serif · Instrument Sans",
     radius: "Sharp", elevation: "Flat", gradient: "None", icon: "Line", imagery: "Photo",
     motion: "Rich", density: "Airy"
+  },
+  {
+    id: "arche", name: "ARCHE", ref: true, vibes: ["Tech", "Modern"], mode: "dark",
+    kind: "Commerce board", note: "zero radius · hatch as encoding · one accent per grouping",
+    nativeTheme: "dark",
+    src: "designs/saas.html", spec: "designs/saas.design-language.md",
+    credit: "Juice Lab (UI/UX Development Agency)",
+    source: "https://dribbble.com/shots/26666273-SaaS-Dashboard",
+    bg: "#111111", surface: "#171717", ink: "#FEFEFE", primary: "#E83B13", accent: "#FEDE00",
+    fd: "'Instrument Sans', sans-serif", fb: "'Instrument Sans', sans-serif", type: "Instrument Sans",
+    radius: "Sharp", elevation: "Flat", gradient: "None", icon: "Line", imagery: "Abstract",
+    motion: "Rich", density: "Compact"
   }
 ];
 
