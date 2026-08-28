@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LUMA — AI Learning Assistant</title>
+<meta name="description" content="AI learning assistant workspace — floating panels, chartreuse marks what is live." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+<script>
+/* pre-paint so the theme never flashes */
+(function(){var r=document.documentElement;
+ try{var t=localStorage.getItem('luma-theme')||'light';r.setAttribute('data-theme',t);}
+ catch(e){r.setAttribute('data-theme','light');}})();
+</script>
+<style>
+/* ============================================================
+   LUMA — an ORIGINAL design in a language studied from
+   Geovea (Jack R., for RonDesignLab). See assistant.design-language.md.
+   Magnitudes are INFERRED from the still, not pixel-measured.
+   ============================================================ */
+:root{
+  --canvas:#EFEFEF;         /* the workspace, visible between every object */
+  --panel:#FFFFFF;          /* panels LIFT off it */
+  --ink:#1A1A1A;            /* text AND every primary action fill */
+  --muted:#8C8C8C;
+  --line:rgba(26,26,26,.10);
+  --ghost:rgba(26,26,26,.04);
+  --accent:#D8F32B;         /* marks what is LIVE — never on a button */
+  --land:#DCDCDC;           /* inactive regions of a visualisation */
+  --shadow:0 18px 44px rgba(26,26,26,.07);
+  --glass:rgba(30,30,30,.42);
+
+  --r-panel:24px;
+  --r-pill:9999px;
+  --pad:22px;
+  --gap:14px;
+  --f:"Poppins",system-ui,sans-serif;
+}
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --canvas:#121212;
+  --panel:#1D1D1D;          /* still LIGHTER than canvas -> still lifts */
+  --ink:#F2F2F2;
+  --muted:#8E8E8E;
+  --line:rgba(255,255,255,.12);
+  --ghost:rgba(255,255,255,.06);
+  --land:#2E2E2E;
+  --shadow:0 18px 44px rgba(0,0,0,.45);
+  --glass:rgba(10,10,10,.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--canvas);color:var(--ink);
+  font-family:var(--f);font-size:14px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;overflow:hidden;
+}
+svg{display:block}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+/* ============ shell: everything FLOATS on the canvas ============ */
+.app{display:grid;grid-template-columns:auto 1fr;gap:var(--gap);padding:var(--gap);height:100vh}
+
+/* ---- the rail is TWO floating clusters, never a sidebar ---- */
+.rail{display:flex;flex-direction:column;align-items:center;padding:6px 0}
+.rail__mark{width:38px;height:38px;border-radius:var(--r-pill);background:var(--ink);
+  display:grid;place-items:center;color:var(--panel);flex:0 0 auto}
+/* The two clusters float as a centred block, not pinned to either edge.
+   NB: :first-of-type is TAG-based, not class-based — the mark is a div too,
+   so .cluster:first-of-type matches nothing. Hence the explicit wrapper. */
+.rail__mid{margin:auto 0;display:flex;flex-direction:column;gap:var(--gap)}
+.cluster{background:var(--panel);border-radius:var(--r-pill);box-shadow:var(--shadow);
+  padding:8px;display:grid;gap:4px;justify-items:center}
+.cluster + .cluster{margin-top:var(--gap)}
+.rail button.nav{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;color:var(--muted)}
+.rail button.nav.on{background:var(--ink);color:var(--panel)}
+.rail img{width:34px;height:34px;border-radius:var(--r-pill);object-fit:cover}
+
+.main{display:grid;grid-template-rows:auto 1fr;gap:var(--gap);min-height:0}
+
+/* ---- tabs are SESSIONS, not page navigation ---- */
+.tabs{display:flex;align-items:center;gap:26px;padding:0 6px}
+.tab{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;padding:6px 0}
+.tab.on{color:var(--ink);font-weight:500}
+.tab .spark{color:var(--accent)}
+
+.cols{display:grid;grid-template-columns:1.5fr 1fr;gap:var(--gap);min-height:0}
+.panel{background:var(--panel);border-radius:var(--r-panel);box-shadow:var(--shadow);
+  padding:var(--pad);display:flex;flex-direction:column;min-height:0}
+
+/* ============ visualisation region ============ */
+.viz{position:relative;border-radius:18px;overflow:hidden;background:var(--ghost);flex:0 0 auto;height:300px}
+.viz__bar{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;z-index:3}
+.gbtn{width:32px;height:32px;border-radius:10px;background:var(--panel);border:1px solid var(--line);
+  display:grid;place-items:center;color:var(--ink)}
+.gset{display:flex;gap:6px}
+.viz__cap{position:absolute;left:16px;bottom:14px;font-size:12px;color:var(--muted);z-index:3}
+/* the dark annotation pill states ONE fact and floats over the artwork */
+.note{position:absolute;z-index:4;background:var(--ink);color:var(--panel);
+  border-radius:var(--r-pill);padding:7px 14px;font-size:11.5px;white-space:nowrap;
+  display:flex;align-items:center;gap:8px}
+.note small{color:var(--muted);font-size:11px}
+
+/* ============ conversation ============ */
+.convo{display:flex;flex-direction:column;gap:18px;margin-top:20px;flex:1;min-height:0}
+.greet{display:flex;gap:14px;align-items:flex-start}
+.ava{width:46px;height:46px;border-radius:var(--r-pill);flex:0 0 46px;
+  background:var(--accent);display:grid;place-items:center;overflow:hidden}
+.ava svg{width:26px;height:26px;color:var(--ink)}
+.greet p{font-size:19px;line-height:1.35;max-width:34ch}
+.greet b{font-weight:600}
+
+/* ---- the waveform is ALIVE while listening ---- */
+.voice{display:flex;align-items:center;justify-content:center;position:relative;height:56px}
+.wave{display:flex;align-items:center;gap:3px;height:100%}
+.wave i{display:block;width:3px;border-radius:var(--r-pill);background:var(--accent);height:14%}
+.wave--l{animation:none}
+.listen{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r-pill);
+  padding:5px 14px;font-size:11.5px;color:var(--muted);z-index:2;white-space:nowrap}
+.mic{width:52px;height:52px;border-radius:var(--r-pill);background:var(--ink);color:var(--panel);
+  display:grid;place-items:center;margin:0 auto}
+
+/* ---- the input is a pill: attach left, ink-filled send right ---- */
+.ask{display:flex;align-items:center;gap:12px;border:1px solid var(--line);
+  border-radius:var(--r-pill);padding:8px 8px 8px 18px;margin-top:auto}
+.ask input{flex:1;border:0;background:none;font:inherit;font-size:13.5px;color:var(--ink);outline:none}
+.ask input::placeholder{color:var(--muted)}
+.send{width:40px;height:40px;border-radius:var(--r-pill);background:var(--ink);color:var(--panel);
+  display:grid;place-items:center;flex:0 0 40px}
+
+/* ============ artifact panel ============ */
+.art{overflow:hidden;position:relative}
+.art__hd{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.art__hd h2{font-size:21px;font-weight:500;line-height:1.25;max-width:16ch}
+/* unit label sits ABOVE the value */
+.metric{text-align:right;flex:0 0 auto}
+.metric small{display:block;font-size:10.5px;color:var(--muted)}
+.metric b{font-size:26px;font-weight:500;line-height:1}
+.shot{width:100%;height:112px;object-fit:cover;border-radius:14px;margin-top:16px}
+.art p.desc{font-size:11.5px;color:var(--muted);line-height:1.65;margin-top:14px}
+.art h3{font-size:15px;font-weight:500;margin-top:18px}
+.art__ctl{display:flex;justify-content:space-between;margin-top:12px}
+.map2{margin-top:12px;border-radius:14px;overflow:hidden;background:var(--ghost);flex:1;min-height:150px;position:relative}
+
+/* ---- progress is a GLASS TOAST over the content, not a bar ---- */
+.toast{
+  position:absolute;left:14px;right:14px;bottom:14px;z-index:5;
+  background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px;color:#fff;
+}
+.toast span{font-size:12px;flex:1}
+.toast b{font-size:19px;font-weight:500}
+.toast button{width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.18);
+  display:grid;place-items:center;color:#fff;flex:0 0 26px}
+
+.js [data-r]{opacity:0}
+@media(max-width:1180px){ .cols{grid-template-columns:1fr} .art{display:none} }
+</style>
+</head>
+<body class="js">
+
+<div class="app">
+
+  <!-- ============ rail — TWO floating clusters ============ -->
+  <aside class="rail">
+    <div class="rail__mark" title="LUMA"><i data-lucide="orbit"></i></div>
+    <div class="rail__mid">
+    <div class="cluster" data-r>
+      <button class="nav on" aria-label="Home"><i data-lucide="house"></i></button>
+      <button class="nav" aria-label="Schedule"><i data-lucide="calendar"></i></button>
+      <button class="nav" aria-label="Search"><i data-lucide="search"></i></button>
+      <button class="nav" aria-label="Tutors"><i data-lucide="users"></i></button>
+      <button class="nav" aria-label="Settings"><i data-lucide="settings"></i></button>
+    </div>
+    <div class="cluster" data-r>
+      <button class="nav" aria-label="Notifications"><i data-lucide="bell"></i></button>
+      <img alt="" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=90&amp;q=70" />
+    </div>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <!-- ============ session tabs ============ -->
+    <nav class="tabs" data-r>
+      <span class="tab on"><i class="spark" data-lucide="sparkles"></i>Intro to Calculus</span>
+      <button class="tab"><i data-lucide="plus"></i>New Session</button>
+      <button class="tab"><i data-lucide="clock"></i>History</button>
+      <button class="tab" id="theme" style="margin-left:auto" aria-label="Switch to dark theme">
+        <span class="tglyph"></span>
+      </button>
+    </nav>
+
+    <div class="cols">
+
+      <!-- ============ conversation ============ -->
+      <section class="panel" data-r>
+        <div class="viz">
+          <div class="viz__bar">
+            <div class="gset">
+              <button class="gbtn" aria-label="Graph view"><i data-lucide="git-fork"></i></button>
+              <button class="gbtn" aria-label="Highlight"><i data-lucide="highlighter"></i></button>
+              <button class="gbtn" aria-label="Annotate"><i data-lucide="pencil"></i></button>
+              <button class="gbtn" aria-label="Layers"><i data-lucide="layers"></i></button>
+              <button class="gbtn" aria-label="Filter"><i data-lucide="filter"></i></button>
+            </div>
+            <div class="gset">
+              <button class="gbtn" aria-label="Regenerate"><i data-lucide="refresh-cw"></i></button>
+              <button class="gbtn" aria-label="Close"><i data-lucide="x"></i></button>
+            </div>
+          </div>
+
+          <!-- two accent regions joined by a DASHED CONNECTOR -->
+          <svg id="graph" viewBox="0 0 620 300" preserveAspectRatio="xMidYMid slice"
+               style="width:100%;height:100%" aria-label="Concept map">
+            <g id="cloud"></g>
+            <path id="link" d="M188 176 C 300 120, 360 108, 452 96"
+                  fill="none" stroke="currentColor" stroke-width="1.4"
+                  stroke-dasharray="5 6" opacity=".55"/>
+            <g id="nodeA"><circle cx="188" cy="176" r="34" fill="var(--accent)"/>
+              <circle cx="188" cy="176" r="5" fill="var(--ink)"/></g>
+            <g id="nodeB"><circle cx="452" cy="96" r="26" fill="var(--accent)"/>
+              <circle cx="452" cy="96" r="4" fill="var(--ink)"/></g>
+            <text x="188" y="126" text-anchor="middle" font-size="11" fill="currentColor" opacity=".75">Algebra II</text>
+            <text x="452" y="56" text-anchor="middle" font-size="11" fill="currentColor" opacity=".75">Derivatives</text>
+          </svg>
+
+          <div class="note" id="note" style="left:47%;top:44%">
+            Est. study time <small>6h</small>
+          </div>
+          <span class="viz__cap">Concept Map</span>
+        </div>
+
+        <div class="convo">
+          <div class="greet">
+            <span class="ava"><i data-lucide="bot"></i></span>
+            <p id="greeting" aria-label="Hi there! I'm your AI learning coach: Master new ideas, one honest step at a time.">
+              Hi there! I'm <b>your AI learning coach</b>: <b>Master</b> new ideas, <b>one honest step at a time.</b>
+            </p>
+          </div>
+
+          <div class="voice">
+            <div class="wave" id="wave" aria-hidden="true"></div>
+            <span class="listen">Listen to You…</span>
+          </div>
+          <button class="mic" aria-label="Hold to speak"><i data-lucide="mic"></i></button>
+
+          <form class="ask" onsubmit="return false">
+            <i data-lucide="paperclip" style="color:var(--muted)"></i>
+            <input value="I want to learn calculus starting from algebra" aria-label="Ask LUMA" />
+            <button class="send" aria-label="Send"><i data-lucide="send"></i></button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ============ artifact ============ -->
+      <section class="panel art" data-r>
+        <div class="art__hd">
+          <h2>Derivatives,<br />Calculus I</h2>
+          <span class="metric"><small>lessons</small><b data-count="12">12</b></span>
+        </div>
+        <img class="shot" alt="" src="https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&amp;q=70" />
+        <p class="desc">A derivative measures how a quantity changes as its input changes — the slope
+          of a curve at a single point. It is the foundation of motion, optimisation and rates of
+          change, and once it clicks, most of calculus follows from it.</p>
+
+        <h3>4 modules</h3>
+        <div class="art__ctl">
+          <div class="gset">
+            <button class="gbtn" aria-label="Layers"><i data-lucide="layers"></i></button>
+            <button class="gbtn" aria-label="Filter"><i data-lucide="filter"></i></button>
+          </div>
+          <div class="gset">
+            <button class="gbtn" aria-label="Zoom in"><i data-lucide="plus"></i></button>
+            <button class="gbtn" aria-label="Zoom out"><i data-lucide="minus"></i></button>
+          </div>
+        </div>
+
+        <div class="map2">
+          <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%">
+            <rect x="18"  y="26" width="120" height="66" rx="10" fill="var(--land)"/>
+            <rect x="150" y="26" width="150" height="120" rx="10" fill="var(--accent)"/>
+            <rect x="18"  y="104" width="120" height="70" rx="10" fill="var(--land)"/>
+            <rect x="150" y="158" width="150" height="26" rx="10" fill="var(--land)"/>
+            <text x="78"  y="63"  text-anchor="middle" font-size="9" fill="currentColor" opacity=".6">Limits</text>
+            <text x="225" y="90"  text-anchor="middle" font-size="10" fill="#1A1A1A">Derivatives</text>
+            <text x="78"  y="143" text-anchor="middle" font-size="9" fill="currentColor" opacity=".6">Continuity</text>
+            <text x="225" y="175" text-anchor="middle" font-size="9" fill="currentColor" opacity=".6">Integrals</text>
+          </svg>
+
+          <div class="toast" id="toast">
+            <span>Building your path</span>
+            <b><span data-count="63">63</span>%</b>
+            <button aria-label="Dismiss"><i data-lucide="x"></i></button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.17/dist/motion.min.js"></script>
+<script>
+(function(){
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var g = window.gsap;
+
+  /* ---- a soft cloud of inactive nodes behind the two live ones ---- */
+  var cloud = "";
+  for (var i = 0; i < 26; i++) {
+    var x = 30 + ((i * 97) % 560), y = 30 + ((i * 53) % 240), r = 4 + ((i * 7) % 9);
+    cloud += '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="var(--land)" opacity=".8"/>';
+  }
+  document.getElementById("cloud").innerHTML = cloud;
+
+  /* ---- the waveform: symmetric, densest at the edges ---- */
+  var W = 68, bars = "";
+  for (var b = 0; b < W; b++) {
+    var t = Math.abs(b - (W - 1) / 2) / ((W - 1) / 2);   /* 0 centre -> 1 edge */
+    var h = 12 + Math.pow(t, 1.6) * 74;
+    bars += '<i style="height:' + h.toFixed(1) + '%"></i>';
+  }
+  document.getElementById("wave").innerHTML = bars;
+
+  /* ---- theme ---- */
+  var themeBtn = document.getElementById("theme");
+  var glyph = themeBtn ? themeBtn.querySelector(".tglyph") : null;
+  function paintGlyph(theme){
+    if (!glyph) return;
+    glyph.innerHTML = '<i data-lucide="' + (theme === "dark" ? "sun" : "moon") + '"></i>';
+    if (window.lucide) lucide.createIcons({ attrs:{ "stroke-width":1.6, width:17, height:17 } });
+    themeBtn.setAttribute("aria-label", theme === "dark" ? "Switch to light theme" : "Switch to dark theme");
+  }
+  function applyTheme(next){
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("luma-theme", next); } catch(e){}
+    paintGlyph(next);
+  }
+  /* Motion/WAAPI, not gsap.fromTo — a tween created after a view transition
+     can land on an idle ticker and strand the glyph invisible. Style is
+     cleared first so the failure mode is "no animation", never "no icon". */
+  function popGlyph(){
+    if (!glyph) return;
+    glyph.style.cssText = "";
+    if (reduce) return;
+    if (window.Motion && Motion.animate)
+      Motion.animate(glyph, { rotate:[-140,0], scale:[.35,1], opacity:[0,1] },
+        { duration:.5, easing:[.34,1.56,.64,1] });
+  }
+  paintGlyph(document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light");
+
+  if (themeBtn) themeBtn.addEventListener("click", function(){
+    var cur = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    var next = cur === "dark" ? "light" : "dark";
+    if (window.Motion && Motion.animate && !reduce)
+      Motion.animate(themeBtn, { scale:[1,.9,1] }, { duration:.32, easing:[.34,1.56,.64,1] });
+    if (!document.startViewTransition || reduce){ applyTheme(next); popGlyph(); return; }
+    var r = themeBtn.getBoundingClientRect();
+    var ox = r.left + r.width/2, oy = r.top + r.height/2;
+    var far = Math.hypot(Math.max(ox, innerWidth-ox), Math.max(oy, innerHeight-oy));
+    var vt = document.startViewTransition(function(){ applyTheme(next); });
+    vt.ready.then(function(){
+      document.documentElement.animate(
+        { clipPath:["circle(0px at "+ox+"px "+oy+"px)","circle("+far+"px at "+ox+"px "+oy+"px)"] },
+        { duration:600, easing:"cubic-bezier(.4,0,.2,1)", pseudoElement:"::view-transition-new(root)" });
+    }).catch(function(){});
+    vt.finished.then(popGlyph).catch(popGlyph);
+  });
+
+  document.getElementById("toast").querySelector("button")
+    .addEventListener("click", function(){
+      var t = document.getElementById("toast");
+      if (!g || reduce) { t.remove(); return; }
+      g.to(t, { y:24, opacity:0, duration:.35, ease:"power2.in",
+                onComplete:function(){ t.remove(); } });
+    });
+
+  if (window.lucide) lucide.createIcons({ attrs:{ "stroke-width":1.6, width:17, height:17 } });
+
+  if (!g || reduce) { document.body.classList.remove("js"); return; }
+
+  /* ---- entry: rail, tabs, left panel, right panel ---- */
+  g.timeline({ defaults:{ ease:"power3.out" } })
+   .fromTo("[data-r]", { opacity:0, y:10 },
+           { opacity:1, y:0, duration:.55, stagger:.07, clearProps:"transform" }, 0)
+   /* the connector DRAWS, then the pill lands on it */
+   .fromTo("#link", { drawSVG:0, opacity:0 }, { opacity:.55, duration:.5 }, .35)
+   .fromTo("#nodeA, #nodeB", { scale:0, transformOrigin:"50% 50%" },
+           { scale:1, duration:.5, stagger:.12, ease:"back.out(2)" }, .4)
+   .fromTo("#note", { opacity:0, scale:.8 },
+           { opacity:1, scale:1, duration:.4, ease:"back.out(2)", clearProps:"transform" }, .85);
+
+  /* the greeting arrives WORD BY WORD — authored in the moment */
+  var gr = document.getElementById("greeting");
+  if (gr) {
+    var html = gr.innerHTML;
+    gr.innerHTML = html.replace(/(\S+)(\s*)/g, '<span class="w" style="display:inline-block">$1</span>$2');
+    g.fromTo(gr.querySelectorAll(".w"), { opacity:0, y:8 },
+      { opacity:1, y:0, duration:.4, stagger:.035, ease:"power2.out",
+        clearProps:"transform,opacity" }, .5);
+  }
+
+  /* ⚠️ ONE timeline with a stagger — not an infinite tween per bar, which
+     would drift out of phase and burn frames. */
+  g.to("#wave i", {
+    scaleY:function(){ return 0.45 + Math.random()*1.1; },
+    transformOrigin:"50% 50%", duration:.42, ease:"sine.inOut",
+    repeat:-1, yoyo:true, stagger:{ each:.014, from:"center", yoyo:true, repeat:-1 }
+  });
+
+  /* counters */
+  g.utils.toArray("[data-count]").forEach(function(el){
+    var end = +el.dataset.count, o = { n:0 };
+    g.to(o, { n:end, duration:1.3, ease:"power2.out", delay:.5,
+      onUpdate:function(){ el.textContent = Math.round(o.n); } });
+  });
+
+  if (window.Motion && Motion.animate){
+    document.querySelectorAll(".mic, .send, .rail button.nav, .gbtn").forEach(function(el){
+      el.addEventListener("pointerenter", function(){
+        Motion.animate(el, { scale:1.06 }, { type:"spring", stiffness:340, damping:20 }); });
+      el.addEventListener("pointerleave", function(){
+        Motion.animate(el, { scale:1 }, { type:"spring", stiffness:340, damping:24 }); });
+    });
+  }
+
+  window.addEventListener("load", function(){
+    setTimeout(function(){ document.body.classList.remove("js"); }, 2200);
+  });
+})();
+</script>
+</body>
+</html>

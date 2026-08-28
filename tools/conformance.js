@@ -38,6 +38,7 @@ const RULES = {
     scaleTokens: ["--s1","--s2","--s3","--s4","--s5","--s6","--s8","--s10","--s12","--s16","--s20","--s28"],
     allowedRadii: ["0px", "9999px", "50%"],
     inkNotPureWhite: "--ink",
+    noPureWhiteText: true,
     accent: {
       token: "--accent", ink: "--ink", canvas: "--canvas",
       maxVsInk: 1.1,                        /* matched luminance, hue-only */
@@ -63,6 +64,7 @@ const RULES = {
        Everything structural must still be 0. */
     allowedRadii: ["0px", "9999px", "50%", "75px"],
     inkNotPureWhite: "--ink",
+    noPureWhiteText: true,
     /* ARCHE inverts the "panels recede" rule that Metric states as a constant */
     panelDirection: { canvas: "--canvas", panel: "--panel", expect: "lift",
                       /* the flip must not invert the relationship */
@@ -76,6 +78,25 @@ const RULES = {
        so requiring it on every .chip would assert the opposite of the rule. */
     texture: { selectors: [".track", ".chip:not(.chip--accent)", ".sw__box--hatch"], contains: "repeating-linear-gradient" },
     present: [".kpis", ".ticks", ".bars", ".circles"]
+  },
+
+  assistant: {
+    url: "designs/assistant.html",
+    /* LUMA is the library's ONE elevated design — 11/12 are flat — so the
+       _common zeroElevation baseline is deliberately switched off here and
+       replaced by the opposite assertion. */
+    zeroElevation: false,
+    requireElevation: [".panel", ".cluster"],
+    inkNotPureWhite: "--ink",
+    panelDirection: { canvas: "--canvas", panel: "--panel", expect: "lift",
+                      alsoUnder: [{ attr: "data-theme", value: "dark" }] },
+    /* THE signature rule: the accent marks state, never affordance. Put it on
+       a button and it reads as a call-to-action and the signal collapses. */
+    accentNotOn: { token: "--accent", selectors: ["button"] },
+    /* the rail is two floating clusters, never one continuous sidebar */
+    singletons: { ".rail__mid": 1, ".note": 1, ".toast": 1 },
+    exactCount: { ".cluster": 2 },
+    present: [".wave", ".listen", ".mic", ".send", ".ask", ".metric", ".viz__bar"]
   }
 };
 
@@ -175,6 +196,11 @@ function PAGE_RUNNER(cfg) {
   /* --- ink is never pure white --- */
   if (cfg.inkNotPureWhite) {
     ok("ink token is not #FFFFFF", css(cfg.inkNotPureWhite).toUpperCase() !== "#FFFFFF", css(cfg.inkNotPureWhite));
+  }
+  /* Separate, opt-in. Bundling this with the token check was wrong: a design
+     whose PANEL is #FFFFFF paints white text on its ink-filled buttons by
+     design, and that is not the same failure as a white ink TOKEN. */
+  if (cfg.noPureWhiteText) {
     const w = all().filter(el => getComputedStyle(el).color === "rgb(255, 255, 255)" && (el.textContent || "").trim());
     ok("nothing renders pure-white text", w.length === 0, w.length ? w.length + " elements" : "clean");
   }
@@ -244,6 +270,45 @@ function PAGE_RUNNER(cfg) {
   if (cfg.zeroElevation) {
     const sh = all().filter(el => { const s = getComputedStyle(el).boxShadow; return s && s !== "none"; });
     ok("zero elevation", sh.length === 0, sh.length ? sh.length + " shadowed" : "clean");
+  }
+
+  /* --- the inverse of zeroElevation, for the one design that lifts --- */
+  if (cfg.requireElevation) {
+    cfg.requireElevation.forEach(sel => {
+      const els = [...document.querySelectorAll(sel)];
+      const flat = els.filter(el => {
+        const sh = getComputedStyle(el).boxShadow;
+        return !sh || sh === "none";
+      });
+      ok(sel + " carries a real shadow", flat.length === 0 && els.length > 0,
+        els.length === 0 ? "VACUOUS — no " + sel + " found"
+          : (flat.length ? flat.length + " flat" : els.length + " elevated"));
+    });
+  }
+
+  /* --- the accent must NOT appear on the given selectors --- */
+  if (cfg.accentNotOn) {
+    const a = hex(css(cfg.accentNotOn.token));
+    const str = "rgb(" + a.join(", ") + ")";
+    const offenders = [];
+    cfg.accentNotOn.selectors.forEach(sel => {
+      [...document.querySelectorAll(sel)].forEach(el => {
+        const st = getComputedStyle(el);
+        if (st.backgroundColor === str || st.color === str)
+          offenders.push(el.tagName + "." + (el.className || "").toString().slice(0, 24));
+      });
+    });
+    ok("accent never appears on " + cfg.accentNotOn.selectors.join(", "),
+      offenders.length === 0,
+      offenders.length ? offenders.slice(0, 4).join(" | ") : "clean — accent is state, not affordance");
+  }
+
+  /* --- an exact element count (two rail clusters, not one sidebar) --- */
+  if (cfg.exactCount) {
+    Object.keys(cfg.exactCount).forEach(sel => {
+      const want = cfg.exactCount[sel], got = document.querySelectorAll(sel).length;
+      ok("exactly " + want + " of " + sel, got === want, got + " found");
+    });
   }
 
   /* --- pinned dock. Measure against clientWidth: innerWidth includes the

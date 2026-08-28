@@ -42,6 +42,7 @@ original is a far better piece of work than our exercise.
 
 | Design | Design language studied from | Studio |
 |---|---|---|
+| **LUMA** — AI learning assistant<br>[`assistant.html`](assistant.html) · [spec](assistant.design-language.md) | [Geovea AI Assistant — Travel Web Dashboard](https://dribbble.com/shots/25501591-Geovea-AI-Assistant-Travel-Web-Dashboard) | **Jack R.**, for RonDesignLab ⭐️ |
 | **TENON** — furniture &amp; objects atelier<br>[`atelier.html`](atelier.html) · [spec](atelier.design-language.md) | [unanim.studio](https://unanim.studio) | **unanim.studio**, Braine-l'Alleud, Belgium |
 
 What was taken: a 15px root on a 3.75px spacing grid · a warm off-white ink that is never pure
@@ -90,7 +91,6 @@ ARCHE is **built** and has moved to the table above.
 | ~~[ShiftPulse — Healthcare Workforce Scheduling](https://dribbble.com/shots/27578135-Healthcare-Workforce-Scheduling-SaaS-Dashboard-ShiftPulse)~~ ✗ **rejected** — shown on an *angled* laptop mockup; perspective corrupts every proportion and radius, so no rule set can be extracted | **Noryn** | — |
 | [Fitness Dashboard UI Design \| Health Analytics Dashboard](https://dribbble.com/shots/27537811-Fitness-Dashboard-UI-Design-Health-Analytics-Dashboard) | **Abdullah Al Mamun ❂** | — |
 | [AI-Powered Analytics Overview](https://dribbble.com/shots/27139230-AI-Powered-Analytics-Overview) | **Outcrowd** | — |
-| [Geovea AI Assistant — Travel Web Dashboard](https://dribbble.com/shots/25501591-Geovea-AI-Assistant-Travel-Web-Dashboard) | **Jack R.** | for RonDesignLab ⭐️ |
 | [Rinesk — Call Centre Dashboard Concept](https://dribbble.com/shots/26662554-Rinesk-Call-centre-Dashboard-Concept) | **Anastasiia Cherniak** | — |
 | [Charts Mega UI Kit — Dashboard UI](https://me.muz.li/vladyslavtyzun/charts-mega-ui-kit-dashboard-ui-2) *(Muzli)* | **Vlad Tyzun** | — |
 | [Modern Finance Management Dashboard \| Financia](https://me.muz.li/orbix-studio/modern-finance-management-dashboard-financia) *(Muzli)* | **Orbix Studio** | — |
@@ -116,5 +116,5 @@ the same ground is not re-covered.
 
 ---
 
-*Last updated 21 August 2026. When a shortlisted shot gets built, move it into the table above and
+*Last updated 27 August 2026. When a shortlisted shot gets built, move it into the table above and
 record its designer in the spec's Source row as well.*

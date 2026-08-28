@@ -160,6 +160,20 @@ const REFERENCES = [
     fd: "'Instrument Sans', sans-serif", fb: "'Instrument Sans', sans-serif", type: "Instrument Sans",
     radius: "Sharp", elevation: "Flat", gradient: "None", icon: "Line", imagery: "Abstract",
     motion: "Rich", density: "Compact"
+  },
+  {
+    id: "luma", name: "LUMA", ref: true, vibes: ["Modern", "Playful"], mode: "both",
+    kind: "AI assistant", note: "everything floats · chartreuse marks what is live",
+    nativeTheme: "light",
+    src: "designs/assistant.html", spec: "designs/assistant.design-language.md",
+    /* original design; only the rule set was studied */
+    original: true,
+    credit: "Original — design language studied from Geovea by Jack R., for RonDesignLab",
+    source: "https://dribbble.com/shots/25501591-Geovea-AI-Assistant-Travel-Web-Dashboard",
+    bg: "#EFEFEF", surface: "#FFFFFF", ink: "#1A1A1A", primary: "#1A1A1A", accent: "#D8F32B",
+    fd: "'Poppins', sans-serif", fb: "'Poppins', sans-serif", type: "Poppins",
+    radius: "Rounded", elevation: "Raised", gradient: "None", icon: "Line", imagery: "Photo",
+    motion: "Rich", density: "Airy"
   }
 ];
 
