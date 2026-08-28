@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,6 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<script>
+/* runs before paint so the theme never flashes */
+(function(){var r=document.documentElement;
+ try{var t=localStorage.getItem('arche-theme')||'dark';r.setAttribute('data-theme',t);}
+ catch(e){r.setAttribute('data-theme','dark');}})();
+</script>
 <style>
 /* ============================================================
    ARCHE — recreation of "SaaS Dashboard" by Juice Lab.
@@ -38,9 +44,33 @@
 
   /* ---- the texture system: 45deg hatch, 8px period.
           Means UNFILLED / REMAINDER / DE-EMPHASISED.        */
+  --hatch-ink:255,255,255;
   --hatch:repeating-linear-gradient(45deg,
-            rgba(255,255,255,.055) 0 1px,
+            rgba(var(--hatch-ink),.055) 0 1px,
             transparent 1px 8px);
+  --hairline:rgba(255,255,255,.12);
+  --well:rgba(255,255,255,.06);
+  --track-bg:rgba(255,255,255,.025);
+  /* text sitting ON the accent panel/chip. The accent surface does NOT
+     flip with the theme, so this must NOT be var(--ink) -- in light that
+     would put near-black text on the orange fill. */
+  --on-accent:#FEFEFE;
+}
+
+/* ---- LIGHT is a token re-skin. The layout language is identical.
+        THE RULE THAT MUST SURVIVE THE FLIP: the panel stays LIGHTER
+        than the canvas, so panels still LIFT toward the viewer.     */
+html[data-theme="light"]{
+  color-scheme:light;
+  --canvas:#EFEFEF;         /* darker */
+  --panel:#FFFFFF;          /* lighter -> still lifts */
+  --ink:#141414;
+  --muted:#7C838E;
+  --dim:#6B6B6B;
+  --hatch-ink:20,20,20;     /* the hatch inverts with the ink */
+  --hairline:rgba(20,20,20,.14);
+  --well:rgba(20,20,20,.05);
+  --track-bg:rgba(20,20,20,.025);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;border-radius:0}
 html,body{height:100%}
@@ -71,11 +101,11 @@ svg{display:block}
 .nav a:hover{color:var(--ink)}
 .ico{
   width:28px;height:28px;display:grid;place-items:center;flex:0 0 28px;
-  border:1px solid rgba(255,255,255,.10);color:var(--ink);
+  border:1px solid var(--hairline);color:var(--ink);
 }
-.sub{margin:2px 0 2px 14px;padding-left:16px;border-left:1px solid rgba(255,255,255,.10);display:grid;gap:2px}
+.sub{margin:2px 0 2px 14px;padding-left:16px;border-left:1px solid var(--hairline);display:grid;gap:2px}
 .sub a{padding:7px 10px;font-size:13px}
-.sub a.on{background:rgba(255,255,255,.07);color:var(--ink)}
+.sub a.on{background:var(--well);color:var(--ink)}
 .side .grp{margin-top:auto;padding-top:30px;color:var(--dim);font-size:11.5px}
 .side__foot{margin-top:38px}
 
@@ -89,16 +119,16 @@ svg{display:block}
 .hello + p{color:var(--dim);font-size:12.5px;margin-top:2px}
 /* the KPI strip is CHROME — it lives in the top bar, split by hairlines */
 .kpis{display:flex;margin-left:auto}
-.kpi{padding:0 22px;border-left:1px solid rgba(255,255,255,.12)}
+.kpi{padding:0 22px;border-left:1px solid var(--hairline)}
 .kpi:first-child{border-left:0}
 .kpi b{display:block;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:500}
 .kpi i{display:block;font-style:normal;font-size:15px;margin-top:5px}
 .kpi i.acc{color:var(--accent)}
 .search{
-  display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.06);
+  display:flex;align-items:center;gap:9px;background:var(--well);
   padding:10px 15px;color:var(--dim);font-size:13px;min-width:210px;border-radius:9999px;
 }
-.round{width:38px;height:38px;display:grid;place-items:center;background:rgba(255,255,255,.06);border-radius:50%}
+.round{width:38px;height:38px;display:grid;place-items:center;background:var(--well);border-radius:50%}
 .avatar{width:38px;height:38px;border-radius:50%;object-fit:cover}
 
 /* ============ content grid — FOUR columns ============ */
@@ -112,35 +142,37 @@ svg{display:block}
 
 /* ---- the ONE accent-filled panel. There is exactly one. ---- */
 .card--accent{background:var(--accent);position:relative;overflow:hidden}
-.card--accent h3{color:var(--ink)}
-.card--accent .big{color:var(--ink)}
+.card--accent h3{color:var(--on-accent)}
+.card--accent .big{color:var(--on-accent)}
 /* dot-matrix halftone wedge — bound to the big-number panels only */
 .dots{
   position:absolute;right:18px;bottom:16px;width:120px;height:52px;
   background-image:radial-gradient(circle, rgba(255,255,255,.95) 1.4px, transparent 1.5px);
+  /* on the accent panel the dots stay white in both themes — the panel
+     itself does not flip. Only the ink-toned wedge below inverts. */
   background-size:9px 9px;
   -webkit-mask-image:linear-gradient(115deg,transparent 22%,#000 88%);
   mask-image:linear-gradient(115deg,transparent 22%,#000 88%);
 }
-.dots--ink{background-image:radial-gradient(circle, rgba(255,255,255,.85) 1.4px, transparent 1.5px)}
+.dots--ink{background-image:radial-gradient(circle, rgba(var(--hatch-ink),.85) 1.4px, transparent 1.5px)}
 .row-between{display:flex;align-items:flex-end;justify-content:space-between}
 
 /* ---- collection swatches: texture distinguishes the categories ---- */
 .swatches{display:flex;gap:14px;margin-top:26px}
 .sw{flex:1}
-.sw__box{height:86px;border:1px solid rgba(255,255,255,.10)}
-.sw__box--hatch{background-image:var(--hatch);background-color:rgba(255,255,255,.03)}
-.sw__box--solid{background:#fff;border-color:#fff}
+.sw__box{height:86px;border:1px solid var(--hairline)}
+.sw__box--hatch{background-image:var(--hatch);background-color:var(--track-bg)}
+.sw__box--solid{background:var(--ink);border-color:var(--ink)}
 .sw p{margin-top:9px;font-size:11.5px;color:var(--dim);text-align:center}
 
 /* ---- lesson engagement: 3 stats split by hairlines + tick strip ---- */
 .stats{display:grid;grid-template-columns:repeat(3,1fr)}
-.stat{padding:0 24px;border-left:1px solid rgba(255,255,255,.12)}
+.stat{padding:0 24px;border-left:1px solid var(--hairline)}
 .stat:first-child{border-left:0;padding-left:0}
 .stat b{display:block;font-size:11.5px;color:var(--dim);font-weight:400}
 .stat i{display:block;font-style:normal;font-size:27px;margin-top:8px}
 .ticks{display:flex;align-items:flex-end;gap:4px;flex:1;min-height:74px;margin-top:26px}
-.ticks span{flex:1;background:rgba(255,255,255,.16)}
+.ticks span{flex:1;background:var(--muted)}
 .ticks span.on{background:var(--accent)}
 
 /* ============ bar chart ============
@@ -152,7 +184,7 @@ svg{display:block}
 .bars{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--gut);flex:1;min-height:300px;margin-top:20px}
 .track{
   position:relative;background-image:var(--hatch);
-  background-color:rgba(255,255,255,.02);overflow:hidden;
+  background-color:var(--track-bg);overflow:hidden;
 }
 .fill{
   position:absolute;left:0;right:0;bottom:0;background:var(--muted);
@@ -176,11 +208,11 @@ svg{display:block}
 .prod span{font-size:12.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chip{
   padding:7px 13px;font-size:12px;min-width:78px;text-align:center;flex:0 0 auto;
-  background-image:var(--hatch);background-color:rgba(255,255,255,.04);
+  background-image:var(--hatch);background-color:var(--well);
 }
 /* the highlighted chip carries a gradient in the source, not a flat fill */
 .chip--accent{
-  background:var(--accent);color:var(--ink);
+  background:var(--accent);color:var(--on-accent);
   background-image:linear-gradient(90deg,var(--accent) 0%,#F5836A 100%);
 }
 
@@ -239,6 +271,7 @@ svg{display:block}
       </div>
       <div class="search"><i data-lucide="search"></i><span>Search</span></div>
       <div class="round"><i data-lucide="bell"></i></div>
+      <button class="round" id="theme" aria-label="Toggle light and dark theme"><i data-lucide="sun-moon"></i></button>
       <img class="avatar" alt="" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&amp;q=70" />
     </header>
 
@@ -345,9 +378,11 @@ svg{display:block}
   }).join("");
 
   /* ---- proportional circles, sized by value, sharing a baseline ---- */
+  /* chart series must reference TOKENS, not literals: a hardcoded white
+     series disappears entirely when the panel turns white. */
   var CIRC = [
-    { v:20, c:"#FEFEFE" }, { v:15, c:"#616974" },
-    { v:45, c:"var(--accent)" }, { v:20, c:"#FEDE00" }
+    { v:20, c:"var(--ink)" }, { v:15, c:"var(--muted)" },
+    { v:45, c:"var(--accent)" }, { v:20, c:"var(--yellow)" }
   ];
   document.getElementById("circles").innerHTML = CIRC.map(function(c){
     var d = 30 + c.v * 1.15;
@@ -381,30 +416,54 @@ svg{display:block}
       '<span class="chip' + (p[3] ? " chip--accent" : "") + '">' + p[1] + '</span></div>';
   }).join("");
 
+  var themeBtn = document.getElementById("theme");
+  if (themeBtn) themeBtn.addEventListener("click", function(){
+    var r = document.documentElement;
+    var next = r.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    r.setAttribute("data-theme", next);
+    try { localStorage.setItem("arche-theme", next); } catch(e){}
+    /* the donut is painted from tokens, so every one of them must be
+       repainted on a flip -- series colours, the ring stroke AND the centre
+       label. Repainting only the stroke leaves a white slice on white. */
+    if (window.__donut) window.__donut.updateOptions({
+      colors: tok(["--accent","--yellow","--ink","--muted"]),
+      stroke: { colors: tok(["--panel"]) },
+      plotOptions:{ pie:{ donut:{ labels:{
+        total:{ color: tok(["--dim"])[0] },
+        value:{ color: tok(["--ink"])[0] } } } } }
+    }, false, false);
+  });
+
   if (window.lucide) lucide.createIcons({ attrs:{ "stroke-width":1.5, width:16, height:16 } });
 
   /* ---- donut: ApexCharts, with a PATTERN fill so the muted segment
        carries the same hatch as the rest of the texture system ---- */
+  function tok(names){
+    var cs = getComputedStyle(document.documentElement);
+    return names.map(function(k){ return cs.getPropertyValue(k).trim(); });
+  }
+
   if (window.ApexCharts) {
-    new ApexCharts(document.getElementById("donut"), {
+    window.__donut = new ApexCharts(document.getElementById("donut"), {
       chart:{ type:"donut", height:190, animations:{ enabled:!reduce, speed:900 },
               fontFamily:"Instrument Sans, sans-serif" },
       series:[38,22,27,13],
       labels:["Direct","Referral","Organic","Social"],
-      colors:["#E83B13","#FEDE00","#FEFEFE","#616974"],
+      colors:tok(["--accent","--yellow","--ink","--muted"]),
       fill:{ type:["solid","solid","solid","pattern"],
              pattern:{ style:"slantedLines", width:8, height:8, strokeWidth:1 } },
-      stroke:{ width:3, colors:["#171717"] },
+      stroke:{ width:3, colors:tok(["--panel"]) },
       dataLabels:{ enabled:false },
       legend:{ show:false },
       tooltip:{ enabled:false },
       plotOptions:{ pie:{ donut:{ size:"70%", labels:{ show:true,
         total:{ show:true, showAlways:true, label:"of total", fontSize:"11px",
-                color:"#8A8A8A", formatter:function(){ return "67%" } },
-        value:{ show:true, fontSize:"24px", color:"#FEFEFE",
+                color:tok(["--dim"])[0], formatter:function(){ return "67%" } },
+        value:{ show:true, fontSize:"24px", color:tok(["--ink"])[0],
                 formatter:function(){ return "67%" } },
         name:{ show:false } } } } }
-    }).render();
+    });
+    window.__donut.render();
   }
 
   if (!g || reduce) {

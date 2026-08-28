@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | **Source** | Dribbble — *"SaaS Dashboard"*, **Juice Lab** (UI/UX Development Agency) — [`/shots/26666273`](https://dribbble.com/shots/26666273-SaaS-Dashboard) · [credits](CREDITS.md) |
-| **Recreation** | [`saas.html`](saas.html) — dark (native only) |
+| **Recreation** | [`saas.html`](saas.html) — dark (native) + light |
 | **Format** | presented inside a **MacBook render**. Measured from the still; the video is the motion reference |
 | **Palette** | every value sampled from the source pixels |
 
@@ -142,8 +142,18 @@ Neo-grotesque throughout. Big numerals are the loudest thing on the board, set l
 ## 7 · Elevation 🔒 `observed`
 **None.** Separation is done entirely by the canvas showing through the gaps. **11/11 across the library** — this one really is a constant.
 
-## 8 · Theme 🔒 `observed`
-**Dark-native, and dark only.** The tone system is two dark greys separated by 6 luminance points; there is no light inversion that preserves "panels lift" without inventing a new palette.
+## 8 · Theme 🔒 both required — dark-native `observed`, light `authored`
+
+**Dark-native**; light is a **token re-skin** with an identical layout language.
+
+> 📐 **Corrected.** This section first said "dark only", reasoning that the two-grey tone system had no valid inversion. That was carried over from TENON by analogy and does not hold here. TENON is legitimately dark-only because its accent rule is *matched luminance, hue-only separation*, which has no meaning against a light canvas. ARCHE has no such constraint — its rule is simply **panels lift**, and that inverts cleanly.
+
+**The one rule that must survive the flip: the panel stays LIGHTER than the canvas.** Light runs canvas `#EFEFEF` against panel `#FFFFFF` — still lifting, still two tones, same six-point separation inverted.
+
+Two things do **not** flip, and getting either wrong breaks the design:
+
+- **The accent surface keeps light text in both themes.** The orange panel and the accent chip are the same `#E83B13` in light as in dark, so their text must stay near-white. Binding it to the ink token puts near-black text on orange the moment the theme flips.
+- **The hatch inverts with the ink, not with the panel.** It is drawn from the ink hue at low alpha, so in light it becomes dark strokes on white. Leaving it white-on-white erases the entire texture encoding.
 
 ---
 
@@ -225,8 +235,15 @@ LAYOUT LANGUAGE (non-negotiable):
   panel titles small and regular; KPI labels tiny uppercase. USE A COMMA AS THE DECIMAL SEPARATOR
   (+65,5%) AND SET THE % SMALLER than the number it follows.
 - ZERO ELEVATION. No shadows on anything.
-- DARK ONLY. Do not build a light theme — the tone system is two dark greys six luminance points
-  apart and there is no inversion that keeps "panels lift" without inventing a new palette.
+- SHIP BOTH THEMES. Dark is native; light is a TOKEN RE-SKIN with an identical layout language.
+  ⚠️ THE RULE THAT MUST SURVIVE THE FLIP IS "PANELS LIFT": in light, run a canvas around #EFEFEF
+  against a panel of #FFFFFF, so the panel is still LIGHTER than the canvas. Do not invert that
+  relationship just because the theme changed.
+  TWO THINGS DO NOT FLIP: (1) THE ACCENT SURFACE KEEPS LIGHT TEXT IN BOTH THEMES — the orange panel
+  and the accent chip stay orange, so binding their text to the ink token puts near-black text on
+  orange the moment you switch. Use a separate on-accent token that never flips. (2) THE HATCH
+  INVERTS WITH THE INK, NOT THE PANEL — it is the ink hue at low alpha, so in light it becomes dark
+  strokes on white. Leave it white and the entire texture encoding disappears.
 
 MOTION:
 - A board is SCANNED, NOT SCROLLED: land the entry in one beat — top bar, sidebar cascade, top

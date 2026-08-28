@@ -64,7 +64,9 @@ const RULES = {
     allowedRadii: ["0px", "9999px", "50%", "75px"],
     inkNotPureWhite: "--ink",
     /* ARCHE inverts the "panels recede" rule that Metric states as a constant */
-    panelDirection: { canvas: "--canvas", panel: "--panel", expect: "lift" },
+    panelDirection: { canvas: "--canvas", panel: "--panel", expect: "lift",
+                      /* the flip must not invert the relationship */
+                      alsoUnder: [{ attr: "data-theme", value: "light" }] },
     /* the accent is a FOCUS MARKER: exactly one per grouping, never a series */
     singletons: { ".card--accent": 1, ".fill--accent": 1, ".chip--accent": 1 },
     /* bars: one large top-LEFT radius, square top-right — an asymmetric sweep */
@@ -285,12 +287,24 @@ function PAGE_RUNNER(cfg) {
          "panels recede" as a library constant; ARCHE disproves it, so the
          direction is asserted per design rather than assumed. --- */
   if (cfg.panelDirection) {
-    const c = hex(css(cfg.panelDirection.canvas)), p = hex(css(cfg.panelDirection.panel));
-    const lifts = L(p) > L(c);
     const want = cfg.panelDirection.expect === "lift";
-    ok("panels " + cfg.panelDirection.expect + " relative to the canvas", lifts === want,
-      "canvas lum " + Math.round(L(c) * 255) + " vs panel " + Math.round(L(p) * 255) +
-      " => " + (lifts ? "lift" : "recede"));
+    const check = label => {
+      const c = hex(css(cfg.panelDirection.canvas)), p = hex(css(cfg.panelDirection.panel));
+      const lifts = L(p) > L(c);
+      ok("panels " + cfg.panelDirection.expect + " relative to the canvas" + label, lifts === want,
+        "canvas lum " + Math.round(L(c) * 255) + " vs panel " + Math.round(L(p) * 255) +
+        " => " + (lifts ? "lift" : "recede"));
+    };
+    check("");
+    /* re-assert under every other theme: a token re-skin must not invert
+       the panel/canvas relationship. */
+    (cfg.panelDirection.alsoUnder || []).forEach(t => {
+      const root = document.documentElement;
+      const prev = root.getAttribute(t.attr);
+      root.setAttribute(t.attr, t.value);
+      check(" [" + t.attr + "=" + t.value + "]");
+      if (prev === null) root.removeAttribute(t.attr); else root.setAttribute(t.attr, prev);
+    });
   }
 
   /* --- accent as a focus marker: exactly N of each, never more --- */

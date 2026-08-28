@@ -150,7 +150,7 @@ const REFERENCES = [
     motion: "Rich", density: "Airy"
   },
   {
-    id: "arche", name: "ARCHE", ref: true, vibes: ["Tech", "Modern"], mode: "dark",
+    id: "arche", name: "ARCHE", ref: true, vibes: ["Tech", "Modern"], mode: "both",
     kind: "Commerce board", note: "zero radius · hatch as encoding · one accent per grouping",
     nativeTheme: "dark",
     src: "designs/saas.html", spec: "designs/saas.design-language.md",
