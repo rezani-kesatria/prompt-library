@@ -133,6 +133,8 @@ Geometric grotesque, weights 500–600, tight tracking (`-.03em`). Labels muted 
 > ⚠️ This is the same device EcoVolt's spec calls *"the identifying feature."* With two references using it, it is **no longer EcoVolt's signature** — demote it there to a shared pattern and let EcoVolt's identity rest on full-bleed-inset-by-padding.
 
 ## 9 · Circles as a component system 🔒 `observed`
+> 🔒 **The rating scale is drawn as BARE ARCS, not as face icons.** Five curves from frowning to smiling, with no circle and no eyes. Lucide has direct equivalents (angry/frown/meh/smile/laugh) and the rest of this library is Lucide throughout — but those are circled faces, and substituting them changes the widget. **Reviewed and kept as arcs deliberately;** this is the one sanctioned exception to the Lucide rule.
+
 One shape, three fills, used everywhere: **panel-filled** (menu, mic, dismiss), **hairline ghost** (add, calendar, search, tools), **solid** (the growth donut, the logo mark). Plus perfect-circle icon badges inside cards. Sizes vary; the shape never does.
 
 ## 10 · Data treatment 🔒 `observed` — **the richest in the library**

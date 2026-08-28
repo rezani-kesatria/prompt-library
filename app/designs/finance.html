@@ -606,6 +606,11 @@
           <div class="pager" style="justify-content:flex-start;margin:0 0 clamp(14px,1.4vw,28px)"><i></i><i></i><i class="on"></i></div>
           <span class="lab">Review rating</span>
           <h3 style="font-size:clamp(1rem,1.4vw,1.85rem);font-weight:500;margin-top:clamp(6px,.6vw,12px)">How is your business management going?</h3>
+          <!-- DELIBERATE: these five rating faces are BARE ARCS, not Lucide.
+               Lucide ships angry/frown/meh/smile/laugh, but those are circled
+               faces with eyes; the source uses a pure curve with no face at
+               all. Fidelity to the original wins over icon-system
+               consistency here. Do NOT convert them in a Lucide sweep. -->
           <div class="faces">
             <button style="--i:0" aria-label="Awful"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 17a8 8 0 0 1 16 0"/></svg></button>
             <button style="--i:1" aria-label="Poor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 15a8 8 0 0 1 16 0"/></svg></button>
