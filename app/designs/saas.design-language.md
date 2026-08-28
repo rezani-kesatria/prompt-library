@@ -169,6 +169,8 @@ A board is **scanned, not scrolled** — the entry lands in one beat: top bar �
 - **Numbers count up** — the big panel figures are the payoff.
 - Motion handles hover/press springs on rows and chips. Lenis tuned **short (~0.7s)**: this is a page to scan, and inertia makes you overshoot the row you were aiming at.
 
+**THE THEME FLIP IS A CIRCULAR WIPE OUT OF THE TOGGLE.** Driven by the **View Transitions API**: the new theme is revealed by a `clip-path` circle expanding from the button that was pressed, so the change reads as *caused by the click* rather than as a global repaint. The radius must reach the furthest viewport corner (the `hypot` of the larger dx and dy) or the old theme is left stranded in a corner. Both `::view-transition` layers must keep `animation:none` and `mix-blend-mode:normal`, or the two themes muddy each other mid-sweep. The button takes an immediate press-spring; the sun/moon glyph springs in **after** the wipe settles, so it is not caught mid-transform when the transition snapshots the new state.
+
 ### ⚠️ Implementation traps
 
 1. **`gsap.from({opacity:0})` against a CSS pre-hide is a no-op** — `.from()` tweens *to* the current computed value, which is also 0. Use **`fromTo()`** with explicit end values.
@@ -176,6 +178,7 @@ A board is **scanned, not scrolled** — the entry lands in one beat: top bar �
 3. **Never size a chart with `height:'100%'` inside a flex/stretch parent** — the percentage resolves before layout settles. Pass explicit pixels and recompute on resize.
 4. **A loose descendant selector will eat a semantic colour** — `.panel span` outranks `.chip--accent` and repaints it. Scope with `>`.
 5. **Render the hatch with `repeating-linear-gradient`, not an image** — it must scale with the element and stay crisp at any size.
+6. **Never use `gsap.fromTo()` in the microtask after a View Transition.** `fromTo` applies its from-state *immediately*, and a tween created right after a ~600ms transition can land on an idle GSAP ticker and never receive a tick — stranding the element at `opacity:0`, i.e. an invisible button. Observed exactly that here, with the tween reporting `progress 0, active false`. Drive post-transition animation with **Motion/WAAPI**, which does not depend on that ticker, and **clear the inline style first** so the failure mode is *no animation* rather than *no icon*.
 
 ---
 
@@ -251,6 +254,17 @@ MOTION:
 - BARS GROW FROM THE BASELINE AND THE ACCENT BAR ARRIVES LAST, so the eye finishes on it.
 - The donut sweeps from 12 o'clock and its centre figure counts up; proportional circles scale from
   their shared baseline, largest last; the big panel numbers count up.
+- ⚠️ THE THEME FLIP IS A CIRCULAR WIPE OUT OF THE TOGGLE, via the View Transitions API: expand a
+  clip-path circle from the pressed button so the change reads as CAUSED BY THE CLICK, not as a
+  global repaint. The radius must reach the FURTHEST viewport corner or the old theme is left
+  stranded in a corner. Set animation:none and mix-blend-mode:normal on BOTH ::view-transition
+  layers or the two themes muddy each other mid-sweep. Fall back to an instant switch where the
+  API is missing or motion is reduced.
+- ⚠️ DO NOT USE gsap.fromTo() IN THE MICROTASK AFTER A VIEW TRANSITION. fromTo applies its
+  from-state immediately, and a tween created right after a ~600ms transition can land on an idle
+  GSAP ticker and never tick — stranding the element at opacity:0, i.e. an INVISIBLE BUTTON. Drive
+  post-transition animation with Motion/WAAPI instead, and CLEAR THE INLINE STYLE FIRST so the
+  failure mode is "no animation", never "no icon".
 - LENIS TUNED SHORT (~0.7s) — this is a page to scan, and inertia makes you overshoot the row you
   were aiming at. (The editorial pages in this library tune it long; do not copy that here.)
 - Use GSAP + ScrollTrigger + Lenis + Motion. Never hand-roll CSS transitions.

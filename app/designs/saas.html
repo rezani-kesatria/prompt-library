@@ -129,6 +129,21 @@ svg{display:block}
   padding:10px 15px;color:var(--dim);font-size:13px;min-width:210px;border-radius:9999px;
 }
 .round{width:38px;height:38px;display:grid;place-items:center;background:var(--well);border-radius:50%}
+.tglyph{display:grid;place-items:center;will-change:transform,opacity}
+
+/* ---- theme flip: a circular wipe out of the toggle ----
+   The default cross-fade is replaced by a clip-path sweep so the new theme
+   appears to spread from the button you pressed. Both layers keep their own
+   paint (no blending) or the two themes muddy each other mid-sweep. */
+::view-transition-old(root),
+::view-transition-new(root){ animation:none; mix-blend-mode:normal }
+::view-transition-old(root){ z-index:0 }
+::view-transition-new(root){ z-index:1 }
+@media(prefers-reduced-motion:reduce){
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*){ animation:none !important }
+}
 .avatar{width:38px;height:38px;border-radius:50%;object-fit:cover}
 
 /* ============ content grid — FOUR columns ============ */
@@ -271,7 +286,7 @@ svg{display:block}
       </div>
       <div class="search"><i data-lucide="search"></i><span>Search</span></div>
       <div class="round"><i data-lucide="bell"></i></div>
-      <button class="round" id="theme" aria-label="Toggle light and dark theme"><i data-lucide="sun-moon"></i></button>
+      <button class="round" id="theme" aria-label="Switch to light theme"><span class="tglyph"></span></button>
       <img class="avatar" alt="" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&amp;q=70" />
     </header>
 
@@ -417,11 +432,22 @@ svg{display:block}
   }).join("");
 
   var themeBtn = document.getElementById("theme");
-  if (themeBtn) themeBtn.addEventListener("click", function(){
+  var glyph = themeBtn ? themeBtn.querySelector(".tglyph") : null;
+
+  /* the icon shows the theme you are switching TO, not the current one */
+  function paintGlyph(theme){
+    if (!glyph) return;
+    glyph.innerHTML = '<i data-lucide="' + (theme === "dark" ? "sun" : "moon") + '"></i>';
+    if (window.lucide) lucide.createIcons({ attrs:{ "stroke-width":1.5, width:16, height:16 } });
+    themeBtn.setAttribute("aria-label",
+      theme === "dark" ? "Switch to light theme" : "Switch to dark theme");
+  }
+
+  function applyTheme(next){
     var r = document.documentElement;
-    var next = r.getAttribute("data-theme") === "dark" ? "light" : "dark";
     r.setAttribute("data-theme", next);
     try { localStorage.setItem("arche-theme", next); } catch(e){}
+    paintGlyph(next);
     /* the donut is painted from tokens, so every one of them must be
        repainted on a flip -- series colours, the ring stroke AND the centre
        label. Repainting only the stroke leaves a white slice on white. */
@@ -432,6 +458,62 @@ svg{display:block}
         total:{ color: tok(["--dim"])[0] },
         value:{ color: tok(["--ink"])[0] } } } } }
     }, false, false);
+  }
+
+  paintGlyph(document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark");
+
+  /* The glyph settles with a spring AFTER the wipe, so it is not caught
+     mid-transform when the view transition snapshots the new state.
+
+     ⚠️ Deliberately NOT gsap.fromTo here. fromTo applies its from-state
+     immediately, and a tween created in the microtask after a ~600ms view
+     transition can land on an idle ticker and never receive a tick — leaving
+     the glyph stranded at opacity:0, i.e. an invisible button. Observed
+     exactly that: progress 0, active false, style stuck at the from-state.
+
+     Motion drives WAAPI, which is independent of GSAP's ticker. And the
+     style is cleared FIRST, so if the animation never runs at all the glyph
+     is simply visible and un-animated rather than invisible. The failure
+     mode is "no animation", never "no icon". */
+  function popGlyph(){
+    if (!glyph) return;
+    glyph.style.cssText = "";
+    if (reduce) return;
+    if (window.Motion && Motion.animate){
+      Motion.animate(glyph,
+        { rotate:[-140, 0], scale:[.35, 1], opacity:[0, 1] },
+        { duration:.5, easing:[.34, 1.56, .64, 1] });
+    }
+  }
+
+  if (themeBtn) themeBtn.addEventListener("click", function(){
+    var cur  = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+    var next = cur === "dark" ? "light" : "dark";
+
+    /* immediate tactile feedback on the button itself */
+    if (window.Motion && Motion.animate && !reduce){
+      Motion.animate(themeBtn, { scale:[1,.88,1] },
+        { duration:.34, easing:[.34,1.56,.64,1] });
+    }
+
+    /* No View Transitions support (or reduced motion): just switch. */
+    if (!document.startViewTransition || reduce){ applyTheme(next); popGlyph(); return; }
+
+    var r = themeBtn.getBoundingClientRect();
+    var ox = r.left + r.width / 2, oy = r.top + r.height / 2;
+    /* sweep must reach the furthest corner, or the old theme is left in a
+       corner of the viewport when the animation ends */
+    var far = Math.hypot(Math.max(ox, innerWidth - ox), Math.max(oy, innerHeight - oy));
+
+    var vt = document.startViewTransition(function(){ applyTheme(next); });
+    vt.ready.then(function(){
+      document.documentElement.animate(
+        { clipPath:[ "circle(0px at " + ox + "px " + oy + "px)",
+                     "circle(" + far + "px at " + ox + "px " + oy + "px)" ] },
+        { duration:620, easing:"cubic-bezier(.4,0,.2,1)",
+          pseudoElement:"::view-transition-new(root)" });
+    }).catch(function(){});
+    vt.finished.then(popGlyph).catch(popGlyph);
   });
 
   if (window.lucide) lucide.createIcons({ attrs:{ "stroke-width":1.5, width:16, height:16 } });
