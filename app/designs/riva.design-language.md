@@ -89,9 +89,11 @@ Logo row (gradient mark + `RIVA` + collapse toggle) → five nav items (New Chat
 
 Title (`Integrations`) + **full-width search field** are the whole header — no band, no greeting, no metrics. Share, kebab and the avatar float top-right at logo height, above the title row.
 
-## 8 · Typography 🔒 rules · 🎨 face `inferred`
+## 8 · Typography 🔒 rules · 🎨 face `authored`
 
 Geometric sans throughout; page title is the largest type (~34px logical); card names ~20, descriptions ~13; everything else small and quiet. No two-tone heading device (Numéro/EcoVolt's pattern is absent here).
+
+🎨 **Face: Plus Jakarta Sans** (400/500/600) — chosen at build time; the original's face is unidentifiable from a still and treated as swappable anyway.
 
 ## 9 · Data treatment 🔒 `observed`
 
