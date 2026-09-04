@@ -99,6 +99,23 @@ const RULES = {
     singletons: { ".rail__mid": 1, ".note": 1, ".toast": 1 },
     exactCount: { ".cluster": 2, ".cards .card": 4 },
     present: [".wave", ".listen", ".mic", ".send", ".ask", ".metric", ".viz__bar", ".cards", ".badge"]
+  },
+
+  /* RIVA — dark workbench. The tone order itself is the signature:
+     sidebar is the LIGHTEST surface, the content canvas the darkest,
+     and cards lift off the canvas. */
+  riva: {
+    url: "designs/riva.html",
+    inkNotPureWhite: "--ink",
+    panelDirection: { canvas: "--canvas", panel: "--card", expect: "lift" },
+    /* the sidebar must be LIGHTER than the canvas — RIVA's inversion */
+    ladderOrder: { light: "--sidebar", mid: "--card", dark: "--canvas" },
+    /* gradient is the brand: only on the mark, the active nav glow, the pills */
+    singletons: { ".mark": 1, ".ava": 1 },
+    exactCount: { ".nav button.on": 1, ".card": 6 },
+    /* the state/affordance split: dot carries the boolean, pill the verb */
+    present: [".side", ".hist", ".search", ".card__rule", ".state", ".dot", ".pill", ".tile"],
+    gradientOn: ["mark", "ava", "pill"]
   }
 };
 
@@ -348,6 +365,35 @@ function PAGE_RUNNER(cfg) {
 
   if (cfg.present) {
     cfg.present.forEach(sel => ok("present: " + sel, !!document.querySelector(sel), ""));
+  }
+
+  /* --- an explicit TONE ORDER: lightest > mid > dark tokens. RIVA's
+     signature is that the sidebar is the lightest surface and the
+     content canvas the darkest — the inverse of most dashboards. --- */
+  if (cfg.ladderOrder) {
+    const l = css(cfg.ladderOrder.light), m = css(cfg.ladderOrder.mid), d = css(cfg.ladderOrder.dark);
+    const lum = h => { const v = hex(h); return L(v); };
+    const okOrder = lum(l) > lum(m) && lum(m) > lum(d);
+    ok("tone ladder order light>mid>dark holds (sidebar lightest, canvas darkest)",
+      okOrder,
+      "L" + Math.round(lum(l)*255) + " > M" + Math.round(lum(m)*255) + " > D" + Math.round(lum(d)*255));
+  }
+
+  /* --- gradient as identity: it may appear ONLY on the sanctioned
+     elements (mark, active nav glow, pills, ava). Everything else
+     must be flat. --- */
+  if (cfg.gradientOn) {
+    const gradEls = all().filter(el => {
+      const bi = getComputedStyle(el).backgroundImage;
+      return bi && bi !== "none" && bi.indexOf("gradient") > -1;
+    });
+    const legal = gradEls.filter(el => cfg.gradientOn.some(cl => el.classList.contains(cl)));
+    const illegal = gradEls.filter(el => !cfg.gradientOn.some(cl => el.classList.contains(cl)));
+    ok("gradient only on " + cfg.gradientOn.join(" + "),
+      illegal.length === 0 && gradEls.length > 0,
+      gradEls.length === 0 ? "VACUOUS — no gradient anywhere"
+        : (illegal.length ? illegal.slice(0, 4).map(e => e.tagName + "." + (e.className||"").toString().slice(0,20)).join(" | ")
+           : gradEls.length + " gradient elements, all legal"));
   }
 
   /* --- does the panel step toward the viewer or away from it? Metric states

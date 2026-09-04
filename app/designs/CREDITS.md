@@ -87,7 +87,7 @@ ARCHE is **built** and has moved to the table above.
 | Shot | Designer | Studio / team |
 |---|---|---|
 | [AI SaaS Dashboard – Dark Mode](https://dribbble.com/shots/25825708-AI-SaaS-Dashboard-Dark-Mode) | **Robert Licau** | — |
-| [RIVA – AI Integrations Dashboard \| Dark SaaS UI](https://dribbble.com/shots/27285217-RIVA-AI-Integrations-Dashboard-Dark-SaaS-UI-Qudra) | **Md Forhad Alam** | for Qudra |
+| [RIVA – AI Integrations Dashboard \| Dark SaaS UI](https://dribbble.com/shots/27285217-RIVA-AI-Integrations-Dashboard-Dark-SaaS-UI-Qudra) — **spec written 4 Sep 2026** ([riva.design-language.md](riva.design-language.md)), build next. Byline verified against the designer's LinkedIn post + the Qudra Behance case study; source still saved on disk and pixel-scanned | **Md Forhad Alam** | for Qudra |
 | ~~[ShiftPulse — Healthcare Workforce Scheduling](https://dribbble.com/shots/27578135-Healthcare-Workforce-Scheduling-SaaS-Dashboard-ShiftPulse)~~ ✗ **rejected** — shown on an *angled* laptop mockup; perspective corrupts every proportion and radius, so no rule set can be extracted | **Noryn** | — |
 | [Fitness Dashboard UI Design \| Health Analytics Dashboard](https://dribbble.com/shots/27537811-Fitness-Dashboard-UI-Design-Health-Analytics-Dashboard) | **Abdullah Al Mamun ❂** | — |
 | [AI-Powered Analytics Overview](https://dribbble.com/shots/27139230-AI-Powered-Analytics-Overview) | **Outcrowd** | — |

@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RIVA — AI Integrations Dashboard</title>
+<meta name="description" content="Dark AI workbench — integrations as cards, status as a dot, identity as a gradient." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=General+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   RIVA — design language studied from the Qudra shot (see
+   riva.design-language.md). Tones pixel-scanned off the source.
+   ============================================================ */
+:root{
+  --sidebar:#131215;         /* the LIGHTEST structural surface */
+  --canvas:#060309;          /* the content zone — darkest on screen */
+  --card:#141115;            /* cards LIFT off the canvas */
+  --ink:#F2F2F2;
+  --muted:#8E8E8E;
+  --faint:#5B5B60;
+  --line:rgba(255,255,255,.06);
+  --g1:#8325D4;              /* identity gradient, sampled family */
+  --g2:#7285FE;
+  --grad:linear-gradient(115deg,#8325D4 0%,#7285FE 100%);
+  --on:#3DD68C;              /* connected dot */
+  --off:#6A6A70;             /* not-connected dot */
+  --r-card:18px; --r-search:16px; --r-tile:12px; --r-nav:12px;
+  --f:"General Sans",system-ui,sans-serif;
+  --pad:26px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--canvas);color:var(--ink);font-family:var(--f);
+  font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+svg{display:block}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+::selection{background:rgba(130,37,212,.4)}
+
+/* ============ shell: flush full-bleed workbench ============ */
+.app{display:grid;grid-template-columns:320px 1fr;height:100vh}
+
+/* ---- sidebar: FLUSH, full height, the LIGHTEST surface ---- */
+.side{background:var(--sidebar);display:flex;flex-direction:column;
+  padding:22px 18px;min-height:0;overflow:hidden}
+.side__logo{display:flex;align-items:center;gap:12px}
+.mark{width:36px;height:36px;border-radius:10px;background:var(--grad);
+  display:grid;place-items:center;flex:0 0 36px}
+.mark svg{width:20px;height:20px;color:#fff}
+.wordmark{font-size:17px;font-weight:600;letter-spacing:.14em}
+.side__collapse{margin-left:auto;color:var(--faint);width:28px;height:28px;
+  border-radius:8px;display:grid;place-items:center}
+.side__collapse:hover{color:var(--muted);background:rgba(255,255,255,.04)}
+
+.nav{display:flex;flex-direction:column;gap:4px;margin-top:26px}
+.nav button{display:flex;align-items:center;gap:12px;color:var(--muted);
+  padding:10px 12px;border-radius:var(--r-nav);font-size:13.5px;font-weight:500;
+  text-align:left;width:100%}
+.nav button svg{width:17px;height:17px;flex:0 0 17px}
+.nav button:hover{color:var(--ink);background:rgba(255,255,255,.03)}
+.nav button.on{color:var(--ink);background:rgba(255,255,255,.05);position:relative}
+/* the active pill's gradient glow leaks from its BOTTOM edge */
+.nav button.on::after{content:"";position:absolute;left:14%;right:14%;bottom:-1px;height:2px;
+  border-radius:2px;background:var(--grad);opacity:.85;filter:blur(1px)}
+
+.hist{margin-top:26px;overflow:hidden auto;flex:1;min-height:0;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.08) transparent}
+.hist::-webkit-scrollbar{width:4px}
+.hist::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:4px}
+.hist h6{font-size:10.5px;font-weight:600;color:var(--faint);letter-spacing:.08em;
+  text-transform:uppercase;margin:18px 6px 8px}
+.hist button{display:block;width:100%;text-align:left;color:var(--muted);font-size:12.5px;
+  padding:7px 12px;border-radius:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist button:hover{color:var(--ink);background:rgba(255,255,255,.03)}
+
+/* ---- content: the darkest zone, cards lift off it ---- */
+.main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.top{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:22px var(--pad) 0}
+.circ{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);
+  display:grid;place-items:center;color:var(--muted)}
+.circ:hover{color:var(--ink);border-color:rgba(255,255,255,.14)}
+.circ svg{width:16px;height:16px}
+.ava{width:34px;height:34px;border-radius:10px;background:var(--grad);
+  display:grid;place-items:center;font-size:12px;font-weight:600;color:#fff}
+
+.head{padding:20px var(--pad) 0}
+.head h1{font-size:34px;font-weight:500;letter-spacing:-.02em}
+.search{margin-top:18px;display:flex;align-items:center;gap:12px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-search);
+  padding:15px 18px}
+.search svg{width:17px;height:17px;color:var(--faint);flex:0 0 17px}
+.search input{flex:1;border:0;outline:none;background:none;font:inherit;font-size:13.5px;color:var(--ink)}
+.search input::placeholder{color:var(--faint)}
+.search kbd{font:inherit;font-size:10.5px;color:var(--faint);border:1px solid var(--line);
+  border-radius:6px;padding:3px 7px}
+
+/* ---- the card grid: rhythm-locked, single-line anatomy ---- */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+  padding:22px var(--pad) 40px;overflow:hidden auto;flex:1;min-height:0;
+  align-content:start;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.08) transparent}
+.grid::-webkit-scrollbar{width:4px}
+.grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:4px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
+  padding:20px;display:flex;flex-direction:column;gap:10px;position:relative}
+.card__top{display:flex;align-items:flex-start;justify-content:space-between}
+.tile{width:52px;height:52px;border-radius:var(--r-tile);display:grid;place-items:center;
+  border:1px solid var(--line)}
+/* third-party brand colour lives ONLY inside the tile — the one legal slot */
+.tile svg{width:26px;height:26px}
+.tile--slack{background:#4A154B;color:#fff}
+.tile--drive{background:#1E3448;color:#fff}
+.tile--teams{background:#2B2B6E;color:#fff}
+.tile--figma{background:#1C1C1C;color:#fff}
+.tile--notion{background:#F4F4F2;color:#191918}
+.tile--make{background:#1F1B24;color:#D9A5FF}
+.kebab{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;
+  color:var(--faint);flex:0 0 30px}
+.kebab:hover{color:var(--ink);background:rgba(255,255,255,.05)}
+.kebab svg{width:16px;height:16px}
+.card h3{font-size:17px;font-weight:500;line-height:1.2}
+.card p{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card__rule{height:1px;background:var(--line);margin:2px 0}
+.card__foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.state{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--off);flex:0 0 7px}
+.card.on .dot{background:var(--on)}
+/* the action pill: gradient sheen as background-image, never a filter */
+.pill{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:500;
+  color:var(--ink);border-radius:999px;padding:8px 15px;
+  border:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden}
+.pill::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(115deg,rgba(131,37,212,.32),rgba(114,133,254,.32));opacity:.75}
+.pill span,.pill svg{position:relative}
+.pill svg{width:13px;height:13px;color:var(--muted)}
+.pill:hover::before{opacity:1}
+
+.js [data-r]{opacity:0}
+
+/* ---- motion ---- */
+@keyframes breathe{0%,100%{opacity:.85}50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){
+  .js [data-r]{opacity:1}
+  .nav button.on::after{animation:none}
+  .pill::before{transition:none}
+}
+@media (max-width:1240px){ .grid{grid-template-columns:repeat(2,1fr)} .app{grid-template-columns:280px 1fr} }
+@media (max-width:980px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .side{flex-direction:row;align-items:center;gap:14px;padding:12px 16px;overflow-x:auto}
+  .nav{flex-direction:row;margin:0}
+  .hist{display:none}
+  .grid{grid-template-columns:1fr}
+  .head h1{font-size:27px}
+}
+</style>
+</head>
+<body class="js">
+
+<div class="app">
+
+  <!-- ======== sidebar: flush, full height, lightest surface ======== -->
+  <aside class="side" data-r>
+    <div class="side__logo">
+      <span class="mark"><i data-lucide="zap"></i></span>
+      <span class="wordmark">RIVA</span>
+      <button class="side__collapse" aria-label="Collapse sidebar"><i data-lucide="panel-left"></i></button>
+    </div>
+
+    <nav class="nav" aria-label="Primary">
+      <button><i data-lucide="message-square-plus"></i>New Chat</button>
+      <button><i data-lucide="search"></i>Search</button>
+      <button><i data-lucide="image"></i>Images</button>
+      <button class="on" aria-current="page"><i data-lucide="unplug"></i>Integration</button>
+      <button><i data-lucide="history"></i>Chat History</button>
+    </nav>
+
+    <div class="hist" aria-label="Session history">
+      <h6>Today</h6>
+      <button>Generated retro visual assets in pack</button>
+      <button>I need a negotiation extension script</button>
+      <h6>Yesterday</h6>
+      <button>Give me startup name ideas for fintech</button>
+      <button>Could you write a marketing email?</button>
+      <button>UX tips for dashboard design</button>
+      <h6>20th March</h6>
+      <button>AI chatbot feature suggestions</button>
+      <button>Generate FAQ section for website</button>
+    </div>
+  </aside>
+
+  <!-- ======== content: darkest zone ======== -->
+  <main class="main">
+    <div class="top" data-r>
+      <button class="circ" aria-label="Share"><i data-lucide="share-2"></i></button>
+      <button class="circ" aria-label="More"><i data-lucide="more-horizontal"></i></button>
+      <span class="ava" aria-label="Profile">FA</span>
+    </div>
+
+    <div class="head" data-r>
+      <h1>Integrations</h1>
+      <label class="search">
+        <i data-lucide="search"></i>
+        <input placeholder="Search Integrations" aria-label="Search integrations" />
+        <kbd>⌘K</kbd>
+      </label>
+    </div>
+
+    <!-- ======== the card grid ======== -->
+    <section class="grid" aria-label="Integrations" data-r>
+
+      <article class="card on" data-r>
+        <div class="card__top">
+          <span class="tile tile--slack"><i data-lucide="slack"></i></span>
+          <button class="kebab" aria-label="Slack options"><i data-lucide="more-horizontal"></i></button>
+        </div>
+        <h3>Slack</h3>
+        <p>Send alerts and run workflows from any channel</p>
+        <div class="card__rule"></div>
+        <div class="card__foot">
+          <span class="state"><span class="dot"></span>Connected</span>
+          <button class="pill"><i data-lucide="settings-2"></i><span>Manage</span></button>
+        </div>
+      </article>
+
+      <article class="card" data-r>
+        <div class="card__top">
+          <span class="tile tile--drive"><i data-lucide="hard-drive"></i></span>
+          <button class="kebab" aria-label="Google Drive options"><i data-lucide="more-horizontal"></i></button>
+        </div>
+        <h3>Google Drive</h3>
+        <p>Read, index and cite documents in every chat</p>
+        <div class="card__rule"></div>
+        <div class="card__foot">
+          <span class="state"><span class="dot"></span>Not Connected</span>
+          <button class="pill"><i data-lucide="git-branch"></i><span>Connect</span></button>
+        </div>
+      </article>
+
+      <article class="card on" data-r>
+        <div class="card__top">
+          <span class="tile tile--teams"><i data-lucide="users"></i></span>
+          <button class="kebab" aria-label="Teams options"><i data-lucide="more-horizontal"></i></button>
+        </div>
+        <h3>Microsoft Teams</h3>
+        <p>Bring the assistant into any team conversation</p>
+        <div class="card__rule"></div>
+        <div class="card__foot">
+          <span class="state"><span class="dot"></span>Connected</span>
+          <button class="pill"><i data-lucide="settings-2"></i><span>Manage</span></button>
+        </div>
+      </article>
+
+      <article class="card" data-r>
+        <div class="card__top">
+          <span class="tile tile--figma"><i data-lucide="pen-tool"></i></span>
+          <button class="kebab" aria-label="Figma options"><i data-lucide="more-horizontal"></i></button>
+        </div>
+        <h3>Figma</h3>
+        <p>Describe a change and have it applied to the file</p>
+        <div class="card__rule"></div>
+        <div class="card__foot">
+          <span class="state"><span class="dot"></span>Not Connected</span>
+          <button class="pill"><i data-lucide="git-branch"></i><span>Connect</span></button>
+        </div>
+      </article>
+
+      <article class="card" data-r>
+        <div class="card__top">
+          <span class="tile tile--notion"><i data-lucide="book-open"></i></span>
+          <button class="kebab" aria-label="Notion options"><i data-lucide="more-horizontal"></i></button>
+        </div>
+        <h3>Notion</h3>
+        <p>Search the workspace and draft pages in place</p>
+        <div class="card__rule"></div>
+        <div class="card__foot">
+          <span class="state"><span class="dot"></span>Not Connected</span>
+          <button class="pill"><i data-lucide="git-branch"></i><span>Connect</span></button>
+        </div>
+      </article>
+
+      <article class="card on" data-r>
+        <div class="card__top">
+          <span class="tile tile--make"><i data-lucide="workflow"></i></span>
+          <button class="kebab" aria-label="Make options"><i data-lucide="more-horizontal"></i></button>
+        </div>
+        <h3>Make</h3>
+        <p>Trigger automations from the assistant's answers</p>
+        <div class="card__rule"></div>
+        <div class="card__foot">
+          <span class="state"><span class="dot"></span>Connected</span>
+          <button class="pill"><i data-lucide="settings-2"></i><span>Manage</span></button>
+        </div>
+      </article>
+
+    </section>
+  </main>
+</div>
+
+<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.17/dist/motion.min.js"></script>
+<script>
+(function(){
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var g = window.gsap;
+  if (window.lucide) lucide.createIcons({ attrs: { "stroke-width": 1.6, width: 17, height: 17 } });
+
+  /* the nav glow breathes — the one perpetual motion, very slow */
+  var glow = document.querySelector(".nav button.on");
+  if (glow && !reduce) {
+    var bar = glow.querySelector("::after"); /* pseudo — animate via CSS class toggle */
+    glow.style.setProperty("animation", "breathe 5.5s ease-in-out infinite");
+  }
+
+  if (!g || reduce) { document.body.classList.remove("js"); return; }
+
+  /* entry: shell+sidebar, then top, head, then cards 40ms apart,
+     status dots LAST on each card — state is the payload */
+  var tl = g.timeline({ defaults: { ease: "power3.out" } });
+  tl.fromTo(".side", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .5, clearProps: "transform" }, 0)
+    .fromTo(".top, .head", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .5, stagger: .08, clearProps: "transform" }, .18)
+    .fromTo(".card", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .5, stagger: .07, clearProps: "transform" }, .34);
+
+  /* dots land last on each card */
+  g.fromTo(".card .dot", { scale: 0 }, { scale: 1, duration: .35, ease: "back.out(2.5)", stagger: .07,
+    transformOrigin: "50% 50%", clearProps: "transform" }, .95);
+
+  /* pill + kebab + tile press/hover springs */
+  if (window.Motion && Motion.animate) {
+    document.querySelectorAll(".pill, .kebab, .tile, .circ, .side__collapse").forEach(function(el){
+      el.addEventListener("pointerenter", function(){
+        Motion.animate(el, { scale: 1.05 }, { type: "spring", stiffness: 350, damping: 22 }); });
+      el.addEventListener("pointerleave", function(){
+        Motion.animate(el, { scale: 1 }, { type: "spring", stiffness: 350, damping: 26 }); });
+    });
+    document.querySelectorAll(".pill").forEach(function(el){
+      el.addEventListener("pointerdown", function(){
+        Motion.animate(el, { scale: .94 }, { type: "spring", stiffness: 500, damping: 24 }); });
+    });
+  }
+
+  window.addEventListener("load", function(){
+    setTimeout(function(){ document.body.classList.remove("js"); }, 2200);
+  });
+})();
+</script>
+</body>
+</html>
