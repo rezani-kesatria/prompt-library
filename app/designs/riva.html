@@ -61,7 +61,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .nav button:hover{color:var(--ink);background:rgba(255,255,255,.03)}
 /* Pixel-sampled, same as .pill: darker capsule, violet rising from the
    bottom edge. The breathe animation lives on this layer. */
-.nav button.on{color:var(--ink);background:#0C0B0E;position:relative;overflow:hidden}
+.nav button.on{color:var(--ink);background:#0C0B0E;position:relative;overflow:hidden;
+  border:1px solid rgba(255,255,255,.16)}
 .nav button.on::before{content:"";position:absolute;inset:0;
   background:linear-gradient(to top, #7A35E0 0%, #6D2BC9 5%, rgba(109,43,201,.4) 9%, rgba(109,43,201,.1) 14%, rgba(20,17,21,0) 15%);
   opacity:.8;animation:breathe 5.5s ease-in-out infinite}
@@ -84,7 +85,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .top{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:22px var(--pad) 0}
 /* AUDIT FIX: header controls are bigger (~44px) and the avatar is a real
    IMAGE, not initials — matching the source's proportions. */
-.circ{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);
+.circ{width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.16);
   display:grid;place-items:center;color:var(--muted)}
 .circ:hover{color:var(--ink);border-color:rgba(255,255,255,.14)}
 .circ svg{width:18px;height:18px}
@@ -144,7 +145,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
    much larger: ~57 logical px tall. background-image, never a filter. */
 .pill{display:inline-flex;align-items:center;gap:9px;font-size:14px;font-weight:500;
   color:var(--ink);border-radius:999px;padding:15px 24px;position:relative;overflow:hidden;
-  background:#0A0A0C}
+  background:#0A0A0C;border:1px solid rgba(255,255,255,.16)}
 .pill::before{content:"";position:absolute;inset:0;
   background:linear-gradient(to top, #7A35E0 0%, #6D2BC9 5%, rgba(109,43,201,.45) 10%, rgba(109,43,201,.12) 15%, rgba(20,17,21,0) 16%);
   opacity:.9}
