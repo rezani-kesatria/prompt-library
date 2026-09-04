@@ -227,7 +227,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     </div>
 
     <!-- ======== the card grid ======== -->
-    <section class="grid" aria-label="Integrations" data-r>
+    <!-- NB: no data-r here — the grid must not fade in as one unit;
+         its cards cascade individually (see the timeline below). -->
+    <section class="grid" aria-label="Integrations">
 
       <article class="card on" data-r>
         <div class="card__top">
@@ -335,16 +337,29 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
   if (!g || reduce) { document.body.classList.remove("js"); return; }
 
-  /* entry: shell+sidebar, then top, head, then cards 40ms apart,
-     status dots LAST on each card — state is the payload */
-  var tl = g.timeline({ defaults: { ease: "power3.out" } });
-  tl.fromTo(".side", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .5, clearProps: "transform" }, 0)
-    .fromTo(".top, .head", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .5, stagger: .08, clearProps: "transform" }, .18)
-    .fromTo(".card", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .5, stagger: .07, clearProps: "transform" }, .34);
+  /* entry: shell+sidebar, then top, head, then the cards cascade
+     ONE BY ONE — left to right, top to bottom (reading order), each
+     card's dot popping right after its own card lands. */
+  var cards = Array.prototype.slice.call(document.querySelectorAll(".card"));
+  cards.sort(function(a, b){
+    var ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+    /* same row (within half a card height) -> compare x; else compare y */
+    if (Math.abs(ra.top - rb.top) < ra.height / 2) return ra.left - rb.left;
+    return ra.top - rb.top;
+  });
 
-  /* dots land last on each card */
-  g.fromTo(".card .dot", { scale: 0 }, { scale: 1, duration: .35, ease: "back.out(2.5)", stagger: .07,
-    transformOrigin: "50% 50%", clearProps: "transform" }, .95);
+  var tl = g.timeline({ defaults: { ease: "power3.out" },
+    onComplete: function(){ document.body.classList.remove("js"); } });
+  tl.fromTo(".side", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .5, clearProps: "transform" }, 0)
+    .fromTo(".top, .head", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .5, stagger: .08, clearProps: "transform" }, .18);
+
+  cards.forEach(function(card, i){
+    var at = .38 + i * .11;   /* the cascade: one by one, reading order */
+    tl.fromTo(card, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .5, clearProps: "transform" }, at);
+    /* the dot pops as its card settles — state arrives with the card */
+    tl.fromTo(card.querySelector(".dot"), { scale: 0 }, { scale: 1, duration: .3,
+      ease: "back.out(2.5)", transformOrigin: "50% 50%", clearProps: "transform" }, at + .3);
+  });
 
   /* pill + kebab + tile press/hover springs */
   if (window.Motion && Motion.animate) {
@@ -360,9 +375,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     });
   }
 
-  window.addEventListener("load", function(){
-    setTimeout(function(){ document.body.classList.remove("js"); }, 2200);
-  });
+  /* safety net: if something above throws mid-timeline, never leave the
+     page hidden */
+  setTimeout(function(){ document.body.classList.remove("js"); }, 4000);
 })();
 </script>
 </body>
