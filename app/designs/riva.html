@@ -55,14 +55,19 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 .nav{display:flex;flex-direction:column;gap:4px;margin-top:26px}
 .nav button{display:flex;align-items:center;gap:12px;color:var(--muted);
-  padding:10px 12px;border-radius:var(--r-nav);font-size:13.5px;font-weight:500;
+  padding:12px 14px;border-radius:var(--r-nav);font-size:14px;font-weight:500;
   text-align:left;width:100%}
 .nav button svg{width:17px;height:17px;flex:0 0 17px}
 .nav button:hover{color:var(--ink);background:rgba(255,255,255,.03)}
-.nav button.on{color:var(--ink);background:rgba(255,255,255,.05);position:relative}
-/* the active pill's gradient glow leaks from its BOTTOM edge */
-.nav button.on::after{content:"";position:absolute;left:14%;right:14%;bottom:-1px;height:2px;
-  border-radius:2px;background:var(--grad);opacity:.85;filter:blur(1px)}
+/* Pixel-sampled, same as .pill: darker capsule, violet rising from the
+   bottom edge. The breathe animation lives on this layer. */
+.nav button.on{color:var(--ink);background:#0C0B0E;position:relative;overflow:hidden}
+.nav button.on::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(to top, #6D2BC9 0%, rgba(109,43,201,.4) 30%, rgba(20,17,21,0) 60%);
+  opacity:.8;animation:breathe 5.5s ease-in-out infinite}
+.nav button.on::after{content:"";position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:rgba(255,255,255,.06)}
+.nav button.on > *{position:relative}
 
 .hist{margin-top:26px;overflow:hidden auto;flex:1;min-height:0;
   scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.08) transparent}
@@ -77,12 +82,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* ---- content: the darkest zone, cards lift off it ---- */
 .main{display:flex;flex-direction:column;min-width:0;min-height:0}
 .top{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:22px var(--pad) 0}
-.circ{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);
+/* AUDIT FIX: header controls are bigger (~44px) and the avatar is a real
+   IMAGE, not initials — matching the source's proportions. */
+.circ{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);
   display:grid;place-items:center;color:var(--muted)}
 .circ:hover{color:var(--ink);border-color:rgba(255,255,255,.14)}
-.circ svg{width:16px;height:16px}
-.ava{width:34px;height:34px;border-radius:10px;background:var(--grad);
-  display:grid;place-items:center;font-size:12px;font-weight:600;color:#fff}
+.circ svg{width:18px;height:18px}
+.ava{width:44px;height:44px;border-radius:12px;object-fit:cover;flex:0 0 44px}
 
 .head{padding:20px var(--pad) 0}
 .head h1{font-size:34px;font-weight:500;letter-spacing:-.02em}
@@ -102,38 +108,50 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .grid::-webkit-scrollbar{width:4px}
 .grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:4px}
 
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
-  padding:20px;display:flex;flex-direction:column;gap:10px;position:relative}
+/* AUDIT FIX: cards carry NO outer border — separation is the tone step
+   alone. Hairlines exist only INSIDE the card (the footer rule) and on
+   interactive controls. */
+.card{background:var(--card);border-radius:var(--r-card);
+  padding:20px;display:flex;flex-direction:column;position:relative}
 .card__top{display:flex;align-items:flex-start;justify-content:space-between}
-.tile{width:52px;height:52px;border-radius:var(--r-tile);display:grid;place-items:center;
-  border:1px solid var(--line)}
-/* third-party brand colour lives ONLY inside the tile — the one legal slot */
+/* AUDIT FIX: the tile background is a SUBTLE dark tint of the brand hue,
+   not the solid brand colour — the brand mark itself carries the colour. */
+.tile{width:52px;height:52px;border-radius:var(--r-tile);display:grid;place-items:center}
 .tile svg{width:26px;height:26px}
-.tile--slack{background:#4A154B;color:#fff}
-.tile--drive{background:#1E3448;color:#fff}
-.tile--teams{background:#2B2B6E;color:#fff}
-.tile--figma{background:#1C1C1C;color:#fff}
-.tile--notion{background:#F4F4F2;color:#191918}
-.tile--make{background:#1F1B24;color:#D9A5FF}
+.tile--slack{background:#2A1428;color:#E8A2DC}
+.tile--drive{background:#14222E;color:#7EB3E8}
+.tile--teams{background:#1D1D42;color:#8B8BE8}
+.tile--figma{background:#241F24;color:#E8A2B8}
+.tile--notion{background:#1F1F22;color:#E8E8E4}
+.tile--make{background:#241B2A;color:#D9A5FF}
 .kebab{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;
   color:var(--faint);flex:0 0 30px}
 .kebab:hover{color:var(--ink);background:rgba(255,255,255,.05)}
 .kebab svg{width:16px;height:16px}
-.card h3{font-size:17px;font-weight:500;line-height:1.2}
+/* AUDIT FIX: a large gap between the tile and the name — the tile sits
+   alone in its own band, ~40px of air, as in the source. */
+.card h3{font-size:17px;font-weight:500;line-height:1.2;margin-top:26px}
 .card p{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card__rule{height:1px;background:var(--line);margin:2px 0}
 .card__foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .state{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--off);flex:0 0 7px}
 .card.on .dot{background:var(--on)}
-/* the action pill: gradient sheen as background-image, never a filter */
-.pill{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:500;
-  color:var(--ink);border-radius:999px;padding:8px 15px;
-  border:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden}
+/* PIXEL-SAMPLED (4 Sep 2026, x=1500/1740 vertical strips): the source
+   pill is a capsule DARKER than its card (#090909 vs #141115) with a
+   violet glow rising from the BOTTOM edge (#090909 → #2a1e34 at the very
+   base, gone by ~55% up) and a subtle lighter hairline rim. It is also
+   much larger: ~57 logical px tall. background-image, never a filter. */
+.pill{display:inline-flex;align-items:center;gap:9px;font-size:14px;font-weight:500;
+  color:var(--ink);border-radius:999px;padding:15px 24px;position:relative;overflow:hidden;
+  background:#0A0A0C}
 .pill::before{content:"";position:absolute;inset:0;
-  background:linear-gradient(115deg,rgba(131,37,212,.32),rgba(114,133,254,.32));opacity:.75}
+  background:linear-gradient(to top, #6D2BC9 0%, rgba(109,43,201,.45) 32%, rgba(20,17,21,0) 62%);
+  opacity:.85}
+.pill::after{content:"";position:absolute;top:0;left:12%;right:12%;height:1px;
+  background:rgba(255,255,255,.07)}
 .pill span,.pill svg{position:relative}
-.pill svg{width:13px;height:13px;color:var(--muted)}
+.pill svg{width:16px;height:16px;color:var(--muted)}
 .pill:hover::before{opacity:1}
 
 .js [data-r]{opacity:0}
@@ -195,7 +213,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     <div class="top" data-r>
       <button class="circ" aria-label="Share"><i data-lucide="share-2"></i></button>
       <button class="circ" aria-label="More"><i data-lucide="more-horizontal"></i></button>
-      <span class="ava" aria-label="Profile">FA</span>
+      <img class="ava" alt="Profile" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&q=70" />
     </div>
 
     <div class="head" data-r>
