@@ -204,10 +204,13 @@
      Nine distinct forms. The signature is that several of them BLEED
      past the card they sit in rather than being boxed by it. */
 
-  /* 1 · stadium card + overlapping solid circle */
+  /* 1 · stadium card + a solid donut card BELOW it.
+     AUDIT FIX (4 Sep 2026): the first build overlapped the donut onto
+     the lock card with a negative margin — the source does no such
+     thing. The donut sits entirely inside its own card. */
   .lock{border-radius:999px;align-items:center;text-align:center;gap:clamp(8px,.8vw,16px);padding-block:clamp(16px,1.7vw,34px);flex:1;justify-content:center}
   .lock .lab{font-size:clamp(.66rem,.78vw,.96rem)}
-  .donut{border-radius:50%;aspect-ratio:1;padding:0;align-items:center;justify-content:center;margin-top:calc(var(--gap) * -1.6);z-index:2}
+  .donut{border-radius:50%;aspect-ratio:1;padding:0;align-items:center;justify-content:center;align-self:center;width:clamp(110px,12.5vw,200px)}
   .donut svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
   .donut__t{position:relative;text-align:center;line-height:1.1}
   .donut__t b{display:block;font-size:clamp(.9rem,1.3vw,1.7rem);font-weight:600;letter-spacing:-.04em}
@@ -241,16 +244,19 @@
   .wave svg{width:100%;height:100%}
   .wave path{fill:none;stroke:url(#waveFade);stroke-width:3;stroke-linecap:round}
 
-  /* 5 · concentric bubbles, bottom-anchored */
-  .bub{position:relative;flex:1;min-height:clamp(150px,15vw,290px);margin-top:clamp(10px,1vw,20px)}
-  .bub i{position:absolute;bottom:0;left:50%;translate:-50% 0;border-radius:50%;display:block}
-  .bub b{position:absolute;left:50%;translate:-50% 0;font-size:clamp(.75rem,.92vw,1.15rem);font-weight:600;letter-spacing:-.02em;color:var(--accent);white-space:nowrap}
-  .b1{width:min(78%,300px);aspect-ratio:1;background:var(--accent);opacity:.12}
-  .b2{width:min(64%,246px);aspect-ratio:1;background:var(--accent);opacity:.2}
-  .b3{width:min(46%,177px);aspect-ratio:1;background:var(--accent);opacity:.34}
-  .b4{width:min(28%,108px);aspect-ratio:1;background:var(--accent)}
-  .l1{bottom:min(72%,278px)}.l2{bottom:min(58.5%,225px)}.l3{bottom:min(41%,158px)}
-  .l4{bottom:min(11.5%,44px);color:var(--on-accent)}
+  /* 5 · concentric bubbles — AUDIT FIX (4 Sep 2026): the source
+     anchors them at the card's bottom-LEFT corner and they bleed off
+     the left and bottom edges; the first build centred and contained
+     them. Labels sit inside the card on the bubble seams. */
+  .bub{position:relative;flex:1;min-height:clamp(150px,15vw,290px);margin:clamp(10px,1vw,20px) calc(clamp(13px,1.35vw,27px) * -1) calc(clamp(13px,1.35vw,27px) * -1)}
+  .bub i{position:absolute;bottom:0;left:0;translate:0 0;border-radius:50%;display:block}
+  .bub b{position:absolute;font-size:clamp(.75rem,.92vw,1.15rem);font-weight:600;letter-spacing:-.02em;color:var(--accent);white-space:nowrap}
+  .b1{width:min(88%,340px);aspect-ratio:1;background:var(--accent);opacity:.12;left:0;translate:-18% 0}
+  .b2{width:min(70%,270px);aspect-ratio:1;background:var(--accent);opacity:.2;left:0;translate:-6% 0}
+  .b3{width:min(50%,193px);aspect-ratio:1;background:var(--accent);opacity:.34;left:0;translate:2% 0}
+  .b4{width:min(30%,116px);aspect-ratio:1;background:var(--accent);left:0;translate:22% 0}
+  .l1{left:56%;bottom:min(74%,284px)}.l2{left:50%;bottom:min(60%,230px)}.l3{left:44%;bottom:min(42%,161px)}
+  .l4{left:38%;bottom:min(12%,46px);color:var(--on-accent)}
 
   /* 6 · candlestick strip */
   .sticks{display:flex;align-items:center;justify-content:center;gap:clamp(3px,.32vw,7px);height:clamp(44px,4.2vw,82px);margin-top:auto}
@@ -330,7 +336,7 @@
     .rowA{grid-template-columns:clamp(38px,3.4vw,66px) 1fr 1fr}
     .rowA .stack{grid-column:2 / -1;flex-direction:row;align-items:stretch}
     .lock{flex:1}
-    .donut{margin-top:0;margin-left:calc(var(--gap) * -1.6);width:clamp(96px,13vw,190px);flex:none}
+    .donut{margin:0;width:clamp(96px,13vw,190px);flex:none}
     .rowB{grid-template-columns:1fr}
     .ask h2{font-size:clamp(1.05rem,3.2vw,2rem)}
   }

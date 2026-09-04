@@ -1,13 +1,15 @@
 # Numéro — Finance Management Dashboard
 
-> ## 🚩 FLAGGED — REVISIT BEFORE RELYING ON THIS
-> **Status: provisional.** Held for another pass; treat every rule below as unconfirmed.
+> ## ✅ VISUAL AUDIT COMPLETED — 4 Sep 2026
+> **Status: audited.** The recreation was captured in both themes and compared side by side against the source still (recovered via a Savee mirror of the shot; Dribbble itself serves an AWS WAF challenge to scripts).
 >
-> Outstanding when this was parked:
-> - **No visual audit was ever completed.** Everything here was verified by pixel scan and DOM measurement — the recreation was never compared side by side against the source. Numbers matching is not the same as it reading right.
-> - Three specific reads never checked: the **donut's overlap** onto the System Lock stadium (an invented offset), the **concentric bubbles'** scale relative to their card, and whether **header row two** is as generous as the source.
-> - The **presentation-frame error** was caught late (see below). Worth re-asking whether any other rule here was read off the poster rather than the product.
-> - Dashboards are **on hold** as a category — this is the only one built, so its rules have not been cross-checked against a second dashboard and may be one designer's habits rather than the species' language.
+> **What the audit found:**
+> - **The donut overlap was invented, and is now fixed.** The first build floated the growth donut over the System Lock card's boundary; in the source it sits entirely inside its own card, below the lock stadium. A rule that existed only in our build is not a rule.
+> - **The concentric bubbles now anchor bottom-left and bleed off both edges**, as the source's do; the first build centred and contained them.
+> - **Header row two is confirmed** as generous as the source (~22% of viewport height, oversized greeting).
+> - Every other core rule survived contact with the source: tint ladder, framed panel, radius ladder, zero elevation, split currency glyph, two-tier actions, the nine chart forms, charts bleeding, flush masonry columns, action rail, no nav.
+>
+> The presentation-frame warning below stands as written — the audit re-checked it first.
 
 **Design mood:** soft-geometric product UI · tint-ladder separation · coral on pure black
 

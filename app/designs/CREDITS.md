@@ -81,7 +81,7 @@ brand palette — TENON's shellac amber `#FBE9CB` is its own, tuned to satisfy t
 
 ## Shortlist — dashboards ▶ *(ACTIVE)*
 
-Candidates for data-dense product UI. Three are built (Numéro 🚩 provisional, MoveIQ, Metric);
+Candidates for data-dense product UI. Three are built (Numéro — audited 4 Sep 2026, MoveIQ, Metric);
 ARCHE is **built** and has moved to the table above.
 
 | Shot | Designer | Studio / team |

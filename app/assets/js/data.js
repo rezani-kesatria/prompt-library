@@ -87,8 +87,7 @@ const REFERENCES = [
   {
     id: "numero", name: "Numéro", ref: true, vibes: ["Modern", "Tech"], mode: "both",
     kind: "Finance dashboard", note: "framed panels · tint ladder · charts that bleed",
-    /* provisional — no visual audit was completed; rules are unconfirmed */
-    flag: "Provisional", flagNote: "Parked mid-review — no visual audit against the source was completed, so these rules are unconfirmed. Use as a sketch, not a spec.",
+    /* visually audited against the source on 4 Sep 2026 — see the spec header */
     nativeTheme: "light",
     src: "designs/finance.html", spec: "designs/finance.design-language.md",
     credit: "Bogdan Falin for QClay",
