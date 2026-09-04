@@ -80,7 +80,9 @@ const RULES = {
     present: [".kpis", ".ticks", ".bars", ".circles"]
   },
 
-  assistant: {
+  /* key matches the design id in app/assets/js/data.js — "luma", not the
+     file stem "assistant" (the HANDOFF §6 discrepancy). */
+  luma: {
     url: "designs/assistant.html",
     /* LUMA is the library's ONE elevated design — 11/12 are flat — so the
        _common zeroElevation baseline is deliberately switched off here and
@@ -95,8 +97,8 @@ const RULES = {
     accentNotOn: { token: "--accent", selectors: ["button"] },
     /* the rail is two floating clusters, never one continuous sidebar */
     singletons: { ".rail__mid": 1, ".note": 1, ".toast": 1 },
-    exactCount: { ".cluster": 2 },
-    present: [".wave", ".listen", ".mic", ".send", ".ask", ".metric", ".viz__bar"]
+    exactCount: { ".cluster": 2, ".cards .card": 4 },
+    present: [".wave", ".listen", ".mic", ".send", ".ask", ".metric", ".viz__bar", ".cards", ".badge"]
   }
 };
 

@@ -112,16 +112,21 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .greet p{font-size:19px;line-height:1.35;max-width:34ch}
 .greet b{font-weight:600}
 
-/* ---- the waveform is ALIVE while listening ---- */
-.voice{display:flex;align-items:center;justify-content:center;position:relative;height:56px}
-.wave{display:flex;align-items:center;gap:3px;height:100%}
-.wave i{display:block;width:3px;border-radius:var(--r-pill);background:var(--accent);height:14%}
+/* ---- the waveform is ALIVE while listening ----
+   The voice pair (wave + mic) is centred exactly in the free space
+   between the greeting and the input — it is the heart of the panel. */
+.voicewrap{flex:1;min-height:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px}
+.voice{display:flex;align-items:center;justify-content:center;position:relative;height:104px}
+.wave{display:flex;align-items:center;gap:4px;height:100%}
+.wave i{display:block;width:4px;border-radius:var(--r-pill);background:var(--accent);height:14%}
 .wave--l{animation:none}
 .listen{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r-pill);
-  padding:5px 14px;font-size:11.5px;color:var(--muted);z-index:2;white-space:nowrap}
-.mic{width:52px;height:52px;border-radius:var(--r-pill);background:var(--ink);color:var(--panel);
-  display:grid;place-items:center;margin:0 auto}
+  padding:7px 18px;font-size:12.5px;color:var(--muted);z-index:2;white-space:nowrap}
+.mic{width:66px;height:66px;border-radius:var(--r-pill);background:var(--ink);color:var(--panel);
+  display:grid;place-items:center}
+.mic svg{width:22px;height:22px}
 
 /* ---- the input is a pill: attach left, ink-filled send right ---- */
 .ask{display:flex;align-items:center;gap:12px;border:1px solid var(--line);
@@ -143,7 +148,31 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .art p.desc{font-size:11.5px;color:var(--muted);line-height:1.65;margin-top:14px}
 .art h3{font-size:15px;font-weight:500;margin-top:18px}
 .art__ctl{display:flex;justify-content:space-between;margin-top:12px}
-.map2{margin-top:12px;border-radius:14px;overflow:hidden;background:var(--ghost);flex:1;min-height:150px;position:relative}
+
+/* ---- the modules are CARDS, not a timeline ----
+   A 2x2 grid of soft cards on the artifact panel. Status is
+   encoded, never hidden: done = ink glyph chip, live = accent
+   chip + LIVE badge, queued = hairline ghost chip. The accent
+   marks state — it never fills a button. */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);
+  margin-top:12px;flex:1;min-height:0;align-content:stretch}
+.card{position:relative;border-radius:14px;background:var(--panel);
+  border:1px solid var(--line);box-shadow:var(--shadow);
+  padding:13px 13px 12px;display:flex;flex-direction:column;gap:7px;min-height:0}
+.card__top{display:flex;align-items:center;gap:8px}
+.card .chip{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;
+  flex:0 0 24px;background:var(--ink);color:var(--panel)}
+.card .chip svg{width:13px;height:13px}
+.card.live .chip{background:var(--accent);color:var(--ink)}
+.card.queued .chip{background:transparent;border:1.2px solid var(--muted);color:var(--muted)}
+.card .n{margin-left:auto;text-align:right}
+.card .n small{display:block;font-size:9.5px;color:var(--muted)}
+.card .n b{font-size:14px;font-weight:500;line-height:1.1}
+.card h4{font-size:13px;font-weight:500;line-height:1.3}
+.card.live h4{font-weight:600}
+.card p{font-size:10.5px;color:var(--muted);line-height:1.5;margin-top:-2px}
+.badge{flex:0 0 auto;font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink);background:var(--accent);border-radius:var(--r-pill);padding:3px 8px}
 
 /* ---- progress is a GLASS TOAST over the content, not a bar ---- */
 .toast{
@@ -242,11 +271,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
             </p>
           </div>
 
-          <div class="voice">
-            <div class="wave" id="wave" aria-hidden="true"></div>
-            <span class="listen">Listen to You…</span>
+          <div class="voicewrap">
+            <div class="voice">
+              <div class="wave" id="wave" aria-hidden="true"></div>
+              <span class="listen">Listen to You…</span>
+            </div>
+            <button class="mic" aria-label="Hold to speak"><i data-lucide="mic"></i></button>
           </div>
-          <button class="mic" aria-label="Hold to speak"><i data-lucide="mic"></i></button>
 
           <form class="ask" onsubmit="return false">
             <i data-lucide="paperclip" style="color:var(--muted)"></i>
@@ -274,22 +305,49 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
             <button class="gbtn" aria-label="Filter"><i data-lucide="filter"></i></button>
           </div>
           <div class="gset">
-            <button class="gbtn" aria-label="Zoom in"><i data-lucide="plus"></i></button>
-            <button class="gbtn" aria-label="Zoom out"><i data-lucide="minus"></i></button>
+            <button class="gbtn" aria-label="Add module"><i data-lucide="plus"></i></button>
+            <button class="gbtn" aria-label="Remove module"><i data-lucide="minus"></i></button>
           </div>
         </div>
 
-        <div class="map2">
-          <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%">
-            <rect x="18"  y="26" width="120" height="66" rx="10" fill="var(--land)"/>
-            <rect x="150" y="26" width="150" height="120" rx="10" fill="var(--accent)"/>
-            <rect x="18"  y="104" width="120" height="70" rx="10" fill="var(--land)"/>
-            <rect x="150" y="158" width="150" height="26" rx="10" fill="var(--land)"/>
-            <text x="78"  y="63"  text-anchor="middle" font-size="9" fill="currentColor" opacity=".6">Limits</text>
-            <text x="225" y="90"  text-anchor="middle" font-size="10" fill="#1A1A1A">Derivatives</text>
-            <text x="78"  y="143" text-anchor="middle" font-size="9" fill="currentColor" opacity=".6">Continuity</text>
-            <text x="225" y="175" text-anchor="middle" font-size="9" fill="currentColor" opacity=".6">Integrals</text>
-          </svg>
+        <!-- the modules are CARDS in a 2x2 grid — done, live, queued.
+             Status lives in the icon chip; the glass toast overlays the
+             queued card: the module still being built sits literally
+             beneath the progress. -->
+        <div class="cards" id="path">
+          <div class="card done">
+            <div class="card__top">
+              <span class="chip"><i data-lucide="arrow-down-to-line"></i></span>
+              <span class="n"><small>lessons</small><b>3</b></span>
+            </div>
+            <h4>Limits</h4>
+            <p>Where values settle — and where they don't.</p>
+          </div>
+          <div class="card done">
+            <div class="card__top">
+              <span class="chip"><i data-lucide="audio-lines"></i></span>
+              <span class="n"><small>lessons</small><b>2</b></span>
+            </div>
+            <h4>Continuity</h4>
+            <p>No jumps, no gaps — the licence to differentiate.</p>
+          </div>
+          <div class="card live" aria-current="step">
+            <div class="card__top">
+              <span class="chip"><i data-lucide="trending-up"></i></span>
+              <span class="badge">Live</span>
+              <span class="n"><small>lessons</small><b>4</b></span>
+            </div>
+            <h4>Derivatives</h4>
+            <p>Rate of change at a single instant.</p>
+          </div>
+          <div class="card queued">
+            <div class="card__top">
+              <span class="chip"><i data-lucide="sigma"></i></span>
+              <span class="n"><small>lessons</small><b>3</b></span>
+            </div>
+            <h4>Integrals</h4>
+            <p>Accumulation — the question in reverse.</p>
+          </div>
 
           <div class="toast" id="toast">
             <span>Building your path</span>
@@ -319,10 +377,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   document.getElementById("cloud").innerHTML = cloud;
 
   /* ---- the waveform: symmetric, densest at the edges ---- */
-  var W = 68, bars = "";
+  var W = 84, bars = "";
   for (var b = 0; b < W; b++) {
     var t = Math.abs(b - (W - 1) / 2) / ((W - 1) / 2);   /* 0 centre -> 1 edge */
-    var h = 12 + Math.pow(t, 1.6) * 74;
+    var h = 10 + Math.pow(t, 1.7) * 82;
     bars += '<i style="height:' + h.toFixed(1) + '%"></i>';
   }
   document.getElementById("wave").innerHTML = bars;
@@ -393,7 +451,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
    .fromTo("#nodeA, #nodeB", { scale:0, transformOrigin:"50% 50%" },
            { scale:1, duration:.5, stagger:.12, ease:"back.out(2)" }, .4)
    .fromTo("#note", { opacity:0, scale:.8 },
-           { opacity:1, scale:1, duration:.4, ease:"back.out(2)", clearProps:"transform" }, .85);
+           { opacity:1, scale:1, duration:.4, ease:"back.out(2)", clearProps:"transform" }, .85)
+   /* the cards arrive in course order — the path is being built */
+   .fromTo(".cards .card", { opacity:0, y:12 },
+           { opacity:1, y:0, duration:.45, stagger:.09, clearProps:"transform" }, .9);
 
   /* the greeting arrives WORD BY WORD — authored in the moment */
   var gr = document.getElementById("greeting");

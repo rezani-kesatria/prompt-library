@@ -107,7 +107,12 @@ Accent-coloured bars mirrored around the horizontal axis, densest at the edges, 
 Full-width, hairline border, placeholder written as a real sentence in the user's voice.
 
 **THE ARTIFACT PANEL LEADS WITH A TITLE AND A UNIT-OVER-VALUE METRIC.**
-Title left; top-right a **small unit label sitting above a large number** (the original: `miles` over `392`). Then image → description → a count heading (`4 modules`) → a controls row → a second visualisation.
+Title left; top-right a **small unit label sitting above a large number** (the original: `miles` over `392`). Then image → description → a count heading (`4 modules`) → a controls row → the module path (below).
+
+**THE MODULES ARE SOFT CARDS IN A 2×2 GRID.**
+Each module is a small rounded card on the artifact panel — panel-coloured, hairline border, the design's soft lift shadow — with an icon chip top-left, a right-aligned lesson count top-right, the module name, and a one-line description. Status is the encoding: **done = ink-filled icon chip**, **live = accent chip with a small accent `LIVE` badge**, **queued = hairline ghost chip**. The counts sum to the header metric. The glass progress toast overlays the queued card, so the un-built module sits literally *beneath* the progress.
+
+> 📐 **Corrected in the visual audit (4 Sep 2026).** The first build rendered the modules as a bento of flat grey tiles — they sat nowhere on the tone ladder (slabs in light, near-invisible in dark) and carried no anatomy. They are now proper LUMA cards: panel surface, ladder radius, icon chip, count, status chip. The intermediate "timeline rail" variant was also rejected: the user chose cards over the rail. Two lessons recorded alongside §4.5 — tiles with no tone slot will always fail on the dark flip, and a module grid must still read as individual objects, not regions of one canvas.
 
 **PROGRESS IS A GLASS TOAST OVERLAID ON THE CONTENT, NOT A BAR.**
 A blurred translucent strip near the panel's lower edge carrying a label, a large percentage, and a dismiss `×`. It sits *over* the artwork it is generating rather than replacing it, so the result is visibly forming underneath.
@@ -190,8 +195,13 @@ LAYOUT LANGUAGE (non-negotiable):
   · THE INPUT IS A PILL: attach icon left, INK-FILLED CIRCULAR SEND right, placeholder written as a
     real sentence in the user's own voice.
   · THE ARTIFACT PANEL LEADS WITH TITLE LEFT AND A UNIT-OVER-VALUE METRIC TOP-RIGHT — a small unit
-    label ABOVE a large number. Then image, description, a count heading, a controls row, a second
-    visualisation.
+    label ABOVE a large number. Then image, description, a count heading, a controls row, then
+    THE MODULES AS SOFT CARDS IN A 2×2 GRID: each card is panel-coloured with a hairline border
+    and the design's soft shadow, an icon chip top-left (DONE = ink-filled chip, LIVE = accent chip
+    plus a small accent badge, QUEUED = hairline ghost chip), a right-aligned lesson count top-right
+    summing to the header metric, the module name, and a one-line description. NEVER flat grey
+    tiles — every card must carry real tone-ladder anatomy. The glass toast overlays the queued
+    card — the module still forming sits literally beneath the progress.
   · PROGRESS IS A GLASS TOAST OVERLAID ON THE CONTENT, NOT A BAR: a blurred translucent strip near
     the panel's lower edge with a label, a large percentage and a dismiss X. It sits OVER the
     artwork it is generating, so the result is visibly forming underneath.

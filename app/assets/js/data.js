@@ -164,6 +164,9 @@ const REFERENCES = [
   {
     id: "luma", name: "LUMA", ref: true, vibes: ["Modern", "Playful"], mode: "both",
     kind: "AI assistant", note: "everything floats · chartreuse marks what is live",
+    /* first pass — magnitudes inferred (source still never saved); audit under way */
+    flag: "Work in progress",
+    flagNote: "Magnitudes are inferred, not measured — the Geovea still was never saved to disk. Treat as an auditable sketch, not a finished spec.",
     nativeTheme: "light",
     src: "designs/assistant.html", spec: "designs/assistant.design-language.md",
     /* original design; only the rule set was studied */
