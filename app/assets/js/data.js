@@ -176,6 +176,20 @@ const REFERENCES = [
     fd: "'Poppins', sans-serif", fb: "'Poppins', sans-serif", type: "Poppins",
     radius: "Rounded", elevation: "Raised", gradient: "None", icon: "Line", imagery: "Photo",
     motion: "Rich", density: "Airy"
+  },
+  {
+    id: "riva", name: "RIVA", ref: true, vibes: ["Modern", "Tech"], mode: "dark",
+    kind: "AI integrations dashboard", note: "flush sidebar · gradient is the brand · status is a dot",
+    nativeTheme: "dark",
+    src: "designs/riva.html", spec: "designs/riva.design-language.md",
+    /* original design; only the rule set was studied */
+    original: true,
+    credit: "Original — design language studied from RIVA by Md Forhad Alam for Qudra",
+    source: "https://dribbble.com/shots/27285217-RIVA-AI-Integrations-Dashboard-Dark-SaaS-UI-Qudra",
+    bg: "#060309", surface: "#141115", ink: "#F2F2F2", primary: "#6D2BC9", accent: "#7285FE",
+    fd: "'Plus Jakarta Sans', sans-serif", fb: "'Plus Jakarta Sans', sans-serif", type: "Plus Jakarta Sans",
+    radius: "Rounded", elevation: "Flat", gradient: "Identity only", icon: "Line", imagery: "Brand marks",
+    motion: "Rich", density: "Balanced"
   }
 ];
 
