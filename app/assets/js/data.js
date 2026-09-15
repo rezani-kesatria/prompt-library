@@ -190,6 +190,21 @@ const REFERENCES = [
     fd: "'Plus Jakarta Sans', sans-serif", fb: "'Plus Jakarta Sans', sans-serif", type: "Plus Jakarta Sans",
     radius: "Rounded", elevation: "Flat", gradient: "Identity only", icon: "Line", imagery: "Brand marks",
     motion: "Rich", density: "Balanced"
+  },
+  {
+    id: "sara", name: "SARA", ref: true, vibes: ["Playful", "Modern"], mode: "both",
+    kind: "Task management app", note: "two pastel canvases · ink marks selection · dome + hatch chart",
+    /* first MOBILE reference — magnitudes pixel-scanned; byline still unverified */
+    flag: "Byline unverified",
+    flagNote: "Dribbble 26300878 could not be machine-attributed (WAF + a same-titled shot 23820537). CREDITS.md carries the verification note — do not cite a designer yet.",
+    nativeTheme: "light",
+    src: "designs/sara.html", spec: "designs/sara.design-language.md",
+    credit: "Unverified — pending confirmation (see CREDITS.md)",
+    source: "https://dribbble.com/shots/26300878-Task-Management-Mobile-App",
+    bg: "#B8BCF4", surface: "#E6E7FD", ink: "#262123", primary: "#626BC2", accent: "#EEC9B0",
+    fd: "'Poppins', sans-serif", fb: "'Poppins', sans-serif", type: "Poppins",
+    radius: "Rounded", elevation: "Flat", gradient: "None", icon: "Line", imagery: "Photo",
+    motion: "Subtle", density: "Balanced"
   }
 ];
 

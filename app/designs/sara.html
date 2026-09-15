@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23626BC2'/%3E%3C/svg%3E" />
+<title>SARA — Task Management Mobile App</title>
+<meta name="description" content="Pastel periwinkle task space — chunky pills, domed bars, one accent doing three jobs." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   SARA — design language studied from Dribbble 26300878 (see
+   sara.design-language.md). Screen tones pixel-scanned off the
+   source; the mount (backdrop, captions, column clip) is ours.
+   ============================================================ */
+:root{
+  /* ---- screen tokens (scanned) ---- */
+  --canvas:#B8BCF4;          /* lavender canvas — Home + Tasks */
+  --canvas2:#FFFFFF;         /* white canvas — Progress */
+  --card:#FFFFFF;            /* cards on the lavender canvas */
+  --tint:#E6E7FD;            /* stat cards: one step up from the lavender canvas */
+  --panel:#D7DAFE;           /* focus panel: one step up from the white canvas */
+  --sheet:#FFFFFF;           /* Home's bottom task sheet + the nav sheet */
+  --ink:#262123;             /* warm charcoal — headlines, selection, dark chips */
+  --accent:#626BC2;          /* indigo — FAB, arrow circles, the one highlighted bar */
+  --accent-pale:#CCD1FC;     /* the "Start" word */
+  --peach:#EFCBAE;           /* mini stat */
+  --peach-badge:#EEC9B0;     /* +N badge */
+  --blue:#D7E8F4;            /* mini stat */
+  --blue-pill:#CDE1F1;       /* inner pill */
+  --chip-grey:#EFEFEF;       /* duration chips on white cards */
+  --grey-hi:#6C6E6D;         /* time labels */
+  --grey-mid:#9C9C9C;        /* inactive nav */
+  --grey-lo:#A9A9A9;         /* weekday labels */
+  --red:#C02729;             /* notification dot only */
+  --hatch-line:rgba(126,128,145,.55);
+  /* ---- mount tokens (ours — never used inside a phone) ---- */
+  --mount-bg:#191821;
+  --mount-panel:#211F2A;
+  --mount-ink:#C9C4D4;
+  --mount-muted:#847F92;
+  --mount-line:rgba(255,255,255,.08);
+  /* ---- shared ---- */
+  --f:"Poppins",system-ui,sans-serif;
+}
+html[data-theme="dark"]{
+  /* authored re-skin — the source is light-native. Every relationship
+     (two canvases, tone-step separation, accent's three jobs) survives. */
+  --canvas:#232130;
+  --canvas2:#1E1D26;
+  --card:#2B2A37;
+  --tint:#333140;
+  --panel:#35334A;
+  --sheet:#262531;
+  --ink:#F1F0F4;
+  --accent:#8A93E8;
+  --accent-pale:#6A6F9E;
+  --peach:#C79A72;
+  --peach-badge:#B98F68;
+  --blue:#7E99AC;
+  --blue-pill:#6D8A9E;
+  --chip-grey:#3A3849;
+  --grey-hi:#A3A5A8;
+  --grey-mid:#8E8B95;
+  --grey-lo:#7C7987;
+  --hatch-line:rgba(200,200,215,.35);
+  --mount-bg:#121118;
+  --mount-panel:#1B1A23;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--mount-bg);font-family:var(--f);
+  -webkit-font-smoothing:antialiased;min-height:100vh}
+svg{display:block}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+/* ============ the MOUNT: a quiet neutral field + captions ============ */
+.wrap{max-width:1290px;margin:0 auto;padding:34px 24px 48px}
+.head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+  padding-bottom:18px;border-bottom:1px solid var(--mount-line)}
+.head h1{font-size:17px;font-weight:600;color:var(--mount-ink);letter-spacing:.01em}
+.head p{font-size:12.5px;color:var(--mount-muted)}
+.head .theme{margin-left:auto;font-size:12px;font-weight:500;color:var(--mount-ink);
+  background:var(--mount-panel);border:1px solid var(--mount-line);
+  border-radius:999px;padding:7px 14px}
+.head .theme:hover{color:#fff}
+.stage{display:flex;gap:28px;justify-content:center;align-items:flex-start;
+  padding-top:30px;flex-wrap:wrap}
+.col{display:flex;flex-direction:column;gap:10px}
+.cap{font-size:11.5px;font-weight:500;color:var(--mount-muted);letter-spacing:.06em;
+  text-transform:uppercase;padding-left:6px}
+.cap b{color:var(--mount-ink);font-weight:600}
+.foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--mount-line);
+  font-size:11.5px;color:var(--mount-muted);text-align:center}
+.foot a{color:var(--mount-ink)}
+
+/* ============ the phone column: a 390pt app surface ============
+   The 24px clip + hairline are MOUNT furniture (the source's screen-corner
+   radius belongs to the device). Everything inside is the design. */
+.phone{width:390px;height:844px;border-radius:24px;overflow:hidden;position:relative;
+  outline:1px solid var(--mount-line);display:flex;flex-direction:column;
+  font-family:var(--f);color:var(--ink);font-size:14px;line-height:1.45;
+  background:var(--canvas)}
+.phone--white{background:var(--canvas2)}
+.pad{padding-inline:16px}
+
+/* ---- header rail ---- */
+.rail{display:flex;align-items:center;justify-content:space-between;padding-top:20px}
+.rail__l{display:flex;align-items:center;gap:12px}
+.rail__r{display:flex;align-items:center;gap:9px}
+.circ{width:50px;height:50px;border-radius:50%;background:var(--card);
+  display:grid;place-items:center;position:relative;color:var(--ink)}
+.circ svg{width:20px;height:20px}
+.dot-red{position:absolute;top:9px;right:10px;width:9px;height:9px;border-radius:50%;
+  background:var(--red)}
+.ava{width:44px;height:44px;border-radius:50%;object-fit:cover}
+.greet{font-size:18px;font-weight:600;color:var(--ink)}
+
+/* ---- headline: the two-tone device ---- */
+.h-hero{font-size:30px;font-weight:600;line-height:1.15;letter-spacing:-.01em;
+  max-width:300px;margin-top:22px}
+.h-hero .pale{color:var(--accent-pale)}
+.h-screen{font-size:28px;font-weight:600;letter-spacing:-.01em;margin-top:20px}
+
+/* ---- stat grid ---- */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:20px}
+.stat{background:var(--tint);border-radius:19px;height:150px;padding:16px;
+  display:flex;flex-direction:column;justify-content:space-between}
+.stat__top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.stat__ico{width:41px;height:41px;border-radius:50%;background:var(--card);
+  display:grid;place-items:center;color:var(--ink);flex:0 0 41px}
+.stat__ico svg{width:18px;height:18px}
+.stat__lbl{font-size:13px;font-weight:600;color:var(--ink);text-align:right;line-height:1.3;
+  max-width:80px}
+.stat__num{font-size:30px;font-weight:600;line-height:1;color:var(--ink)}
+.stat__num small{font-size:12px;font-weight:500;color:var(--grey-hi);margin-left:6px}
+
+/* ---- today's tasks row ---- */
+.trow{display:flex;align-items:baseline;justify-content:space-between;margin-top:22px}
+.trow h2{font-size:17px;font-weight:600;color:var(--ink)}
+.trow button{font-size:13px;font-weight:500;color:var(--ink);opacity:.75}
+.trow button:hover{opacity:1}
+
+/* ---- task content (Home sheet + Tasks cards share the anatomy) ---- */
+.t-time{font-size:12px;font-weight:500;color:var(--grey-hi)}
+.t-title{font-size:20px;font-weight:600;color:var(--ink);line-height:1.2;margin-top:3px}
+.t-sub{font-size:13px;color:var(--grey-hi);margin-top:2px}
+
+/* ---- Home's bottom sheet: white, rounded top, task content + nav ---- */
+.sheet{margin-top:auto;background:var(--sheet);border-radius:19px 19px 0 0;
+  padding:18px 16px 0}
+.sheet__head{display:flex;align-items:flex-start;justify-content:space-between}
+.avs{display:flex;align-items:center}
+.avs img{width:36px;height:36px;border-radius:50%;object-fit:cover;
+  border:2px solid var(--sheet)}
+.avs img + img{margin-left:-8px}
+.avs .more{width:36px;height:36px;border-radius:50%;background:var(--peach-badge);
+  border:2px solid var(--sheet);margin-left:-8px;display:grid;place-items:center;
+  font-size:11px;font-weight:600;color:var(--ink)}
+
+/* ---- chips: pills, ink marks selection ---- */
+.chips{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.chip{height:48px;border-radius:999px;display:inline-flex;align-items:center;
+  padding:0 20px;font-size:14px;font-weight:500;background:var(--chip-grey);color:var(--ink)}
+.chip--ink{background:var(--ink);color:var(--sheet)}
+.chip--white{background:var(--card)}
+.fchips{display:flex;align-items:center;gap:9px;margin-top:18px}
+.fchip{height:46px;border-radius:999px;display:inline-flex;align-items:center;
+  padding:0 19px;font-size:14px;font-weight:500;background:var(--card);color:var(--ink)}
+.fchip.on{background:var(--ink);color:var(--canvas)}
+
+/* ---- task cards (Tasks screen) ---- */
+.list{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.tcard{background:var(--card);border-radius:28px;padding:18px;position:relative;
+  transition:opacity .25s, filter .25s}
+.tcard.dim{opacity:.15;filter:grayscale(1)}
+.tcard .chips{margin-top:14px}
+.tcard .arrow{position:absolute;right:18px;bottom:18px}
+.avs--card{position:absolute;right:18px;top:16px}
+.arrow{width:45px;height:45px;border-radius:50%;background:var(--accent);
+  display:grid;place-items:center;color:#fff}
+.arrow svg{width:18px;height:18px}
+
+/* ---- Progress screen ---- */
+.daterow{display:flex;align-items:center;gap:7px;margin-top:16px;
+  font-size:16px;font-weight:600;color:var(--ink)}
+.daterow svg{width:16px;height:16px}
+.week{display:flex;justify-content:space-between;margin-top:18px;padding:0 2px}
+.day{display:flex;flex-direction:column;align-items:center;gap:8px;
+  width:44px;height:66px;justify-content:flex-start;padding-top:4px;
+  border-radius:999px;color:var(--grey-lo)}
+.day small{font-size:11px;font-weight:500}
+.day b{font-size:14px;font-weight:600;color:var(--grey-hi)}
+.day.on{background:var(--ink)}
+.day.on small{color:var(--sheet);opacity:.72}
+.day.on b{color:var(--sheet)}
+.focus{background:var(--panel);border-radius:19px;margin-top:18px;padding:20px}
+.focus__head{display:flex;align-items:flex-start;justify-content:space-between}
+.focus h3{font-size:15px;font-weight:600;color:var(--ink)}
+.focus p{font-size:12px;color:var(--grey-hi);margin-top:2px}
+.focus .circ--ink{width:47px;height:47px;border-radius:50%;background:var(--ink);
+  color:var(--sheet);display:grid;place-items:center;flex:0 0 47px}
+.focus .circ--ink svg{width:18px;height:18px}
+.bars{display:flex;align-items:flex-end;justify-content:space-between;
+  height:214px;margin-top:26px;padding:0 4px}
+.barw{display:flex;flex-direction:column;align-items:center;gap:9px;height:100%;
+  justify-content:flex-end}
+.bar{width:37px;border-radius:999px 999px 0 0;overflow:hidden;background:var(--card)}
+.bar--off{background-image:repeating-linear-gradient(45deg,
+  var(--hatch-line) 0 1px, transparent 1px 7px)}
+.barw small{font-size:12px;font-weight:500;color:var(--grey-lo)}
+.minis{display:flex;gap:9px;margin-top:9px}
+.mini{flex:1;height:78px;border-radius:19px;padding:14px 16px;position:relative}
+.mini--peach{background:var(--peach)}
+.mini--blue{background:var(--blue)}
+.mini b{position:absolute;left:16px;bottom:10px;font-size:28px;font-weight:600;
+  line-height:1;color:var(--ink)}
+.mini .pill-in{position:absolute;top:10px;right:10px;width:34px;height:20px;
+  border-radius:999px;background:var(--blue-pill);display:grid;place-items:center}
+.mini .pill-in svg{width:12px;height:12px;color:var(--ink)}
+
+/* ---- bottom nav: white sheet, 45px top corners, FAB centred ---- */
+.nav{margin-top:auto;background:var(--sheet);border-radius:45px 45px 0 0;
+  display:flex;align-items:center;justify-content:space-around;
+  padding:16px 10px 20px;position:relative}
+.nav__item{display:flex;flex-direction:column;align-items:center;gap:5px;
+  color:var(--grey-mid);min-width:56px}
+.nav__item svg{width:22px;height:22px}
+.nav__item span{font-size:11px;font-weight:500}
+.nav__item.on{color:var(--ink)}
+.fab{width:44px;height:44px;border-radius:50%;background:var(--accent);
+  display:grid;place-items:center;color:#fff;flex:0 0 44px}
+.fab svg{width:20px;height:20px}
+.spacer{width:56px}
+
+/* ---- pre-hide + reduced motion ---- */
+.js [data-r]{opacity:0}
+@media (prefers-reduced-motion:reduce){
+  .js [data-r]{opacity:1}
+  .tcard{transition:none}
+}
+@media (max-width:1279px){ .stage{gap:20px} }
+</style>
+</head>
+<body class="js">
+
+<div class="wrap">
+
+  <!-- ======== MOUNT header — ours, not the design's ======== -->
+  <header class="head" data-r>
+    <h1>SARA — task management mobile app</h1>
+    <p>three screens of one language · light native + authored dark</p>
+    <button class="theme" id="theme" type="button">Dark re-skin</button>
+  </header>
+
+  <div class="stage">
+
+    <!-- ================= SCREEN 1 · HOME ================= -->
+    <div class="col" data-r>
+      <div class="cap"><b>01</b> · Home</div>
+      <div class="phone">
+        <div class="pad">
+          <div class="rail" style="padding-top:34px">
+            <div class="rail__l">
+              <img class="ava" alt="Sara" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&q=70" />
+              <span class="greet">Hey, Sara</span>
+            </div>
+            <div class="rail__r">
+              <button class="circ" aria-label="Settings"><i data-lucide="settings"></i></button>
+              <button class="circ" aria-label="Notifications"><i data-lucide="bell"></i><span class="dot-red"></span></button>
+            </div>
+          </div>
+          <h2 class="h-hero"><span class="pale">Start</span> today's tasks.</h2>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat__top">
+                <span class="stat__ico"><i data-lucide="calendar"></i></span>
+                <span class="stat__lbl">Today</span>
+              </div>
+              <div class="stat__num">15<small>Task</small></div>
+            </div>
+            <div class="stat">
+              <div class="stat__top">
+                <span class="stat__ico"><i data-lucide="target"></i></span>
+                <span class="stat__lbl">Goals setup</span>
+              </div>
+              <div class="stat__num">05<small>Task</small></div>
+            </div>
+            <div class="stat">
+              <div class="stat__top">
+                <span class="stat__ico"><i data-lucide="pause"></i></span>
+                <span class="stat__lbl">On Hold</span>
+              </div>
+              <div class="stat__num">12<small>Task</small></div>
+            </div>
+            <div class="stat">
+              <div class="stat__top">
+                <span class="stat__ico"><i data-lucide="alarm-clock"></i></span>
+                <span class="stat__lbl">Past Due</span>
+              </div>
+              <div class="stat__num">04<small>Task</small></div>
+            </div>
+          </div>
+          <div class="trow">
+            <h2>Today's tasks</h2>
+            <button type="button">View All</button>
+          </div>
+        </div>
+        <!-- the bottom task sheet slides over the lavender canvas -->
+        <div class="sheet">
+          <div class="sheet__head">
+            <div>
+              <div class="t-time">10:00–11:30 PM</div>
+              <div class="t-title">Exec Oversight</div>
+              <div class="t-sub">Repeats every two weeks</div>
+            </div>
+            <div class="avs">
+              <img alt="Teammate" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=72&q=70" />
+              <img alt="Teammate" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=72&q=70" />
+              <span class="more">+2</span>
+            </div>
+          </div>
+          <div class="chips" style="margin-top:14px">
+            <span class="chip chip--ink">Today</span>
+            <span class="chip">1h 30m</span>
+          </div>
+        </div>
+        <nav class="nav" style="border-radius:0;margin-top:0" aria-label="Primary">
+          <button class="nav__item on" aria-current="page"><i data-lucide="home"></i><span>Home</span></button>
+          <button class="nav__item"><i data-lucide="list-checks"></i><span>Takes</span></button>
+          <span class="spacer"></span>
+          <button class="nav__item"><i data-lucide="chart-column"></i><span>Progress</span></button>
+          <button class="nav__item"><i data-lucide="user"></i><span>Profile</span></button>
+          <button class="fab" style="position:absolute;left:50%;transform:translateX(-50%);bottom:26px" aria-label="New task"><i data-lucide="plus"></i></button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- ================= SCREEN 2 · YOUR TASKS ================= -->
+    <div class="col" data-r>
+      <div class="cap"><b>02</b> · Your tasks</div>
+      <div class="phone">
+        <div class="pad">
+          <div class="rail" style="padding-top:34px">
+            <button class="circ" aria-label="Back"><i data-lucide="chevron-left"></i></button>
+            <div class="rail__r">
+              <button class="circ" aria-label="Settings"><i data-lucide="settings"></i></button>
+              <button class="circ" aria-label="Notifications"><i data-lucide="bell"></i><span class="dot-red"></span></button>
+            </div>
+          </div>
+          <h2 class="h-screen">Your tasks</h2>
+          <div class="fchips" role="tablist" aria-label="Filter tasks">
+            <button class="fchip on" data-f="all" role="tab" aria-selected="true">All Tasks</button>
+            <button class="fchip" data-f="prog" role="tab" aria-selected="false">In Progress</button>
+            <button class="fchip" data-f="done" role="tab" aria-selected="false">Completed</button>
+          </div>
+          <div class="list">
+            <article class="tcard" data-f="prog" data-r>
+              <div class="t-time">10:00–11:30 PM</div>
+              <div class="t-title">Discussion Flow</div>
+              <div class="t-sub">Stay connected effortlessly</div>
+              <div class="avs avs--card">
+                <img alt="Teammate" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=72&q=70" />
+                <img alt="Teammate" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=72&q=70" />
+                <span class="more">+4</span>
+              </div>
+              <div class="chips">
+                <span class="chip chip--ink">Today</span>
+                <span class="chip">1h 30m</span>
+              </div>
+              <button class="arrow" aria-label="Open Discussion Flow"><i data-lucide="arrow-up-right"></i></button>
+            </article>
+            <article class="tcard" data-f="prog" data-r>
+              <div class="t-time">12:00–01:00 PM</div>
+              <div class="t-title">More Efficient</div>
+              <div class="t-sub">Work smarter and faster.</div>
+              <div class="avs avs--card">
+                <img alt="Teammate" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=72&q=70" />
+                <img alt="Teammate" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=72&q=70" />
+                <span class="more">+2</span>
+              </div>
+              <div class="chips">
+                <span class="chip chip--ink">Today</span>
+                <span class="chip">1h</span>
+              </div>
+              <button class="arrow" aria-label="Open More Efficient"><i data-lucide="arrow-up-right"></i></button>
+            </article>
+            <article class="tcard" data-f="done" data-r>
+              <div class="t-time">10:00–11:30 PM</div>
+              <div class="t-title">Support Tasks</div>
+              <div class="t-sub">Keep the queue clear.</div>
+              <div class="avs avs--card">
+                <img alt="Teammate" src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=72&q=70" />
+                <img alt="Teammate" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=72&q=70" />
+                <span class="more">+5</span>
+              </div>
+              <div class="chips">
+                <span class="chip chip--ink">Today</span>
+                <span class="chip">1h</span>
+              </div>
+              <button class="arrow" aria-label="Open Support Tasks"><i data-lucide="arrow-up-right"></i></button>
+            </article>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Primary">
+          <button class="nav__item"><i data-lucide="home"></i><span>Home</span></button>
+          <button class="nav__item on" aria-current="page"><i data-lucide="list-checks"></i><span>Takes</span></button>
+          <span class="spacer"></span>
+          <button class="nav__item"><i data-lucide="chart-column"></i><span>Progress</span></button>
+          <button class="nav__item"><i data-lucide="user"></i><span>Profile</span></button>
+          <button class="fab" style="position:absolute;left:50%;transform:translateX(-50%);bottom:26px" aria-label="New task"><i data-lucide="plus"></i></button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- ================= SCREEN 3 · YOUR PROGRESS ================= -->
+    <div class="col" data-r>
+      <div class="cap"><b>03</b> · Your progress</div>
+      <div class="phone phone--white">
+        <div class="pad">
+          <div class="rail" style="padding-top:34px">
+            <button class="circ" aria-label="Back"><i data-lucide="chevron-left"></i></button>
+            <div class="rail__r">
+              <button class="circ" aria-label="Settings"><i data-lucide="settings"></i></button>
+              <button class="circ" aria-label="Notifications"><i data-lucide="bell"></i><span class="dot-red"></span></button>
+            </div>
+          </div>
+          <h2 class="h-screen">Your Progress</h2>
+          <div class="daterow">Today, 21 July 2025 <i data-lucide="chevron-down"></i></div>
+          <div class="week" role="tablist" aria-label="Week">
+            <button class="day" role="tab" aria-selected="false"><small>Sun</small><b>20</b></button>
+            <button class="day" role="tab" aria-selected="false"><small>Mon</small><b>21</b></button>
+            <button class="day" role="tab" aria-selected="false"><small>Tue</small><b>22</b></button>
+            <button class="day on" role="tab" aria-selected="true"><small>Wed</small><b>23</b></button>
+            <button class="day" role="tab" aria-selected="false"><small>Thu</small><b>24</b></button>
+            <button class="day" role="tab" aria-selected="false"><small>Fri</small><b>25</b></button>
+            <button class="day" role="tab" aria-selected="false"><small>Sat</small><b>26</b></button>
+          </div>
+          <div class="focus">
+            <div class="focus__head">
+              <div>
+                <h3>Focus mode is now active</h3>
+                <p>avg 3 hours per day</p>
+              </div>
+              <button class="circ--ink" aria-label="Open focus mode"><i data-lucide="arrow-up-right"></i></button>
+            </div>
+            <div class="bars">
+              <div class="barw"><div class="bar bar--off" style="height:92px"></div><small>Mon</small></div>
+              <div class="barw"><div class="bar bar--off" style="height:124px"></div><small>Tue</small></div>
+              <div class="barw"><div class="bar" style="height:180px;background:var(--accent)"></div><small>Wed</small></div>
+              <div class="barw"><div class="bar bar--off" style="height:66px"></div><small>Thu</small></div>
+              <div class="barw"><div class="bar bar--off" style="height:134px"></div><small>Fri</small></div>
+            </div>
+          </div>
+          <div class="minis">
+            <div class="mini mini--peach"><b>13</b></div>
+            <div class="mini mini--blue">
+              <span class="pill-in"><i data-lucide="arrow-up-right"></i></span>
+              <b>46</b>
+            </div>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Primary">
+          <button class="nav__item"><i data-lucide="home"></i><span>Home</span></button>
+          <button class="nav__item"><i data-lucide="history"></i><span>History</span></button>
+          <span class="spacer"></span>
+          <button class="nav__item on" aria-current="page"><i data-lucide="chart-column"></i><span>Progress</span></button>
+          <button class="nav__item"><i data-lucide="user"></i><span>Profile</span></button>
+          <button class="fab" style="position:absolute;left:50%;transform:translateX(-50%);bottom:26px" aria-label="New task"><i data-lucide="plus"></i></button>
+        </nav>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="foot" data-r>
+    Recreation — <a href="https://dribbble.com/shots/26300878-Task-Management-Mobile-App">Dribbble 26300878</a> · byline pending verification · <a href="sara.design-language.md">design-language spec</a>
+  </footer>
+</div>
+
+<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.17/dist/motion.min.js"></script>
+<script>
+(function(){
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var g = window.gsap;
+  if (window.lucide) lucide.createIcons({ attrs: { "stroke-width": 1.6, width: 20, height: 20 } });
+
+  /* ---- authored theme toggle (the source is light-native) ---- */
+  var themeBtn = document.getElementById("theme");
+  themeBtn.addEventListener("click", function(){
+    var root = document.documentElement;
+    var dark = root.getAttribute("data-theme") === "dark";
+    if (dark) { root.removeAttribute("data-theme"); themeBtn.textContent = "Dark re-skin"; }
+    else { root.setAttribute("data-theme", "dark"); themeBtn.textContent = "Light (native)"; }
+  });
+
+  /* ---- chip filter: crossfade WITHOUT changing the column height ---- */
+  var fchips = document.querySelectorAll(".fchip");
+  var cards = document.querySelectorAll(".tcard");
+  fchips.forEach(function(chip){
+    chip.addEventListener("click", function(){
+      fchips.forEach(function(c){ c.classList.remove("on"); c.setAttribute("aria-selected","false"); });
+      chip.classList.add("on"); chip.setAttribute("aria-selected","true");
+      var f = chip.getAttribute("data-f");
+      cards.forEach(function(card){
+        var show = f === "all" || card.getAttribute("data-f") === f;
+        card.classList.toggle("dim", !show);
+        if (window.Motion && Motion.animate && !reduce) {
+          Motion.animate(card, { opacity: show ? 1 : .15 },
+            { duration: .25, easing: "ease-out" });
+        }
+      });
+    });
+  });
+
+  /* ---- week-day selection: the ink circle simply moves ---- */
+  var days = document.querySelectorAll(".day");
+  days.forEach(function(d){
+    d.addEventListener("click", function(){
+      days.forEach(function(x){ x.classList.remove("on"); x.setAttribute("aria-selected","false"); });
+      d.classList.add("on"); d.setAttribute("aria-selected","true");
+    });
+  });
+
+  if (!window.Motion || reduce) { if (!g || reduce) { document.body.classList.remove("js"); return; } }
+
+  /* ---- press springs: thumb-scale feedback ---- */
+  if (window.Motion && Motion.animate && !reduce) {
+    document.querySelectorAll(".circ, .fab, .arrow, .fchip, .chip, .day, .mini, .circ--ink")
+      .forEach(function(el){
+        el.addEventListener("pointerdown", function(){
+          Motion.animate(el, { scale: .94 }, { type: "spring", stiffness: 500, damping: 24 }); });
+        el.addEventListener("pointerup", function(){
+          Motion.animate(el, { scale: 1 }, { type: "spring", stiffness: 350, damping: 22 }); });
+        el.addEventListener("pointerleave", function(){
+          Motion.animate(el, { scale: 1 }, { type: "spring", stiffness: 350, damping: 26 }); });
+      });
+  }
+
+  if (!g || reduce) { document.body.classList.remove("js"); return; }
+
+  /* ---- entry: mount head, then phones left→right; content staggers
+     top→bottom inside each phone; THE NAV LANDS LAST. ---- */
+  var tl = g.timeline({ defaults: { ease: "power3.out" },
+    onComplete: function(){ document.body.classList.remove("js"); } });
+  tl.fromTo(".head", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .5, clearProps: "transform" }, 0);
+
+  document.querySelectorAll(".col").forEach(function(col, ci){
+    var at = .18 + ci * .12;
+    tl.fromTo(col.querySelector(".cap"), { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: .4, clearProps: "transform" }, at);
+    var phone = col.querySelector(".phone");
+    tl.fromTo(phone, { opacity: 0, y: 18 },
+      { opacity: 1, y: 0, duration: .55, clearProps: "transform" }, at + .05);
+    var els = phone.querySelectorAll(".pad > *, .sheet");
+    tl.fromTo(els, { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: .4, stagger: .06, clearProps: "transform" }, at + .2);
+    tl.fromTo(phone.querySelectorAll(".nav, .foot"), { opacity: 0 },
+      { opacity: 1, duration: .35 }, at + .75);
+  });
+  tl.fromTo(".foot", { opacity: 0 }, { opacity: 1, duration: .4 }, .95);
+
+  /* safety net: never leave the page hidden */
+  setTimeout(function(){ document.body.classList.remove("js"); }, 4000);
+})();
+</script>
+</body>
+</html>

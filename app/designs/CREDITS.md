@@ -14,7 +14,7 @@ memory — never reconstructed from a URL slug or a filename.
 
 ---
 
-## Built — the ten recreations
+## Built — the eleven recreations
 
 Each ships an HTML recreation plus a `*.design-language.md` spec ending in a copy-paste prompt payload.
 
@@ -30,6 +30,7 @@ Each ships an HTML recreation plus a `*.design-language.md` spec ending in a cop
 | **MoveIQ** — fleet workbench<br>[`fleet.html`](fleet.html) · [spec](fleet.design-language.md) | [Logistics & Fleet Management Dashboard UI](https://dribbble.com/shots/26849863-Logistics-Fleet-Management-Dashboard-UI) | **Ronas IT \| UI/UX Team** | — |
 | **ARCHE** — commerce board<br>[`saas.html`](saas.html) · [spec](saas.design-language.md) | [SaaS Dashboard](https://dribbble.com/shots/26666273-SaaS-Dashboard) | **Juice Lab** | UI/UX Development Agency |
 | **Metric** — analytics board<br>[`metrics.html`](metrics.html) · [spec](metrics.design-language.md) | [Dark Dashboard UI — SaaS Startup Metrics & Analytics Panel](https://dribbble.com/shots/27207977-Dark-Dashboard-UI-SaaS-Startup-Metrics-Analytics-Panel) | **Igor Zeru** | — |
+| **SARA** — task management app 🚩<br>[`sara.html`](sara.html) · [spec](sara.design-language.md) | [Task Management Mobile App](https://dribbble.com/shots/26300878-Task-Management-Mobile-App) | **byline pending verification** ⚠️ — see the shortlist note below | — |
 
 ## Original designs — ours, in a studied language
 
@@ -97,6 +98,25 @@ ARCHE is **built** and has moved to the table above.
 
 ---
 
+## Shortlist — mobile apps ▶ *(ACTIVE)*
+
+The library's first mobile reference. Source still saved on disk and pixel-scanned
+(`image_reference/original-0d51cddf…webp`); keystone and lighting checks both passed.
+
+> ⚠️ **Byline for 26300878 is UNVERIFIED.** Dribbble WAF-blocks scripted fetches; every mirror
+> route (reader proxy, Wayback, Savee, four search phrasings) failed to cite the author, and a
+> *different* shot ([23820537](https://dribbble.com/shots/23820537-Task-Management-Mobile-App))
+> shares the exact title "Task Management Mobile App". The shot page was opened in the owner's
+> browser on 15 Sep 2026 for by-eye confirmation. **Do not cite a designer for SARA until this
+> note is replaced with a verified byline.**
+
+| Shot | Designer | Studio / team |
+|---|---|---|
+| [Task Management Mobile App](https://dribbble.com/shots/26300878-Task-Management-Mobile-App) — **built 15 Sep 2026** ([sara.html](sara.html) · [spec](sara.design-language.md)); byline pending, note above | **unverified** | — |
+| [Task Management Mobile App](https://dribbble.com/shots/27043819) — open candidate; byline not yet checked | ? | — |
+
+---
+
 ## Also reviewed during curation *(not built)*
 
 Shots opened while choosing directions. Kept as a record of what was considered and rejected, so
@@ -116,5 +136,5 @@ the same ground is not re-covered.
 
 ---
 
-*Last updated 27 August 2026. When a shortlisted shot gets built, move it into the table above and
+*Last updated 15 September 2026. When a shortlisted shot gets built, move it into the table above and
 record its designer in the spec's Source row as well.*

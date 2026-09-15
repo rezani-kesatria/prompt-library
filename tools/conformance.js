@@ -286,6 +286,34 @@ const RULES = {
        sanctioned stroke-opacity fade) */
     noGradients: { except: [".who__f"] },
     present: [".cast", ".fig", ".quotes", ".chips", ".foot"]
+  },
+
+  /* SARA — the library's FIRST MOBILE reference: three phone columns on a
+     mount field. Selection is INK, never accent; the accent keeps exactly
+     three jobs (FAB, arrow circles, the one highlighted bar); chart bars
+     have domed tops and the inactive ones carry the hatch encoding.
+     ("sara" is the data.js id; the file stem is sara.html.) */
+  sara: {
+    url: "designs/sara.html",
+    inkNotPureWhite: "--ink",
+    /* 24px = the mount's column clip (ours); 45px = nav sheet top corners;
+       28/19 = the card ladder; pills + circles carry the rest */
+    allowedRadii: ["0px", "50%", "999px", "9999px", "28px", "19px", "45px", "24px"],
+    columns: { selector: ".phone", count: 3, width: 390, tol: 8 },
+    touchTargets: { selectors: [".circ", ".fab", ".arrow", ".chip", ".fchip", ".day",
+                                ".circ--ink"], min: 42 },
+    panelDirection: { canvas: "--canvas", panel: "--card", expect: "lift",
+                      alsoUnder: [{ attr: "data-theme", value: "dark" }] },
+    radiusLadder: [[".tcard", ".stat"]],
+    /* selection is ink: the active filter chip and the selected weekday */
+    fillWith: { token: "--ink", selectors: [".fchip.on", ".day.on"] },
+    accentOn: { selector: ".fab, .arrow", token: "--accent" },
+    domedTops: { selector: ".bar" },
+    texture: { selectors: [".bar--off"], contains: "repeating-linear-gradient" },
+    mountDiscipline: { phone: ".phone" },
+    exactCount: { ".phone": 3, ".nav": 3, ".fab": 3 },
+    present: [".stat", ".tcard", ".focus", ".week", ".mini", ".sheet",
+              ".nav__item.on", ".dot-red", ".avs"]
   }
 };
 
@@ -919,6 +947,72 @@ function PAGE_RUNNER(cfg) {
     else document.documentElement.style.removeProperty(cfg.monochromeDegrades.set);
     ok(cfg.monochromeDegrades.set + " -> " + cfg.monochromeDegrades.to + " causes ZERO layout shift",
       before === after, before === after ? "identical geometry" : "LAYOUT SHIFTED");
+  }
+
+  /* --- the mobile mount: N phone columns, fixed width, group centred --- */
+  if (cfg.columns) {
+    const els = [...document.querySelectorAll(cfg.columns.selector)];
+    const bad = [];
+    els.forEach((el, i) => {
+      const r = el.getBoundingClientRect();
+      if (Math.abs(r.width - cfg.columns.width) > cfg.columns.tol)
+        bad.push("col " + i + " width " + Math.round(r.width));
+    });
+    let centreOff = NaN;
+    if (els.length) {
+      const first = els[0].getBoundingClientRect(), last = els[els.length - 1].getBoundingClientRect();
+      centreOff = Math.abs((first.left + last.right) / 2 - document.documentElement.clientWidth / 2);
+      if (centreOff > 12) bad.push("group off-centre " + Math.round(centreOff) + "px");
+    }
+    ok(els.length + " phone columns at ~" + cfg.columns.width + "px, group centred",
+      els.length === cfg.columns.count && bad.length === 0,
+      els.length !== cfg.columns.count ? els.length + " found"
+        : (bad.length ? bad.slice(0, 2).join(" | ") : "centred within " + centreOff.toFixed(1) + "px"));
+  }
+
+  /* --- thumb-scale targets: nothing tappable below the floor --- */
+  if (cfg.touchTargets) {
+    const bad = [];
+    let n = 0;
+    cfg.touchTargets.selectors.forEach(sel => {
+      [...document.querySelectorAll(sel)].forEach(el => {
+        n++;
+        const r = el.getBoundingClientRect();
+        if (Math.min(r.width, r.height) < cfg.touchTargets.min)
+          bad.push(sel + " " + Math.round(Math.min(r.width, r.height)) + "px");
+      });
+    });
+    ok("every tappable element >= " + cfg.touchTargets.min + "px",
+      n > 0 && bad.length === 0,
+      bad.length ? bad.slice(0, 3).join(" | ") : n + " targets clean");
+  }
+
+  /* --- chart bars: full dome on top (radius ~ half the width), square feet --- */
+  if (cfg.domedTops) {
+    const els = [...document.querySelectorAll(cfg.domedTops.selector)];
+    const bad = [];
+    els.forEach((el, i) => {
+      const s = getComputedStyle(el), r = el.getBoundingClientRect();
+      const minTop = r.width * 0.4;
+      if (parseFloat(s.borderTopLeftRadius) < minTop || parseFloat(s.borderTopRightRadius) < minTop)
+        bad.push("bar " + i + " top not domed");
+      if (parseFloat(s.borderBottomLeftRadius) > 0 || parseFloat(s.borderBottomRightRadius) > 0)
+        bad.push("bar " + i + " feet not square");
+    });
+    ok("bars are domed (radius ~ half width, square feet)",
+      els.length > 0 && bad.length === 0,
+      bad.length ? bad.slice(0, 2).join(", ") : els.length + " bars domed");
+  }
+
+  /* --- mount discipline: the presenter field's tone never enters a screen --- */
+  if (cfg.mountDiscipline) {
+    const mountBg = getComputedStyle(document.body).backgroundColor;
+    const inside = [...document.querySelectorAll(cfg.mountDiscipline.phone + " *")];
+    const offenders = inside.filter(el => getComputedStyle(el).backgroundColor === mountBg);
+    ok("mount tone never appears inside a phone",
+      offenders.length === 0 && inside.length > 0,
+      offenders.length ? offenders.slice(0, 3).map(e => e.tagName + "." + (e.className || "").toString().slice(0, 20)).join(" | ")
+        : inside.length + " elements clean");
   }
 
   return JSON.stringify({ passed: R.filter(r => r.pass).length, total: R.length, results: R });
