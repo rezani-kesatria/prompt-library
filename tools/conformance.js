@@ -116,6 +116,80 @@ const RULES = {
     /* the state/affordance split: dot carries the boolean, pill the verb */
     present: [".side", ".hist", ".search", ".card__rule", ".state", ".dot", ".pill", ".tile"],
     gradientOn: ["mark", "ava", "pill"]
+  },
+
+  /* Numéro — the analytics/overview species: a two-step tint ladder whose
+     separation is done by GUTTERS alone, framed panels, concentric radii.
+     Its colour law is the library's only PURE ink. ("numero" is the data.js
+     id; the file stem is finance.html, like luma/assistant.) */
+  numero: {
+    url: "designs/finance.html",
+    /* loop BOTH themes explicitly: the base check runs in whatever
+       prefers-color-scheme the headless browser reports, so without this
+       the light #000000 case may never execute. */
+    pureInk: { token: "--ink",
+               alsoUnder: [{ attr: "data-theme", value: "light" }, { attr: "data-theme", value: "dark" }] },
+    /* the ladder HOLDS direction in both themes: surface recedes from paper */
+    panelDirection: { canvas: "--paper", panel: "--surface", expect: "recede",
+                      alsoUnder: [{ attr: "data-theme", value: "light" }, { attr: "data-theme", value: "dark" }] },
+    /* THE signature: a paper panel framed by a sliver of the card's own
+       surface on all four sides, the surface opening out into a footer */
+    framedPanel: { card: ".card--split", panel: ".panel", frame: "--frame" },
+    /* the header band and the cards are the SAME tone */
+    sameTone: [".top", ".card"],
+    /* concentric radius ladder: card > panel (= card - frame) > inner cards */
+    radiusLadder: [[".card", ".panel"], [".card", ".inner"]],
+    /* hairlines live ONLY on interactive controls — zero divider rules */
+    bordersOnlyOn: [".sel", ".chip", ".delta", ".date", ".rail", ".circ--ghost", ".faces button", ".card--bare"],
+    /* flat: the only CSS gradient is the faint hairline grid under the pins */
+    noGradients: { except: [".pins__grid"] },
+    /* the currency glyph is split from its number: "$" carries the accent */
+    accentOn: { selector: ".val i", token: "--accent" },
+    /* an overview, not a workbench: no nav sidebar, no data table */
+    absent: ["nav", "table"],
+    exactCount: { ".card--split": 2 },
+    present: [".rail", ".dots", ".pins", ".bub", ".donut", ".wave", ".sticks", ".tl", ".burst", ".faces"]
+  },
+
+  /* Metric — the ZERO-radius analytics board. Two tones do three jobs:
+     the canvas tone is also the divider colour and the active-state fill.
+     Dark is native (the page hardcodes data-theme="dark" at load).
+     ("metric" is the data.js id; the file stem is metrics.html.) */
+  metric: {
+    url: "designs/metrics.html",
+    allowedRadii: ["0px"],                 /* the identity rule: not one curve */
+    inkNotPureWhite: "--ink",
+    panelDirection: { canvas: "--canvas", panel: "--panel", expect: "recede",
+                      alsoUnder: [{ attr: "data-theme", value: "light" }] },
+    /* the header is a SOLID band in the panel tone, not a strip with a rule */
+    sameTone: [".bar", ".panel"],
+    /* the canvas tone returns as the active fill and the control fill */
+    fillWith: { token: "--canvas", selectors: [".nav--on", ".seg button.on", ".btn", ".search"] },
+    /* dividers bleed the sidebar and rule the table rows — nowhere else,
+       and always painted in the step (= canvas) tone */
+    bordersOnlyOn: { selectors: [".navgrp", ".side__me", "tbody tr"], withToken: "--step" },
+    /* ONE panel of five cells, not five cards; single active states */
+    exactCount: { ".kpis .kpi": 5, ".seg button.on": 1, ".nav--on": 1 },
+    unboxed: [".kpi"],
+    present: [".side", ".bar", ".crumb", ".kpis", ".seg", ".chip--ok", "table"]
+  },
+
+  /* MoveIQ — the operational workbench: hairline rules, a reserved status
+     set rendered as dot + label, the solid-ink active device, one dark
+     feature panel inside a light UI. ("moveiq" is the data.js id; the
+     file stem is fleet.html.) */
+  moveiq: {
+    url: "designs/fleet.html",
+    inkNotPureWhite: "--ink",
+    /* cards > tiles > controls: three rounded-rect scales — never pills */
+    radiusLadder: [[".card", ".tile"], [".tile", ".nv"]],
+    /* the solid-ink active device, on nav AND filter tabs */
+    fillWith: { token: "--ink", selectors: [".nv--on", ".tab--on"] },
+    exactCount: { ".nv--on": 1, ".tab--on": 1, ".tiles .tile": 4 },
+    /* the page ends on the last table row — no footer exists */
+    absent: ["footer"],
+    present: [".top", ".navgrp", ".tiles", ".tile", ".promo", ".panel", ".tabs",
+              ".st--move", ".st--done", ".acts", ".kebab"]
   }
 };
 
@@ -216,6 +290,23 @@ function PAGE_RUNNER(cfg) {
   if (cfg.inkNotPureWhite) {
     ok("ink token is not #FFFFFF", css(cfg.inkNotPureWhite).toUpperCase() !== "#FFFFFF", css(cfg.inkNotPureWhite));
   }
+  /* --- the library's only PURE ink: exactly #000000 light / #FFFFFF dark.
+     Numéro alone refuses the near-black every other reference uses. --- */
+  if (cfg.pureInk) {
+    const check = label => {
+      const v = css(cfg.pureInk.token).toUpperCase();
+      ok("ink token is exactly #000000 or #FFFFFF" + label, v === "#000000" || v === "#FFFFFF", v);
+    };
+    check("");
+    (cfg.pureInk.alsoUnder || []).forEach(t => {
+      const root = document.documentElement;
+      const prev = root.getAttribute(t.attr);
+      root.setAttribute(t.attr, t.value);
+      check(" [" + t.attr + "=" + t.value + "]");
+      if (prev === null) root.removeAttribute(t.attr); else root.setAttribute(t.attr, prev);
+    });
+  }
+
   /* Separate, opt-in. Bundling this with the token check was wrong: a design
      whose PANEL is #FFFFFF paints white text on its ink-filled buttons by
      design, and that is not the same failure as a white ink TOKEN. */
@@ -322,6 +413,41 @@ function PAGE_RUNNER(cfg) {
       offenders.length ? offenders.slice(0, 4).join(" | ") : "clean — accent is state, not affordance");
   }
 
+  /* --- the accent must BE on the given selector: e.g. Numéro's currency
+     glyph is split from its number, "$" carrying the coral. --- */
+  if (cfg.accentOn) {
+    const a = hex(css(cfg.accentOn.token));
+    const str = "rgb(" + a.join(", ") + ")";
+    const els = [...document.querySelectorAll(cfg.accentOn.selector)];
+    const off = els.filter(el => {
+      const s = getComputedStyle(el);
+      return s.color !== str && s.backgroundColor !== str;
+    });
+    ok("accent on every " + cfg.accentOn.selector, els.length > 0 && off.length === 0,
+      els.length === 0 ? "VACUOUS — no " + cfg.accentOn.selector + " found"
+        : (off.length ? off.length + " without it" : els.length + " carry it"));
+  }
+
+  /* --- one token returning as a FILL: the canvas tone that is also the
+     active-state fill (Metric's three-jobs rule), or the solid-ink
+     active device (MoveIQ). Every matched element must carry it. --- */
+  if (cfg.fillWith) {
+    const str = "rgb(" + hex(css(cfg.fillWith.token)).join(", ") + ")";
+    const bad = [];
+    let n = 0;
+    cfg.fillWith.selectors.forEach(sel => {
+      const els = [...document.querySelectorAll(sel)];
+      if (!els.length) { bad.push(sel + " (none found)"); return; }
+      els.forEach(el => {
+        n++;
+        if (getComputedStyle(el).backgroundColor !== str) bad.push(sel);
+      });
+    });
+    ok(cfg.fillWith.token + " fills " + cfg.fillWith.selectors.join(" + "),
+      n > 0 && bad.length === 0,
+      bad.length ? bad.slice(0, 3).join(" | ") : n + " elements on tone");
+  }
+
   /* --- an exact element count (two rail clusters, not one sidebar) --- */
   if (cfg.exactCount) {
     Object.keys(cfg.exactCount).forEach(sel => {
@@ -363,8 +489,41 @@ function PAGE_RUNNER(cfg) {
     });
   }
 
+  /* --- hairlines are an AFFORDANCE: any bordered element must be one of the
+     sanctioned controls. Layout separation must never come from borders. --- */
+  if (cfg.bordersOnlyOn) {
+    /* array form: placement only. object form adds withToken: every
+       sanctioned rule must ALSO be painted in that token — Metric's
+       "dividers are the canvas tone showing through" rule. */
+    const bo = Array.isArray(cfg.bordersOnlyOn) ? { selectors: cfg.bordersOnlyOn } : cfg.bordersOnlyOn;
+    const tokenStr = bo.withToken ? "rgb(" + hex(css(bo.withToken)).join(", ") + ")" : null;
+    const offenders = all().filter(el => {
+      const s = getComputedStyle(el);
+      const bordered = ["Top", "Right", "Bottom", "Left"].some(k =>
+        parseFloat(s["border" + k + "Width"]) > 0 && s["border" + k + "Style"] !== "none" &&
+        s["border" + k + "Color"] !== "rgba(0, 0, 0, 0)");
+      if (!bordered) return false;
+      const legal = bo.selectors.some(sel => { try { return el.matches(sel); } catch (e) { return false; } });
+      if (!legal) return true;
+      return !!tokenStr && s.borderTopColor !== tokenStr;
+    });
+    ok("borders only on " + bo.selectors.join(" ") + (tokenStr ? " in " + bo.withToken : ""),
+      offenders.length === 0,
+      offenders.length ? offenders.slice(0, 4).map(e => e.tagName + "." + (e.className || "").toString().slice(0, 24)).join(" | ")
+        : (tokenStr ? "clean — every rule in " + bo.withToken : "clean — separation is gutters only"));
+  }
+
   if (cfg.present) {
     cfg.present.forEach(sel => ok("present: " + sel, !!document.querySelector(sel), ""));
+  }
+
+  /* --- things that must NOT exist (a nav sidebar, a data table, ...): the
+     absence IS the rule, so its violation must be a failure, not a shrug --- */
+  if (cfg.absent) {
+    cfg.absent.forEach(sel => {
+      const got = document.querySelectorAll(sel).length;
+      ok("absent: " + sel, got === 0, got + " found");
+    });
   }
 
   /* --- an explicit TONE ORDER: lightest > mid > dark tokens. RIVA's
@@ -394,6 +553,81 @@ function PAGE_RUNNER(cfg) {
       gradEls.length === 0 ? "VACUOUS — no gradient anywhere"
         : (illegal.length ? illegal.slice(0, 4).map(e => e.tagName + "." + (e.className||"").toString().slice(0,20)).join(" | ")
            : gradEls.length + " gradient elements, all legal"));
+  }
+
+  /* --- the inverse of gradientOn: a flat design must carry NO gradients
+     apart from sanctioned functional textures (hairline grids etc.). --- */
+  if (cfg.noGradients) {
+    const gradEls = all().filter(el => {
+      const bi = getComputedStyle(el).backgroundImage;
+      return bi && bi !== "none" && bi.indexOf("gradient") > -1;
+    });
+    const illegal = gradEls.filter(el => !cfg.noGradients.except.some(sel => el.matches(sel)));
+    ok("no gradients outside " + cfg.noGradients.except.join(" + "),
+      illegal.length === 0,
+      illegal.length ? illegal.slice(0, 4).map(e => e.tagName + "." + (e.className || "").toString().slice(0, 20)).join(" | ")
+        : (gradEls.length ? gradEls.length + " gradient element(s), all sanctioned" : "flat — none at all"));
+  }
+
+  /* --- THE FRAMED PANEL: a paper panel framed by a hairline of the card's
+     own surface on all four sides, the surface opening out into a footer
+     below. Radius stays concentric: panel = card - frame. --- */
+  if (cfg.framedPanel) {
+    const fp = cfg.framedPanel;
+    const framePx = parseFloat(css(fp.frame));
+    const cards = [...document.querySelectorAll(fp.card)];
+    const bad = [];
+    cards.forEach(card => {
+      const panels = card.querySelectorAll(fp.panel);
+      if (panels.length !== 1) { bad.push(card.className + ": " + panels.length + " panels"); return; }
+      const p = panels[0];
+      const cs = getComputedStyle(card), ps = getComputedStyle(p);
+      if (ps.backgroundColor === cs.backgroundColor) bad.push("panel tone == card tone");
+      const cr = card.getBoundingClientRect(), pr = p.getBoundingClientRect();
+      const inL = pr.left - cr.left, inR = cr.right - pr.right,
+            inT = pr.top - cr.top, inB = cr.bottom - pr.bottom;
+      const tol = 0.75;
+      if (Math.abs(inL - framePx) > tol || Math.abs(inR - framePx) > tol || Math.abs(inT - framePx) > tol)
+        bad.push("frame L" + inL.toFixed(1) + " R" + inR.toFixed(1) + " T" + inT.toFixed(1) + " vs " + framePx);
+      if (inB <= framePx) bad.push("no footer zone below the panel");
+      const wantR = parseFloat(cs.borderTopLeftRadius) - framePx;
+      if (Math.abs(parseFloat(ps.borderTopLeftRadius) - wantR) > tol)
+        bad.push("radius not concentric: panel " + ps.borderTopLeftRadius + " vs card " + cs.borderTopLeftRadius);
+    });
+    ok("panels are framed by the card's own surface, radius concentric",
+      cards.length > 0 && bad.length === 0,
+      cards.length === 0 ? "VACUOUS — no " + fp.card + " found"
+        : (bad.length ? bad.slice(0, 3).join(" | ") : cards.length + " framed panels clean"));
+  }
+
+  /* --- two zones that must share ONE tone (header band == card surface) --- */
+  if (cfg.sameTone) {
+    const tones = cfg.sameTone.map(s => {
+      const el = document.querySelector(s);
+      return el ? getComputedStyle(el).backgroundColor : null;
+    });
+    const missing = tones.indexOf(null);
+    const same = tones.every(t => t === tones[0]);
+    ok(cfg.sameTone.join(" == ") + " share one tone", missing === -1 && same,
+      missing > -1 ? "VACUOUS — " + cfg.sameTone[missing] + " not found" : tones[0]);
+  }
+
+  /* --- an explicit radius LADDER: each [outer, inner] pair must step DOWN.
+     Pairs are global — the relation, not per-card nesting, is the rule. --- */
+  if (cfg.radiusLadder) {
+    const bad = [];
+    let pairs = 0;
+    cfg.radiusLadder.forEach(pr => {
+      const o = document.querySelector(pr[0]), i = document.querySelector(pr[1]);
+      if (!o || !i) { bad.push("missing " + (!o ? pr[0] : pr[1])); return; }
+      pairs++;
+      const ro = parseFloat(getComputedStyle(o).borderTopLeftRadius),
+            ri = parseFloat(getComputedStyle(i).borderTopLeftRadius);
+      if (ri >= ro) bad.push(pr[1] + " (" + ri + ") !< " + pr[0] + " (" + ro + ")");
+    });
+    ok("radius ladder steps down: " + cfg.radiusLadder.map(p => p.join(" > ")).join(", "),
+      pairs > 0 && bad.length === 0,
+      bad.length ? bad.slice(0, 3).join(" | ") : pairs + " pairs ordered");
   }
 
   /* --- does the panel step toward the viewer or away from it? Metric states
