@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | **Source** | Dribbble — *"Task Management Mobile App"*, shot [`26300878`](https://dribbble.com/shots/26300878-Task-Management-Mobile-App) — [credits](CREDITS.md). **Byline pending verification**: Dribbble WAF-blocks scripted fetches, so the designer name could not be machine-confirmed; the shot page was opened in the owner's browser on 15 Sep 2026 and the byline is being confirmed by eye. Do not cite a designer for this language until CREDITS.md records one. ⚠️ A *different* shot (23820537) shares the exact title — attribution must come from the ID, never the slug or title. |
-| **Recreation** | [`sara.html`](sara.html) — light-native (source) + dark re-skin (authored, token swap) · wired as a **working prototype**: one phone surface, nav switches the three screens, back returns home, swipe works |
+| **Recreation** | [`sara.html`](sara.html) — light-native (source) + dark re-skin (authored, token swap) · wired as a **working prototype**: one phone surface, ONE shared bottom-nav component switching the three screens, back returns home, swipe works |
 | **Format** | single still, **three phone screens side by side** on a pale blue-grey mat — analysed **inside the screens only**; source saved on disk and **pixel-scanned** (`image_reference/original-0d51cddf…webp`, 1024×768) |
 | **Palette** | sampled from the source pixels by scanner; the still passed both source controls (see below) |
 
@@ -87,7 +87,7 @@ Bars are ~56pt wide with **fully domed tops** (radius = half the bar width, squa
 
 ## 8 · Bottom nav 🔒 `observed`
 
-Full-width white sheet, top corners ~45px, height ~155pt including the home-indicator zone: **four labelled items** (icon ~22pt + 11pt label, grey `#9C9C9C`) with a **44pt accent FAB circle** (white `+`) centred between slots 2 and 3. The **active item flips to ink** (icon + label together). Inter-screen divergence, recorded per §4.7: the second slot reads **"Takes"** on Home/Tasks and **"History"** on Progress — the source is inconsistent; our build reproduces it as-is.
+Full-width white sheet, top corners ~45px, height ~155pt including the home-indicator zone: **four labelled items** (icon ~22pt + 11pt label, grey `#9C9C9C`) with a **44pt accent FAB circle** (white `+`) centred between slots 2 and 3. The **active item flips to ink** (icon + label together). **The nav is ONE shared component under every screen** — built once at the phone level; only the active item differs per screen (authored). The source's second slot is internally inconsistent ("Takes" on Home/Tasks vs "History" on Progress — divergence recorded per §4.7); our build standardizes it to **"Tasks"** (authored — it fixes the source's typo, matches the "Your tasks" screen title, and is what a single shared component requires).
 
 ## 9 · Typography 🎚 rules `observed` in ratio · 🎚 magnitudes `inferred` · 🎨 face `authored`
 
@@ -189,7 +189,9 @@ SCREEN RULES — the actual app:
 - BOTTOM NAV: full-width white sheet, TOP CORNERS ~45px, ~155pt tall including the
   home-indicator zone. FOUR labelled items (icon ~22pt + 11pt label) with a 44pt accent
   CIRCLE FAB (white +) centred between slots 2 and 3. Active item = ink (icon + label
-  together); inactive = grey #9C9C9C. The nav never scrolls away.
+  together); inactive = grey #9C9C9C. The nav never scrolls away. ONE nav component is
+  SHARED by every screen — build it once, vary only the active item; never per-screen
+  copies with drifting labels.
 - TOUCH TARGETS: everything tappable measures 43-51pt — header circles 50, chips 48-50,
   arrow circles 45, weekday cells 44, FAB 44. Nothing smaller is tappable. Respect the system
   status inset (~44pt top padding) and ~20pt under the nav.
@@ -208,7 +210,7 @@ TUNABLE: screen count, task copy, numeral values, bar heights, exact type sizes 
 SWAPPABLE: accent hue, pastel canvas hue, peach/blue data hues, typeface (keep it rounded-
 geometric and name it), avatar photos, app persona/copy.
 DO NOT: put shadows or hairlines on anything; use accent for selection; add a fourth radius;
-let the chart grow axes; replace the hatch with opacity.
+let the chart grow axes; replace the hatch with opacity; duplicate the nav per screen.
 ```
 
 ---
@@ -217,4 +219,4 @@ let the chart grow axes; replace the hatch with opacity.
 
 - **Measured** (scanner, `image_reference/original-0d51cddf…webp`): canvas/card/panel/ink/accent/peach/blue/grey tokens (modal exact values); keystone + lighting controls (both passed); margins 10px, gutters 6px; card rect bounds (task 240×137, stat 118×99, mini 116×50, focus 240×234); radius insets per card class (12–13px vs 17–18px vs nav sheet 29px); chip height 33px; circles 27/29/33px; FAB 28–29px; bar width 37px + domed profile + hatch; nav sheet geometry; two canvases; sheet stack on Home; "Takes"/"History" nav divergence.
 - **Inferred**: the logical pt mapping (screen 251px ≈ 390–393pt iPhone-class — aspect matches, exact model unknown); type sizes (±20%, derived from cap-height bands at the still's resolution); the exact grey for weekday labels vs subtitles (three greys measured, assignment partly by eye).
-- **Authored**: the dark re-skin; the mount presentation (backdrop, column clip, captions); Poppins as the face; the exact task copy is the source's.
+- **Authored**: the dark re-skin; the mount presentation (backdrop, column clip, captions); Poppins as the face; the nav standardized to ONE shared component with the slot-2 label fixed to "Tasks" (the source reads "Takes"/"History" — see §8); the exact task copy is the source's.

@@ -288,7 +288,7 @@ const RULES = {
     present: [".cast", ".fig", ".quotes", ".chips", ".foot"]
   },
 
-  /* SARA — the library's FIRST MOBILE reference: three phone columns on a
+  /* SARA — the library's FIRST MOBILE reference: one phone on a
      mount field. Selection is INK, never accent; the accent keeps exactly
      three jobs (FAB, arrow circles, the one highlighted bar); chart bars
      have domed tops and the inactive ones carry the hatch encoding.
@@ -311,8 +311,9 @@ const RULES = {
     domedTops: { selector: ".bar" },
     texture: { selectors: [".bar--off"], contains: "repeating-linear-gradient" },
     mountDiscipline: { phone: ".phone" },
-    exactCount: { ".phone": 1, ".nav": 3, ".fab": 3 },
-    /* the prototype keeps each screen's own nav (the source's Takes/History divergence) */
+    exactCount: { ".phone": 1, ".nav": 1, ".fab": 1 },
+    /* ONE shared nav component under every screen — the source's Takes/History
+       divergence is recorded in the spec §8, standardized to "Tasks" (authored) */
     present: [".stat", ".tcard", ".focus", ".week", ".mini", ".sheet",
               ".nav__item.on", ".dot-red", ".avs"]
   }

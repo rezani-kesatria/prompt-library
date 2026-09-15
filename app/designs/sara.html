@@ -111,7 +111,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .screen--home{background:var(--canvas)}
 .screen--tasks{background:var(--canvas)}
 .screen--progress{background:var(--canvas2)}
-.pad{padding-inline:16px}
+.pad{padding-inline:16px;padding-bottom:86px} /* clearance for the shared nav */
 
 /* ---- header rail ---- */
 .rail{display:flex;align-items:center;justify-content:space-between;padding-top:20px}
@@ -157,7 +157,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 /* ---- Home's bottom sheet: white, rounded top, task content + nav ---- */
 .sheet{margin-top:auto;background:var(--sheet);border-radius:19px 19px 0 0;
-  padding:18px 16px 0}
+  padding:18px 16px 86px} /* bottom padding clears the shared nav */
 .sheet__head{display:flex;align-items:flex-start;justify-content:space-between}
 .avs{display:flex;align-items:center}
 .avs img{width:36px;height:36px;border-radius:50%;object-fit:cover;
@@ -228,10 +228,12 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   border-radius:999px;background:var(--blue-pill);display:grid;place-items:center}
 .mini .pill-in svg{width:12px;height:12px;color:var(--ink)}
 
-/* ---- bottom nav: white sheet, 45px top corners, FAB centred ---- */
-.nav{margin-top:auto;background:var(--sheet);border-radius:45px 45px 0 0;
+/* ---- bottom nav: ONE shared component under every screen —
+   white sheet, 45px top corners, FAB centred; only the active item moves */
+.nav{position:absolute;left:0;right:0;bottom:0;z-index:3;
+  background:var(--sheet);border-radius:45px 45px 0 0;
   display:flex;align-items:center;justify-content:space-around;
-  padding:16px 10px 20px;position:relative}
+  padding:16px 10px 20px}
 .nav__item{display:flex;flex-direction:column;align-items:center;gap:5px;
   color:var(--grey-mid);min-width:56px}
 .nav__item svg{width:22px;height:22px}
@@ -342,14 +344,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
               <span class="chip">1h 30m</span>
             </div>
           </div>
-          <nav class="nav" style="border-radius:0;margin-top:0" aria-label="Primary">
-            <button class="nav__item on" aria-current="page"><i data-lucide="home"></i><span>Home</span></button>
-            <button class="nav__item" data-go="1"><i data-lucide="list-checks"></i><span>Takes</span></button>
-            <span class="spacer"></span>
-            <button class="nav__item" data-go="2"><i data-lucide="chart-column"></i><span>Progress</span></button>
-            <button class="nav__item"><i data-lucide="user"></i><span>Profile</span></button>
-            <button class="fab" style="position:absolute;left:50%;transform:translateX(-50%);bottom:26px" aria-label="New task"><i data-lucide="plus"></i></button>
-          </nav>
         </section>
 
         <!-- ================= SCREEN 2 · YOUR TASKS ================= -->
@@ -416,14 +410,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
               </article>
             </div>
           </div>
-          <nav class="nav" aria-label="Primary">
-            <button class="nav__item" data-go="0"><i data-lucide="home"></i><span>Home</span></button>
-            <button class="nav__item on" aria-current="page"><i data-lucide="list-checks"></i><span>Takes</span></button>
-            <span class="spacer"></span>
-            <button class="nav__item" data-go="2"><i data-lucide="chart-column"></i><span>Progress</span></button>
-            <button class="nav__item"><i data-lucide="user"></i><span>Profile</span></button>
-            <button class="fab" style="position:absolute;left:50%;transform:translateX(-50%);bottom:26px" aria-label="New task"><i data-lucide="plus"></i></button>
-          </nav>
         </section>
 
         <!-- ================= SCREEN 3 · YOUR PROGRESS ================= -->
@@ -471,15 +457,18 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
               </div>
             </div>
           </div>
-          <nav class="nav" aria-label="Primary">
-            <button class="nav__item" data-go="0"><i data-lucide="home"></i><span>Home</span></button>
-            <button class="nav__item"><i data-lucide="history"></i><span>History</span></button>
-            <span class="spacer"></span>
-            <button class="nav__item on" aria-current="page"><i data-lucide="chart-column"></i><span>Progress</span></button>
-            <button class="nav__item"><i data-lucide="user"></i><span>Profile</span></button>
-            <button class="fab" style="position:absolute;left:50%;transform:translateX(-50%);bottom:26px" aria-label="New task"><i data-lucide="plus"></i></button>
-          </nav>
         </section>
+
+        <!-- the ONE bottom nav — a single shared component under every
+             screen; only the active item differs per screen -->
+        <nav class="nav" aria-label="Primary">
+          <button class="nav__item on" aria-current="page" data-go="0"><i data-lucide="home"></i><span>Home</span></button>
+          <button class="nav__item" data-go="1"><i data-lucide="list-checks"></i><span>Tasks</span></button>
+          <span class="spacer"></span>
+          <button class="nav__item" data-go="2"><i data-lucide="chart-column"></i><span>Progress</span></button>
+          <button class="nav__item"><i data-lucide="user"></i><span>Profile</span></button>
+          <button class="fab" style="position:absolute;left:50%;transform:translateX(-50%);bottom:26px" aria-label="New task"><i data-lucide="plus"></i></button>
+        </nav>
 
       </div>
     </div>
@@ -512,12 +501,23 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
      the left; inactive screens stay laid out but inert ---- */
   var screenEls = ["scr-home", "scr-tasks", "scr-progress"].map(function(id){ return document.getElementById(id); });
   var cap = document.getElementById("cap");
+  var navItems = document.querySelectorAll(".nav .nav__item");
   var current = 0, moving = false;
+  /* one shared nav under every screen — only the active item moves */
+  function syncNav(i){
+    navItems.forEach(function(item){
+      var on = item.getAttribute("data-go") === String(i);
+      item.classList.toggle("on", on);
+      if (on) { item.setAttribute("aria-current", "page"); }
+      else { item.removeAttribute("aria-current"); }
+    });
+  }
   function go(i){
     if (i === current || i < 0 || i > 2 || moving) return;
     var dir = i > current ? 1 : -1;
     var from = screenEls[current], to = screenEls[i];
     current = i; moving = true;
+    syncNav(i);
     cap.innerHTML = "<b>" + to.dataset.num + "</b> · " + to.dataset.name;
     from.setAttribute("inert", "");
     to.removeAttribute("inert");
@@ -605,7 +605,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     { opacity: 1, y: 0, duration: .4, stagger: .07, clearProps: "transform" }, .45);
   tl.fromTo(home.querySelector(".sheet"), { opacity: 0, y: 16 },
     { opacity: 1, y: 0, duration: .45, clearProps: "transform" }, .85);
-  tl.fromTo(home.querySelector(".nav"), { opacity: 0 }, { opacity: 1, duration: .35 }, 1.05);
+  tl.fromTo(".nav", { opacity: 0 }, { opacity: 1, duration: .35 }, 1.05);
   tl.fromTo(".foot", { opacity: 0 }, { opacity: 1, duration: .4 }, 1.0);
 
   /* safety net: never leave the page hidden */
