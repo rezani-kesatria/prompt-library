@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23626BC2'/%3E%3C/svg%3E" />
 <title>SARA — Task Management Mobile App</title>
 <meta name="description" content="Pastel periwinkle task space — chunky pills, domed bars, one accent doing three jobs." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23626BC2'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -14,6 +14,8 @@
    SARA — design language studied from Dribbble 26300878 (see
    sara.design-language.md). Screen tones pixel-scanned off the
    source; the mount (backdrop, captions, column clip) is ours.
+   The recreation is wired as a working prototype: one phone
+   surface, three stacked screens, real navigation.
    ============================================================ */
 :root{
   /* ---- screen tokens (scanned) ---- */
@@ -85,24 +87,30 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   background:var(--mount-panel);border:1px solid var(--mount-line);
   border-radius:999px;padding:7px 14px}
 .head .theme:hover{color:#fff}
-.stage{display:flex;gap:28px;justify-content:center;align-items:flex-start;
-  padding-top:30px;flex-wrap:wrap}
-.col{display:flex;flex-direction:column;gap:10px}
+.stage{display:flex;justify-content:center;align-items:flex-start;
+  padding-top:30px}
 .cap{font-size:11.5px;font-weight:500;color:var(--mount-muted);letter-spacing:.06em;
-  text-transform:uppercase;padding-left:6px}
+  text-transform:uppercase;padding-left:6px;margin-bottom:10px}
 .cap b{color:var(--mount-ink);font-weight:600}
 .foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--mount-line);
   font-size:11.5px;color:var(--mount-muted);text-align:center}
 .foot a{color:var(--mount-ink)}
 
-/* ============ the phone column: a 390pt app surface ============
+/* ============ the phone surface: a 390pt app with real navigation ====
    The 24px clip + hairline are MOUNT furniture (the source's screen-corner
    radius belongs to the device). Everything inside is the design. */
 .phone{width:390px;height:844px;border-radius:24px;overflow:hidden;position:relative;
-  outline:1px solid var(--mount-line);display:flex;flex-direction:column;
+  outline:1px solid var(--mount-line);touch-action:pan-y;
   font-family:var(--f);color:var(--ink);font-size:14px;line-height:1.45;
   background:var(--canvas)}
-.phone--white{background:var(--canvas2)}
+
+/* screens stack; exactly one is live (the rest stay inert, laid out) */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;
+  opacity:0;pointer-events:none}
+.screen.on{opacity:1;pointer-events:auto}
+.screen--home{background:var(--canvas)}
+.screen--tasks{background:var(--canvas)}
+.screen--progress{background:var(--canvas2)}
 .pad{padding-inline:16px}
 
 /* ---- header rail ---- */
@@ -168,7 +176,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .fchips{display:flex;align-items:center;gap:9px;margin-top:18px}
 .fchip{height:46px;border-radius:999px;display:inline-flex;align-items:center;
   padding:0 19px;font-size:14px;font-weight:500;background:var(--card);color:var(--ink)}
-.fchip.on{background:var(--ink);color:var(--canvas)}
+.fchip.on{background:var(--ink);color:var(--sheet)}
 
 /* ---- task cards (Tasks screen) ---- */
 .list{display:flex;flex-direction:column;gap:9px;margin-top:16px}
@@ -240,7 +248,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   .js [data-r]{opacity:1}
   .tcard{transition:none}
 }
-@media (max-width:1279px){ .stage{gap:20px} }
+/* on an actual phone the mount vanishes and the app fills the screen */
+@media (max-width:520px){
+  .wrap{padding:0;max-width:none}
+  .head,.cap,.foot{display:none}
+  .stage{padding:0}
+  .phone{width:100%;height:100dvh;border-radius:0;outline:none}
+}
 </style>
 </head>
 <body class="js">
@@ -250,228 +264,225 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   <!-- ======== MOUNT header — ours, not the design's ======== -->
   <header class="head" data-r>
     <h1>SARA — task management mobile app</h1>
-    <p>three screens of one language · light native + authored dark</p>
+    <p>one phone, three wired screens · light native + authored dark</p>
     <button class="theme" id="theme" type="button">Dark re-skin</button>
   </header>
 
   <div class="stage">
-
-    <!-- ================= SCREEN 1 · HOME ================= -->
     <div class="col" data-r>
-      <div class="cap"><b>01</b> · Home</div>
-      <div class="phone">
-        <div class="pad">
-          <div class="rail" style="padding-top:34px">
-            <div class="rail__l">
-              <img class="ava" alt="Sara" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&q=70" />
-              <span class="greet">Hey, Sara</span>
-            </div>
-            <div class="rail__r">
-              <button class="circ" aria-label="Settings"><i data-lucide="settings"></i></button>
-              <button class="circ" aria-label="Notifications"><i data-lucide="bell"></i><span class="dot-red"></span></button>
-            </div>
-          </div>
-          <h2 class="h-hero"><span class="pale">Start</span> today's tasks.</h2>
-          <div class="stats">
-            <div class="stat">
-              <div class="stat__top">
-                <span class="stat__ico"><i data-lucide="calendar"></i></span>
-                <span class="stat__lbl">Today</span>
-              </div>
-              <div class="stat__num">15<small>Task</small></div>
-            </div>
-            <div class="stat">
-              <div class="stat__top">
-                <span class="stat__ico"><i data-lucide="target"></i></span>
-                <span class="stat__lbl">Goals setup</span>
-              </div>
-              <div class="stat__num">05<small>Task</small></div>
-            </div>
-            <div class="stat">
-              <div class="stat__top">
-                <span class="stat__ico"><i data-lucide="pause"></i></span>
-                <span class="stat__lbl">On Hold</span>
-              </div>
-              <div class="stat__num">12<small>Task</small></div>
-            </div>
-            <div class="stat">
-              <div class="stat__top">
-                <span class="stat__ico"><i data-lucide="alarm-clock"></i></span>
-                <span class="stat__lbl">Past Due</span>
-              </div>
-              <div class="stat__num">04<small>Task</small></div>
-            </div>
-          </div>
-          <div class="trow">
-            <h2>Today's tasks</h2>
-            <button type="button">View All</button>
-          </div>
-        </div>
-        <!-- the bottom task sheet slides over the lavender canvas -->
-        <div class="sheet">
-          <div class="sheet__head">
-            <div>
-              <div class="t-time">10:00–11:30 PM</div>
-              <div class="t-title">Exec Oversight</div>
-              <div class="t-sub">Repeats every two weeks</div>
-            </div>
-            <div class="avs">
-              <img alt="Teammate" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=72&q=70" />
-              <img alt="Teammate" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=72&q=70" />
-              <span class="more">+2</span>
-            </div>
-          </div>
-          <div class="chips" style="margin-top:14px">
-            <span class="chip chip--ink">Today</span>
-            <span class="chip">1h 30m</span>
-          </div>
-        </div>
-        <nav class="nav" style="border-radius:0;margin-top:0" aria-label="Primary">
-          <button class="nav__item on" aria-current="page"><i data-lucide="home"></i><span>Home</span></button>
-          <button class="nav__item"><i data-lucide="list-checks"></i><span>Takes</span></button>
-          <span class="spacer"></span>
-          <button class="nav__item"><i data-lucide="chart-column"></i><span>Progress</span></button>
-          <button class="nav__item"><i data-lucide="user"></i><span>Profile</span></button>
-          <button class="fab" style="position:absolute;left:50%;transform:translateX(-50%);bottom:26px" aria-label="New task"><i data-lucide="plus"></i></button>
-        </nav>
-      </div>
-    </div>
+      <div class="cap" id="cap"><b>01</b> · Home</div>
 
-    <!-- ================= SCREEN 2 · YOUR TASKS ================= -->
-    <div class="col" data-r>
-      <div class="cap"><b>02</b> · Your tasks</div>
-      <div class="phone">
-        <div class="pad">
-          <div class="rail" style="padding-top:34px">
-            <button class="circ" aria-label="Back"><i data-lucide="chevron-left"></i></button>
-            <div class="rail__r">
-              <button class="circ" aria-label="Settings"><i data-lucide="settings"></i></button>
-              <button class="circ" aria-label="Notifications"><i data-lucide="bell"></i><span class="dot-red"></span></button>
+      <div class="phone" id="phone">
+
+        <!-- ================= SCREEN 1 · HOME ================= -->
+        <section class="screen screen--home on" id="scr-home" data-num="01" data-name="Home">
+          <div class="pad">
+            <div class="rail" style="padding-top:34px">
+              <div class="rail__l">
+                <img class="ava" alt="Sara" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&q=70" />
+                <span class="greet">Hey, Sara</span>
+              </div>
+              <div class="rail__r">
+                <button class="circ" aria-label="Settings"><i data-lucide="settings"></i></button>
+                <button class="circ" aria-label="Notifications"><i data-lucide="bell"></i><span class="dot-red"></span></button>
+              </div>
+            </div>
+            <h2 class="h-hero"><span class="pale">Start</span> today's tasks.</h2>
+            <div class="stats">
+              <div class="stat">
+                <div class="stat__top">
+                  <span class="stat__ico"><i data-lucide="calendar"></i></span>
+                  <span class="stat__lbl">Today</span>
+                </div>
+                <div class="stat__num">15<small>Task</small></div>
+              </div>
+              <div class="stat">
+                <div class="stat__top">
+                  <span class="stat__ico"><i data-lucide="target"></i></span>
+                  <span class="stat__lbl">Goals setup</span>
+                </div>
+                <div class="stat__num">05<small>Task</small></div>
+              </div>
+              <div class="stat">
+                <div class="stat__top">
+                  <span class="stat__ico"><i data-lucide="pause"></i></span>
+                  <span class="stat__lbl">On Hold</span>
+                </div>
+                <div class="stat__num">12<small>Task</small></div>
+              </div>
+              <div class="stat">
+                <div class="stat__top">
+                  <span class="stat__ico"><i data-lucide="alarm-clock"></i></span>
+                  <span class="stat__lbl">Past Due</span>
+                </div>
+                <div class="stat__num">04<small>Task</small></div>
+              </div>
+            </div>
+            <div class="trow">
+              <h2>Today's tasks</h2>
+              <button type="button" data-go="1">View All</button>
             </div>
           </div>
-          <h2 class="h-screen">Your tasks</h2>
-          <div class="fchips" role="tablist" aria-label="Filter tasks">
-            <button class="fchip on" data-f="all" role="tab" aria-selected="true">All Tasks</button>
-            <button class="fchip" data-f="prog" role="tab" aria-selected="false">In Progress</button>
-            <button class="fchip" data-f="done" role="tab" aria-selected="false">Completed</button>
-          </div>
-          <div class="list">
-            <article class="tcard" data-f="prog" data-r>
-              <div class="t-time">10:00–11:30 PM</div>
-              <div class="t-title">Discussion Flow</div>
-              <div class="t-sub">Stay connected effortlessly</div>
-              <div class="avs avs--card">
-                <img alt="Teammate" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=72&q=70" />
-                <img alt="Teammate" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=72&q=70" />
-                <span class="more">+4</span>
+          <!-- the bottom task sheet slides over the lavender canvas -->
+          <div class="sheet">
+            <div class="sheet__head">
+              <div>
+                <div class="t-time">10:00–11:30 PM</div>
+                <div class="t-title">Exec Oversight</div>
+                <div class="t-sub">Repeats every two weeks</div>
               </div>
-              <div class="chips">
-                <span class="chip chip--ink">Today</span>
-                <span class="chip">1h 30m</span>
-              </div>
-              <button class="arrow" aria-label="Open Discussion Flow"><i data-lucide="arrow-up-right"></i></button>
-            </article>
-            <article class="tcard" data-f="prog" data-r>
-              <div class="t-time">12:00–01:00 PM</div>
-              <div class="t-title">More Efficient</div>
-              <div class="t-sub">Work smarter and faster.</div>
-              <div class="avs avs--card">
-                <img alt="Teammate" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=72&q=70" />
-                <img alt="Teammate" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=72&q=70" />
+              <div class="avs">
+                <img alt="Teammate" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=72&q=70" />
+                <img alt="Teammate" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=72&q=70" />
                 <span class="more">+2</span>
               </div>
-              <div class="chips">
-                <span class="chip chip--ink">Today</span>
-                <span class="chip">1h</span>
-              </div>
-              <button class="arrow" aria-label="Open More Efficient"><i data-lucide="arrow-up-right"></i></button>
-            </article>
-            <article class="tcard" data-f="done" data-r>
-              <div class="t-time">10:00–11:30 PM</div>
-              <div class="t-title">Support Tasks</div>
-              <div class="t-sub">Keep the queue clear.</div>
-              <div class="avs avs--card">
-                <img alt="Teammate" src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=72&q=70" />
-                <img alt="Teammate" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=72&q=70" />
-                <span class="more">+5</span>
-              </div>
-              <div class="chips">
-                <span class="chip chip--ink">Today</span>
-                <span class="chip">1h</span>
-              </div>
-              <button class="arrow" aria-label="Open Support Tasks"><i data-lucide="arrow-up-right"></i></button>
-            </article>
+            </div>
+            <div class="chips" style="margin-top:14px">
+              <span class="chip chip--ink">Today</span>
+              <span class="chip">1h 30m</span>
+            </div>
           </div>
-        </div>
-        <nav class="nav" aria-label="Primary">
-          <button class="nav__item"><i data-lucide="home"></i><span>Home</span></button>
-          <button class="nav__item on" aria-current="page"><i data-lucide="list-checks"></i><span>Takes</span></button>
-          <span class="spacer"></span>
-          <button class="nav__item"><i data-lucide="chart-column"></i><span>Progress</span></button>
-          <button class="nav__item"><i data-lucide="user"></i><span>Profile</span></button>
-          <button class="fab" style="position:absolute;left:50%;transform:translateX(-50%);bottom:26px" aria-label="New task"><i data-lucide="plus"></i></button>
-        </nav>
+          <nav class="nav" style="border-radius:0;margin-top:0" aria-label="Primary">
+            <button class="nav__item on" aria-current="page"><i data-lucide="home"></i><span>Home</span></button>
+            <button class="nav__item" data-go="1"><i data-lucide="list-checks"></i><span>Takes</span></button>
+            <span class="spacer"></span>
+            <button class="nav__item" data-go="2"><i data-lucide="chart-column"></i><span>Progress</span></button>
+            <button class="nav__item"><i data-lucide="user"></i><span>Profile</span></button>
+            <button class="fab" style="position:absolute;left:50%;transform:translateX(-50%);bottom:26px" aria-label="New task"><i data-lucide="plus"></i></button>
+          </nav>
+        </section>
+
+        <!-- ================= SCREEN 2 · YOUR TASKS ================= -->
+        <section class="screen screen--tasks" id="scr-tasks" data-num="02" data-name="Your tasks" inert>
+          <div class="pad">
+            <div class="rail" style="padding-top:34px">
+              <button class="circ" data-go="0" aria-label="Back to Home"><i data-lucide="chevron-left"></i></button>
+              <div class="rail__r">
+                <button class="circ" aria-label="Settings"><i data-lucide="settings"></i></button>
+                <button class="circ" aria-label="Notifications"><i data-lucide="bell"></i><span class="dot-red"></span></button>
+              </div>
+            </div>
+            <h2 class="h-screen">Your tasks</h2>
+            <div class="fchips" role="tablist" aria-label="Filter tasks">
+              <button class="fchip on" data-f="all" role="tab" aria-selected="true">All Tasks</button>
+              <button class="fchip" data-f="prog" role="tab" aria-selected="false">In Progress</button>
+              <button class="fchip" data-f="done" role="tab" aria-selected="false">Completed</button>
+            </div>
+            <div class="list">
+              <article class="tcard" data-f="prog">
+                <div class="t-time">10:00–11:30 PM</div>
+                <div class="t-title">Discussion Flow</div>
+                <div class="t-sub">Stay connected effortlessly</div>
+                <div class="avs avs--card">
+                  <img alt="Teammate" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=72&q=70" />
+                  <img alt="Teammate" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=72&q=70" />
+                  <span class="more">+4</span>
+                </div>
+                <div class="chips">
+                  <span class="chip chip--ink">Today</span>
+                  <span class="chip">1h 30m</span>
+                </div>
+                <button class="arrow" aria-label="Open Discussion Flow"><i data-lucide="arrow-up-right"></i></button>
+              </article>
+              <article class="tcard" data-f="prog">
+                <div class="t-time">12:00–01:00 PM</div>
+                <div class="t-title">More Efficient</div>
+                <div class="t-sub">Work smarter and faster.</div>
+                <div class="avs avs--card">
+                  <img alt="Teammate" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=72&q=70" />
+                  <img alt="Teammate" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=72&q=70" />
+                  <span class="more">+2</span>
+                </div>
+                <div class="chips">
+                  <span class="chip chip--ink">Today</span>
+                  <span class="chip">1h</span>
+                </div>
+                <button class="arrow" aria-label="Open More Efficient"><i data-lucide="arrow-up-right"></i></button>
+              </article>
+              <article class="tcard" data-f="done">
+                <div class="t-time">10:00–11:30 PM</div>
+                <div class="t-title">Support Tasks</div>
+                <div class="t-sub">Keep the queue clear.</div>
+                <div class="avs avs--card">
+                  <img alt="Teammate" src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=72&q=70" />
+                  <img alt="Teammate" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=72&q=70" />
+                  <span class="more">+5</span>
+                </div>
+                <div class="chips">
+                  <span class="chip chip--ink">Today</span>
+                  <span class="chip">1h</span>
+                </div>
+                <button class="arrow" aria-label="Open Support Tasks"><i data-lucide="arrow-up-right"></i></button>
+              </article>
+            </div>
+          </div>
+          <nav class="nav" aria-label="Primary">
+            <button class="nav__item" data-go="0"><i data-lucide="home"></i><span>Home</span></button>
+            <button class="nav__item on" aria-current="page"><i data-lucide="list-checks"></i><span>Takes</span></button>
+            <span class="spacer"></span>
+            <button class="nav__item" data-go="2"><i data-lucide="chart-column"></i><span>Progress</span></button>
+            <button class="nav__item"><i data-lucide="user"></i><span>Profile</span></button>
+            <button class="fab" style="position:absolute;left:50%;transform:translateX(-50%);bottom:26px" aria-label="New task"><i data-lucide="plus"></i></button>
+          </nav>
+        </section>
+
+        <!-- ================= SCREEN 3 · YOUR PROGRESS ================= -->
+        <section class="screen screen--progress" id="scr-progress" data-num="03" data-name="Your progress" inert>
+          <div class="pad">
+            <div class="rail" style="padding-top:34px">
+              <button class="circ" data-go="0" aria-label="Back to Home"><i data-lucide="chevron-left"></i></button>
+              <div class="rail__r">
+                <button class="circ" aria-label="Settings"><i data-lucide="settings"></i></button>
+                <button class="circ" aria-label="Notifications"><i data-lucide="bell"></i><span class="dot-red"></span></button>
+              </div>
+            </div>
+            <h2 class="h-screen">Your Progress</h2>
+            <div class="daterow">Today, 21 July 2025 <i data-lucide="chevron-down"></i></div>
+            <div class="week" role="tablist" aria-label="Week">
+              <button class="day" role="tab" aria-selected="false"><small>Sun</small><b>20</b></button>
+              <button class="day" role="tab" aria-selected="false"><small>Mon</small><b>21</b></button>
+              <button class="day" role="tab" aria-selected="false"><small>Tue</small><b>22</b></button>
+              <button class="day on" role="tab" aria-selected="true"><small>Wed</small><b>23</b></button>
+              <button class="day" role="tab" aria-selected="false"><small>Thu</small><b>24</b></button>
+              <button class="day" role="tab" aria-selected="false"><small>Fri</small><b>25</b></button>
+              <button class="day" role="tab" aria-selected="false"><small>Sat</small><b>26</b></button>
+            </div>
+            <div class="focus">
+              <div class="focus__head">
+                <div>
+                  <h3>Focus mode is now active</h3>
+                  <p>avg 3 hours per day</p>
+                </div>
+                <button class="circ--ink" aria-label="Open focus mode"><i data-lucide="arrow-up-right"></i></button>
+              </div>
+              <div class="bars">
+                <div class="barw"><div class="bar bar--off" style="height:92px"></div><small>Mon</small></div>
+                <div class="barw"><div class="bar bar--off" style="height:124px"></div><small>Tue</small></div>
+                <div class="barw"><div class="bar" style="height:180px;background:var(--accent)"></div><small>Wed</small></div>
+                <div class="barw"><div class="bar bar--off" style="height:66px"></div><small>Thu</small></div>
+                <div class="barw"><div class="bar bar--off" style="height:134px"></div><small>Fri</small></div>
+              </div>
+            </div>
+            <div class="minis">
+              <div class="mini mini--peach"><b>13</b></div>
+              <div class="mini mini--blue">
+                <span class="pill-in"><i data-lucide="arrow-up-right"></i></span>
+                <b>46</b>
+              </div>
+            </div>
+          </div>
+          <nav class="nav" aria-label="Primary">
+            <button class="nav__item" data-go="0"><i data-lucide="home"></i><span>Home</span></button>
+            <button class="nav__item"><i data-lucide="history"></i><span>History</span></button>
+            <span class="spacer"></span>
+            <button class="nav__item on" aria-current="page"><i data-lucide="chart-column"></i><span>Progress</span></button>
+            <button class="nav__item"><i data-lucide="user"></i><span>Profile</span></button>
+            <button class="fab" style="position:absolute;left:50%;transform:translateX(-50%);bottom:26px" aria-label="New task"><i data-lucide="plus"></i></button>
+          </nav>
+        </section>
+
       </div>
     </div>
-
-    <!-- ================= SCREEN 3 · YOUR PROGRESS ================= -->
-    <div class="col" data-r>
-      <div class="cap"><b>03</b> · Your progress</div>
-      <div class="phone phone--white">
-        <div class="pad">
-          <div class="rail" style="padding-top:34px">
-            <button class="circ" aria-label="Back"><i data-lucide="chevron-left"></i></button>
-            <div class="rail__r">
-              <button class="circ" aria-label="Settings"><i data-lucide="settings"></i></button>
-              <button class="circ" aria-label="Notifications"><i data-lucide="bell"></i><span class="dot-red"></span></button>
-            </div>
-          </div>
-          <h2 class="h-screen">Your Progress</h2>
-          <div class="daterow">Today, 21 July 2025 <i data-lucide="chevron-down"></i></div>
-          <div class="week" role="tablist" aria-label="Week">
-            <button class="day" role="tab" aria-selected="false"><small>Sun</small><b>20</b></button>
-            <button class="day" role="tab" aria-selected="false"><small>Mon</small><b>21</b></button>
-            <button class="day" role="tab" aria-selected="false"><small>Tue</small><b>22</b></button>
-            <button class="day on" role="tab" aria-selected="true"><small>Wed</small><b>23</b></button>
-            <button class="day" role="tab" aria-selected="false"><small>Thu</small><b>24</b></button>
-            <button class="day" role="tab" aria-selected="false"><small>Fri</small><b>25</b></button>
-            <button class="day" role="tab" aria-selected="false"><small>Sat</small><b>26</b></button>
-          </div>
-          <div class="focus">
-            <div class="focus__head">
-              <div>
-                <h3>Focus mode is now active</h3>
-                <p>avg 3 hours per day</p>
-              </div>
-              <button class="circ--ink" aria-label="Open focus mode"><i data-lucide="arrow-up-right"></i></button>
-            </div>
-            <div class="bars">
-              <div class="barw"><div class="bar bar--off" style="height:92px"></div><small>Mon</small></div>
-              <div class="barw"><div class="bar bar--off" style="height:124px"></div><small>Tue</small></div>
-              <div class="barw"><div class="bar" style="height:180px;background:var(--accent)"></div><small>Wed</small></div>
-              <div class="barw"><div class="bar bar--off" style="height:66px"></div><small>Thu</small></div>
-              <div class="barw"><div class="bar bar--off" style="height:134px"></div><small>Fri</small></div>
-            </div>
-          </div>
-          <div class="minis">
-            <div class="mini mini--peach"><b>13</b></div>
-            <div class="mini mini--blue">
-              <span class="pill-in"><i data-lucide="arrow-up-right"></i></span>
-              <b>46</b>
-            </div>
-          </div>
-        </div>
-        <nav class="nav" aria-label="Primary">
-          <button class="nav__item"><i data-lucide="home"></i><span>Home</span></button>
-          <button class="nav__item"><i data-lucide="history"></i><span>History</span></button>
-          <span class="spacer"></span>
-          <button class="nav__item on" aria-current="page"><i data-lucide="chart-column"></i><span>Progress</span></button>
-          <button class="nav__item"><i data-lucide="user"></i><span>Profile</span></button>
-          <button class="fab" style="position:absolute;left:50%;transform:translateX(-50%);bottom:26px" aria-label="New task"><i data-lucide="plus"></i></button>
-        </nav>
-      </div>
-    </div>
-
   </div>
 
   <footer class="foot" data-r>
@@ -497,7 +508,49 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     else { root.setAttribute("data-theme", "dark"); themeBtn.textContent = "Light (native)"; }
   });
 
-  /* ---- chip filter: crossfade WITHOUT changing the column height ---- */
+  /* ---- screen navigation: forward slides from the right, back from
+     the left; inactive screens stay laid out but inert ---- */
+  var screenEls = ["scr-home", "scr-tasks", "scr-progress"].map(function(id){ return document.getElementById(id); });
+  var cap = document.getElementById("cap");
+  var current = 0, moving = false;
+  function go(i){
+    if (i === current || i < 0 || i > 2 || moving) return;
+    var dir = i > current ? 1 : -1;
+    var from = screenEls[current], to = screenEls[i];
+    current = i; moving = true;
+    cap.innerHTML = "<b>" + to.dataset.num + "</b> · " + to.dataset.name;
+    from.setAttribute("inert", "");
+    to.removeAttribute("inert");
+    var done = function(){
+      moving = false;
+      from.classList.remove("on");
+      gsap.set(from, { clearProps: "all" });
+      to.style.zIndex = "";
+      from.style.zIndex = "";
+    };
+    if (!g || reduce) { from.classList.remove("on"); to.classList.add("on"); moving = false; return; }
+    to.style.zIndex = 2; from.style.zIndex = 1;
+    to.classList.add("on");
+    gsap.fromTo(to, { x: 48 * dir, opacity: 0 },
+      { x: 0, opacity: 1, duration: .38, ease: "power3.out", clearProps: "opacity" });
+    gsap.to(from, { x: -32 * dir, opacity: 0, duration: .3, ease: "power2.in",
+      onComplete: function(){ done(); gsap.set(to, { clearProps: "transform" }); } });
+  }
+  document.querySelectorAll("[data-go]").forEach(function(btn){
+    btn.addEventListener("click", function(){ go(parseInt(btn.getAttribute("data-go"), 10)); });
+  });
+
+  /* horizontal swipe between screens — with the nav as the visible alternative */
+  var phone = document.getElementById("phone"), sx = null;
+  phone.addEventListener("pointerdown", function(e){ sx = e.clientX; });
+  phone.addEventListener("pointerup", function(e){
+    if (sx === null) return;
+    var dx = e.clientX - sx; sx = null;
+    if (Math.abs(dx) < 60) return;
+    go(Math.min(2, Math.max(0, current + (dx < 0 ? 1 : -1))));
+  });
+
+  /* ---- chip filter: crossfade WITHOUT changing the screen height ---- */
   var fchips = document.querySelectorAll(".fchip");
   var cards = document.querySelectorAll(".tcard");
   fchips.forEach(function(chip){
@@ -525,11 +578,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     });
   });
 
-  if (!window.Motion || reduce) { if (!g || reduce) { document.body.classList.remove("js"); return; } }
-
   /* ---- press springs: thumb-scale feedback ---- */
   if (window.Motion && Motion.animate && !reduce) {
-    document.querySelectorAll(".circ, .fab, .arrow, .fchip, .chip, .day, .mini, .circ--ink")
+    document.querySelectorAll(".circ, .fab, .arrow, .fchip, .chip, .day, .mini, .circ--ink, .nav__item")
       .forEach(function(el){
         el.addEventListener("pointerdown", function(){
           Motion.animate(el, { scale: .94 }, { type: "spring", stiffness: 500, damping: 24 }); });
@@ -542,26 +593,20 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
   if (!g || reduce) { document.body.classList.remove("js"); return; }
 
-  /* ---- entry: mount head, then phones left→right; content staggers
-     top→bottom inside each phone; THE NAV LANDS LAST. ---- */
+  /* ---- entry: mount head + caption, then the phone; Home's content
+     staggers top-to-bottom; THE NAV LANDS LAST. ---- */
   var tl = g.timeline({ defaults: { ease: "power3.out" },
     onComplete: function(){ document.body.classList.remove("js"); } });
-  tl.fromTo(".head", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .5, clearProps: "transform" }, 0);
-
-  document.querySelectorAll(".col").forEach(function(col, ci){
-    var at = .18 + ci * .12;
-    tl.fromTo(col.querySelector(".cap"), { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: .4, clearProps: "transform" }, at);
-    var phone = col.querySelector(".phone");
-    tl.fromTo(phone, { opacity: 0, y: 18 },
-      { opacity: 1, y: 0, duration: .55, clearProps: "transform" }, at + .05);
-    var els = phone.querySelectorAll(".pad > *, .sheet");
-    tl.fromTo(els, { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: .4, stagger: .06, clearProps: "transform" }, at + .2);
-    tl.fromTo(phone.querySelectorAll(".nav, .foot"), { opacity: 0 },
-      { opacity: 1, duration: .35 }, at + .75);
-  });
-  tl.fromTo(".foot", { opacity: 0 }, { opacity: 1, duration: .4 }, .95);
+  tl.fromTo(".head", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .5, clearProps: "transform" }, 0)
+    .fromTo(".cap", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .4, clearProps: "transform" }, .15)
+    .fromTo("#phone", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .55, clearProps: "transform" }, .2);
+  var home = document.getElementById("scr-home");
+  tl.fromTo(home.querySelectorAll(".pad > *"), { opacity: 0, y: 10 },
+    { opacity: 1, y: 0, duration: .4, stagger: .07, clearProps: "transform" }, .45);
+  tl.fromTo(home.querySelector(".sheet"), { opacity: 0, y: 16 },
+    { opacity: 1, y: 0, duration: .45, clearProps: "transform" }, .85);
+  tl.fromTo(home.querySelector(".nav"), { opacity: 0 }, { opacity: 1, duration: .35 }, 1.05);
+  tl.fromTo(".foot", { opacity: 0 }, { opacity: 1, duration: .4 }, 1.0);
 
   /* safety net: never leave the page hidden */
   setTimeout(function(){ document.body.classList.remove("js"); }, 4000);

@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | **Source** | Dribbble — *"Task Management Mobile App"*, shot [`26300878`](https://dribbble.com/shots/26300878-Task-Management-Mobile-App) — [credits](CREDITS.md). **Byline pending verification**: Dribbble WAF-blocks scripted fetches, so the designer name could not be machine-confirmed; the shot page was opened in the owner's browser on 15 Sep 2026 and the byline is being confirmed by eye. Do not cite a designer for this language until CREDITS.md records one. ⚠️ A *different* shot (23820537) shares the exact title — attribution must come from the ID, never the slug or title. |
-| **Recreation** | [`sara.html`](sara.html) — light-native (source) + dark re-skin (authored, token swap) |
+| **Recreation** | [`sara.html`](sara.html) — light-native (source) + dark re-skin (authored, token swap) · wired as a **working prototype**: one phone surface, nav switches the three screens, back returns home, swipe works |
 | **Format** | single still, **three phone screens side by side** on a pale blue-grey mat — analysed **inside the screens only**; source saved on disk and **pixel-scanned** (`image_reference/original-0d51cddf…webp`, 1024×768) |
 | **Palette** | sampled from the source pixels by scanner; the still passed both source controls (see below) |
 
@@ -126,8 +126,10 @@ The source is a still; the treatment follows the library's standing rule — *wh
 | inside each phone | content micro-staggers top→bottom (~60ms); the **nav lands last** — it is the screen's frame |
 | FAB, chips, weekday cells | press-spring via Motion (scale 0.94 → back); chip selection crossfades the task list |
 | nav active state | no slide, no glow — the ink fill simply swaps (selection must be instant) |
+| screen switches | forward slides in from the right, back from the left (direction semantics); the exiting screen counter-slides and fades; inactive screens stay laid-out but inert |
+| swipe | horizontal swipe navigates screens (60px threshold) — the nav remains the visible alternative |
 
-Everything lands within one beat; Lenis carries the (short) mount scroll; no scroll narrative. `prefers-reduced-motion` disables all of it.
+Everything lands within one beat; the mount scroll is short enough to need no smoothing; no scroll narrative. (Built with GSAP + Motion — the house stack's other members have no job here.) `prefers-reduced-motion` disables all of it.
 
 ### ⚠️ Implementation traps
 
@@ -143,13 +145,14 @@ Everything lands within one beat; Lenis carries the (short) mount scroll; no scr
 ```text
 MOBILE TASK-APP LANGUAGE (non-negotiable):
 
-MOUNT NOTE — READ FIRST: our recreation presents the phone screens as centred phone-width
-columns on a desktop backdrop field. THE BACKDROP IS THE MOUNT, NOT THE DESIGN. Building a
-REAL MOBILE APP: follow the SCREEN RULES below and ignore the mount entirely. Building a
-DESKTOP PAGE that showcases this language: mount it like ours — one ~390px column per screen,
-grouped and centred on a quiet neutral field, with a column clip and caption that clearly
-belong to the presenter, never reuse screen tokens on the field, and never let the field's
-tone into the screens.
+MOUNT NOTE — READ FIRST: our recreation mounts the app as ONE centred ~390px phone surface
+on a quiet neutral field, with the three still-screens wired as a working prototype — the
+bottom nav switches screens, back returns home, and on a phone viewport the mount vanishes
+and the app fills the screen. THE FIELD (and the column clip) IS THE MOUNT, NOT THE DESIGN.
+Building a REAL MOBILE APP: follow the SCREEN RULES below and ignore the mount entirely.
+Building a DESKTOP SHOWCASE instead: present the screens as centred phone-width columns on a
+quiet neutral field, with clips and captions that clearly belong to the presenter, never
+reuse screen tokens on the field, and never let the field's tone into the screens.
 
 SCREEN RULES — the actual app:
 - SINGLE COLUMN on a ~390pt app surface. One thing per row, thumb-reachable, generous vertical

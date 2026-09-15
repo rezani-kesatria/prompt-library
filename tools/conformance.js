@@ -299,7 +299,7 @@ const RULES = {
     /* 24px = the mount's column clip (ours); 45px = nav sheet top corners;
        28/19 = the card ladder; pills + circles carry the rest */
     allowedRadii: ["0px", "50%", "999px", "9999px", "28px", "19px", "45px", "24px"],
-    columns: { selector: ".phone", count: 3, width: 390, tol: 8 },
+    columns: { selector: ".phone", count: 1, width: 390, tol: 8 },
     touchTargets: { selectors: [".circ", ".fab", ".arrow", ".chip", ".fchip", ".day",
                                 ".circ--ink"], min: 42 },
     panelDirection: { canvas: "--canvas", panel: "--card", expect: "lift",
@@ -311,7 +311,8 @@ const RULES = {
     domedTops: { selector: ".bar" },
     texture: { selectors: [".bar--off"], contains: "repeating-linear-gradient" },
     mountDiscipline: { phone: ".phone" },
-    exactCount: { ".phone": 3, ".nav": 3, ".fab": 3 },
+    exactCount: { ".phone": 1, ".nav": 3, ".fab": 3 },
+    /* the prototype keeps each screen's own nav (the source's Takes/History divergence) */
     present: [".stat", ".tcard", ".focus", ".week", ".mini", ".sheet",
               ".nav__item.on", ".dot-red", ".avs"]
   }
