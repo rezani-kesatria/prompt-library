@@ -316,6 +316,52 @@ const RULES = {
        divergence is recorded in the spec §8, standardized to "Tasks" (authored) */
     present: [".stat", ".tcard", ".focus", ".week", ".mini", ".sheet",
               ".nav__item.on", ".dot-red", ".avs"]
+  },
+
+  /* TASK KIT — the SECOND mobile reference, and SARA's deliberate counterpoint:
+     white body cards floating on the near-black canvas (the dark header zones
+     carry white titles), pastel containers whose only saturated colour is the
+     live progress green, and hatch as the "not yet done" remainder (temporal,
+     not comparative). BOTH-NATIVE: the mount toggle flips canvas + chrome
+     while the cards stay white (human review, 15 Sep 2026).
+     ("taskkit" is the data.js id; the file stem is taskkit.html.) */
+  taskkit: {
+    url: "designs/taskkit.html",
+    inkNotPureWhite: "--ink",
+    /* 3/12px = legend dot + chart bar; 22/26 = the card ladder; 48/58px =
+       the presentation bezel + screen clip; pills + circles carry the rest */
+    allowedRadii: ["0px", "3px", "12px", "22px", "26px", "48px", "58px", "50%", "9999px"],
+    /* screens sit at the Samsung Galaxy S26 Ultra viewport: 1440×3120 native
+       (19.5:9) = 412×891 CSS px — a shipping device, never an invented size */
+    columns: { selector: ".screen", count: 3, width: 412, tol: 6 },
+    /* measured reality: this source's header circles are ~38px build — below
+       SARA's 42px floor and recorded as such in the spec, not silently fixed.
+       .pill-state is a status DISPLAY in the source (our toggle is an authored
+       extra), so it is not asserted as a tap target. */
+    touchTargets: { selectors: [".circ", ".bell", ".tbtn", ".fab", ".whitecirc",
+                                ".blackcirc", ".crew-add"], min: 36 },
+    /* the cards lift off the dark canvas (white cards, the source's own
+       device); asserted in the page's native dark mood — the light mood is
+       pinned separately by tokenUnder below */
+    panelDirection: { canvas: "--canvas", panel: "--surface", expect: "lift" },
+    /* BOTH-NATIVE: the mount toggle flips the screens — the canvas token must
+       be #1E1E1E under dark and #FFFFFF under light (human review 15 Sep 2026;
+       a constancy-dark build would fail this on purpose) */
+    tokenUnder: { token: "--canvas", expect: { dark: "#1E1E1E", light: "#FFFFFF" } },
+    /* the pastel trio are containers: exactly one tile of each pastel species
+       in the summary duo, one lilac + one butter task card at home */
+    singletons: { ".gauge": 1, ".bar--live": 1, ".seg--live": 1,
+                  ".stat--lilac": 1, ".stat--butter": 1, ".fab": 1 },
+    exactCount: { ".phone": 3, ".screen": 3, ".zone-dark": 2, ".ring": 2,
+                  ".task-card": 2, ".whitecirc": 2 },
+    accentOn: { selector: ".bar .fill, .bar--live", token: "--live" },
+    /* the temporal hatch: every remainder is ruled, never grey */
+    texture: { selectors: [".bar--hatch", ".bar .rest", ".seg--hatch"],
+               contains: "repeating-linear-gradient" },
+    mountDiscipline: { phone: ".screen" },
+    monochromeDegrades: { set: "--live", to: "--lilac" },
+    present: [".zone-dark", ".body-lite", ".assignee", ".wcard", ".chart-card",
+              ".stats", ".ovw", ".stack", ".legend", ".nav", ".hero", ".gauge"]
   }
 };
 
@@ -894,6 +940,21 @@ function PAGE_RUNNER(cfg) {
       root.setAttribute(t.attr, t.value);
       check(" [" + t.attr + "=" + t.value + "]");
       if (prev === null) root.removeAttribute(t.attr); else root.setAttribute(t.attr, prev);
+    });
+  }
+
+  /* --- a both-native design declares what each theme's tokens must BE.
+     TASK KIT flips its screens with the mount: the canvas is #1E1E1E under
+     dark and #FFFFFF under light — asserted under BOTH, mechanically. --- */
+  if (cfg.tokenUnder) {
+    const root = document.documentElement;
+    Object.entries(cfg.tokenUnder.expect).forEach(([theme, want]) => {
+      const prev = root.getAttribute("data-theme");
+      root.setAttribute("data-theme", theme);
+      const got = css(cfg.tokenUnder.token).trim().toUpperCase();
+      ok(cfg.tokenUnder.token + " under " + theme + " is " + want,
+        got === want.toUpperCase(), got);
+      if (prev === null) root.removeAttribute("data-theme"); else root.setAttribute("data-theme", prev);
     });
   }
 

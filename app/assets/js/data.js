@@ -205,6 +205,23 @@ const REFERENCES = [
     fd: "'Poppins', sans-serif", fb: "'Poppins', sans-serif", type: "Poppins",
     radius: "Rounded", elevation: "Flat", gradient: "None", icon: "Line", imagery: "Photo",
     motion: "Subtle", density: "Balanced"
+  },
+  {
+    id: "taskkit", name: "Task Kit", ref: true, vibes: ["Playful", "Modern"], mode: "both",
+    kind: "Task management app", note: "pastel containers · white cards on dark, both-native · hatch is the remainder",
+    /* SECOND mobile reference — see the same-species guard in its spec:
+       SARA is flat pastel canvases with ink selection; TASK KIT is a
+       near-black canvas with white cards, and progress-only live green */
+    flag: "Byline unverified",
+    flagNote: "Dribbble 27043819 could not be machine-attributed (WAF; no secondary post found) — id/name are provisional from the shot's own kit line. Confirm the byline, then rename and re-credit.",
+    nativeTheme: "dark",
+    src: "designs/taskkit.html", spec: "designs/taskkit.design-language.md",
+    credit: "Unverified — pending confirmation (see CREDITS.md)",
+    source: "https://dribbble.com/shots/27043819-Task-Management-Mobile-App-Design-UI-UX",
+    bg: "#1E1E1E", surface: "#FFFFFF", ink: "#1E1E1E", primary: "#DAFDDB", accent: "#8CDA86",
+    fd: "'Plus Jakarta Sans', sans-serif", fb: "'Plus Jakarta Sans', sans-serif", type: "Plus Jakarta Sans",
+    radius: "Rounded", elevation: "Flat", gradient: "None", icon: "Line", imagery: "Photo",
+    motion: "Rich", density: "Balanced"
   }
 ];
 

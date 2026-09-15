@@ -14,7 +14,7 @@ memory — never reconstructed from a URL slug or a filename.
 
 ---
 
-## Built — the eleven recreations
+## Built — the twelve recreations
 
 Each ships an HTML recreation plus a `*.design-language.md` spec ending in a copy-paste prompt payload.
 
@@ -31,6 +31,7 @@ Each ships an HTML recreation plus a `*.design-language.md` spec ending in a cop
 | **ARCHE** — commerce board<br>[`saas.html`](saas.html) · [spec](saas.design-language.md) | [SaaS Dashboard](https://dribbble.com/shots/26666273-SaaS-Dashboard) | **Juice Lab** | UI/UX Development Agency |
 | **Metric** — analytics board<br>[`metrics.html`](metrics.html) · [spec](metrics.design-language.md) | [Dark Dashboard UI — SaaS Startup Metrics & Analytics Panel](https://dribbble.com/shots/27207977-Dark-Dashboard-UI-SaaS-Startup-Metrics-Analytics-Panel) | **Igor Zeru** | — |
 | **SARA** — task management app 🚩<br>[`sara.html`](sara.html) · [spec](sara.design-language.md) | [Task Management Mobile App](https://dribbble.com/shots/26300878-Task-Management-Mobile-App) | **byline pending verification** ⚠️ — see the shortlist note below | — |
+| **TASK KIT** — task management app 🚩<br>[`taskkit.html`](taskkit.html) · [spec](taskkit.design-language.md) | [Task Management Mobile App Design UI/UX](https://dribbble.com/shots/27043819-Task-Management-Mobile-App-Design-UI-UX) | **byline pending verification** ⚠️ — see the shortlist note below | — |
 
 ## Original designs — ours, in a studied language
 
@@ -113,7 +114,7 @@ The library's first mobile reference. Source still saved on disk and pixel-scann
 | Shot | Designer | Studio / team |
 |---|---|---|
 | [Task Management Mobile App](https://dribbble.com/shots/26300878-Task-Management-Mobile-App) — **built 15 Sep 2026** ([sara.html](sara.html) · [spec](sara.design-language.md)); byline pending, note above | **unverified** | — |
-| [Task Management Mobile App](https://dribbble.com/shots/27043819) — open candidate; byline not yet checked | ? | — |
+| [Task Management Mobile App Design UI/UX](https://dribbble.com/shots/27043819-Task-Management-Mobile-App-Design-UI-UX) — **built 15 Sep 2026** ([taskkit.html](taskkit.html) · [spec](taskkit.design-language.md)); scripted fetch WAF-blocked and no secondary post found — the id/name are provisional from the shot's own kit line | **unverified** | — |
 
 ---
 

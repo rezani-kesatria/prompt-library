@@ -1,0 +1,701 @@
+﻿<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TASK KIT — Task Management Mobile App</title>
+<meta name="description" content="Pastel containers on a near-black canvas — hatch means not-yet, and the screens ship both moods: the shot's dark frames and the source's light bodies. Reference study of Dribbble shot 27043819." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   TASK KIT — design language scanned from Dribbble 27043819
+   (see taskkit.design-language.md; byline pending — id provisional).
+   All screen colours pixel-sampled. The desktop mat is a
+   presentation mount: library neutrals, no design tokens.
+   Screens sit at a REAL device viewport — Samsung Galaxy S26 Ultra,
+   1440×3120 native (19.5:9) = 412×891 CSS px at 3.5×; content keeps
+   the measured 375px build scale (see the spec's build-scale note).
+   BOTH-NATIVE (human review, 15 Sep 2026, second round): the mount
+   toggle flips the mat AND the screens. The body cards are WHITE on
+   the dark canvas in BOTH moods — the source's own device (review
+   crop): dark mood separates them by the canvas tone step alone;
+   light mood (white canvas) adds a hairline. Icon discs (← → ⋯ bell)
+   are solid tone-step fills per the review crops, not hairline rings.
+   Spec §0/§10 record both decisions.
+   ============================================================ */
+:root{
+  /* app tokens, DARK mood (the design's native pin) */
+  --canvas:#1E1E1E;
+  --ink:#1E1E1E;              /* one ink: pastels AND the white cards */
+  --ink-inv:#FFFFFF;          /* ink on the canvas */
+  --muted:#8A8A8A;            /* secondary text on pastels/white cards */
+  --muted-inv:rgba(255,255,255,.55);
+  --mint:#DAFDDB;
+  --lilac:#D4BFFA;
+  --butter:#FFF5B7;
+  --live:#8CDA86;             /* the only saturated colour = progress */
+  --chip:#050505;
+  --surface:#FFFFFF;          /* white circles on the pastels, both moods */
+  --panel:#FFFFFF;            /* body cards are WHITE in both moods */
+  --panel-line:transparent;   /* dark canvas separates by tone step alone */
+  --disc:rgba(255,255,255,.09);  /* icon discs ≈ #303030 on canvas */
+  --circ:#FFFFFF; --circ-ink:#1E1E1E; /* the floating circles on the canvas */
+  --line-l:rgba(30,30,30,.08);   /* hairline on light */
+  --line-d:rgba(255,255,255,.16);/* hairline on dark */
+  --red:#E05B5B;              /* the design's only red (delete glyph) */
+  --r-big:26px;               /* measured 18px source ≈ 26px build */
+  --r-in:22px;                /* inner body cards, one step down */
+  --f:"Plus Jakarta Sans",system-ui,sans-serif;
+
+  /* presentation mat — authored, library neutrals */
+  --mat:#131313; --mat-ink:#B8B8B2; --mat-dim:#6E6E68; --rim:rgba(255,255,255,.10);
+  --hair:rgba(255,255,255,.12);
+}
+/* LIGHT mood — canvas and chrome flip; the cards turn light grey so the
+   tone step (not a border) keeps doing the separating, as on dark */
+html[data-theme="light"]{
+  --canvas:#FFFFFF;
+  --ink-inv:#1E1E1E;
+  --muted-inv:rgba(30,30,30,.55);
+  --panel:#F4F4F2;
+  --disc:rgba(30,30,30,.06);
+  --circ:#050505; --circ-ink:#FFFFFF;
+  --line-d:rgba(30,30,30,.12);
+
+  --mat:#ECECE6; --mat-ink:#5A5A54; --mat-dim:#8B8B84; --rim:rgba(0,0,0,.18);
+  --hair:rgba(0,0,0,.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--mat);color:var(--mat-ink);font-family:var(--f);
+  -webkit-font-smoothing:antialiased;min-height:100vh}
+svg{display:block}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block}
+
+/* ============ the presentation mat (authored, not design) ==== */
+.mat-head{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;
+  justify-content:space-between;padding:22px 28px;z-index:3}
+.mat-cap{font-size:10.5px;font-weight:600;letter-spacing:.22em;color:var(--mat-dim)}
+.mat-cap b{color:var(--mat-ink);font-weight:700}
+.mat-toggle{width:42px;height:42px;border-radius:50%;border:1px solid var(--hair);
+  display:grid;place-items:center;color:var(--mat-ink)}
+.mat-toggle svg{width:17px;height:17px}
+.mat-toggle:hover{color:var(--mat-ink);border-color:var(--mat-ink)}
+.mat-foot{padding:0 28px 26px;text-align:center;font-size:11px;color:var(--mat-dim)}
+.mat-foot a{color:var(--mat-ink);text-decoration:none;border-bottom:1px solid var(--hair)}
+
+.stage{display:flex;flex-wrap:wrap;gap:36px;justify-content:center;
+  padding:92px 20px 56px}
+.phone{background:#0A0A0A;border:1px solid var(--rim);border-radius:58px;
+  padding:10px;flex:0 0 auto}
+/* Samsung Galaxy S26 Ultra viewport: 1440×3120 native (19.5:9) → 412×891 CSS.
+   Never invent screen dimensions — mount at a shipping device's ratio. */
+.screen{width:412px;height:891px;border-radius:48px;overflow:hidden;
+  position:relative;background:var(--canvas);color:var(--ink-inv);
+  font-family:var(--f);display:flex;flex-direction:column}
+
+/* ============ shared screen parts ============================ */
+.sb{display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px 6px;font-size:13px;font-weight:600;color:var(--ink-inv)}
+.sb .sicons{display:flex;gap:5px}
+.sb .sicons svg{width:14px;height:14px}
+.zrow{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px}
+/* icon discs are SOLID tone-step fills (review crops ~#303030 on canvas),
+   not hairline rings — inverted to ~6% ink in the light mood */
+.circ{width:38px;height:38px;border-radius:50%;background:var(--disc);
+  display:grid;place-items:center;color:var(--ink-inv);flex:0 0 38px}
+.circ svg{width:17px;height:17px}
+.ztitle{font-size:20px;font-weight:500;color:var(--ink-inv)}
+.stitle{display:block;font-size:34px;font-weight:500;line-height:1.12}
+.skit{display:block;font-size:13px;color:var(--muted-inv);margin-top:6px}
+.whitecirc{width:46px;height:46px;border-radius:50%;background:var(--circ);
+  color:var(--circ-ink);display:grid;place-items:center;flex:0 0 46px}
+.whitecirc svg{width:19px;height:19px}
+.blackcirc{width:38px;height:38px;border-radius:50%;background:var(--chip);
+  color:#fff;display:grid;place-items:center;flex:0 0 38px}
+.blackcirc svg{width:17px;height:17px}
+
+/* ============ screen 1 — home (dark, edge to edge) =========== */
+.home .who{display:flex;align-items:center;gap:12px;padding:14px 20px 0}
+.ava{border-radius:50%;object-fit:cover}
+.who .ava{width:44px;height:44px}
+.who small{display:block;font-size:12px;color:var(--muted-inv);font-weight:500}
+.who strong{font-size:20px;font-weight:600;color:var(--ink-inv)}
+.bell{margin-left:auto;width:40px;height:40px;border-radius:50%;
+  background:var(--disc);display:grid;place-items:center;color:var(--ink-inv)}
+.bell svg{width:17px;height:17px}
+.stepper{display:grid;grid-template-columns:38px 1fr 38px;align-items:center;
+  gap:10px;padding:22px 20px 0}
+.stepper .lbl{text-align:center}
+.stepper .lbl small{display:block;font-size:11px;color:var(--muted-inv);font-weight:500}
+.stepper .lbl strong{font-size:16px;font-weight:600;color:var(--ink-inv)}
+
+.hero{margin:16px 20px 0;background:var(--mint);color:var(--ink);
+  border-radius:var(--r-big);padding:20px;position:relative}
+.hero .kick{font-size:12px;font-weight:500;color:rgba(30,30,30,.62)}
+.hero h3{font-size:24px;font-weight:600;margin-top:2px}
+.hero .hcirc{position:absolute;top:18px;right:18px;display:flex;gap:8px}
+.hero .hcirc .wc{width:38px;height:38px;border-radius:50%;background:var(--surface);
+  display:grid;place-items:center;color:var(--ink)}
+.hero .delta{display:flex;align-items:center;gap:8px;margin-top:22px;
+  padding-bottom:12px;width:64%}
+.hero .delta .mini{width:26px;height:26px;border-radius:50%;background:var(--surface);
+  display:grid;place-items:center;color:var(--ink)}
+.hero .delta .mini svg{width:13px;height:13px}
+.hero .delta b{font-size:14px;font-weight:600}
+.chips{display:flex;gap:8px;margin-top:12px}
+.chips span{background:var(--chip);color:#fff;font-size:11.5px;font-weight:500;
+  padding:7px 13px;border-radius:9999px}
+.gauge{position:absolute;right:14px;bottom:12px;width:158px;text-align:center}
+.gauge svg{width:158px;height:86px}
+.gauge b{position:absolute;left:0;right:0;bottom:2px;font-size:28px;font-weight:600;color:var(--ink)}
+
+.listhead{display:flex;align-items:baseline;justify-content:space-between;
+  padding:24px 20px 0}
+.listhead h4{font-size:17px;font-weight:600;color:var(--ink-inv)}
+.listhead button{font-size:12px;color:var(--muted-inv);font-weight:500}
+
+.task-card{margin:10px 20px 0;border-radius:var(--r-big);padding:22px 20px;
+  color:var(--ink);display:flex;align-items:center;gap:12px}
+/* review 15 Sep: halve the gap BETWEEN stacked cards only */
+.task-card + .task-card{margin-top:5px}
+.task-card--lilac{background:var(--lilac)}
+.task-card--butter{background:var(--butter)}
+.task-card .tx{flex:1;min-width:0}
+.task-card h5{font-size:15.5px;font-weight:600}
+.task-card small{display:block;font-size:10.5px;font-weight:500;
+  color:rgba(30,30,30,.55);margin-top:3px}
+.task-card .crew{display:flex;align-items:center;gap:6px;margin-top:16px}
+.task-card .crew .avs{display:flex}
+.task-card .crew .avs img{width:18px;height:18px;border-radius:50%;
+  border:1.5px solid rgba(30,30,30,.25)}
+.task-card .crew .avs img + img{margin-left:-6px}
+.task-card .crew em{font-style:normal;font-size:10.5px;font-weight:600}
+.ring{width:54px;height:54px;flex:0 0 54px;position:relative}
+.ring svg{width:54px;height:54px;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;
+  font-size:12.5px;font-weight:600}
+
+.nav{position:absolute;left:0;right:0;bottom:18px;display:flex;
+  align-items:center;justify-content:space-between;padding:0 30px}
+.nav .tbtn{width:44px;height:44px;display:grid;place-items:center;
+  color:var(--ink-inv);opacity:.55;position:relative}
+.nav .tbtn svg{width:24px;height:24px}
+.nav .tbtn.on{opacity:1}
+.nav .tbox{width:40px;height:40px;border:1.6px solid currentColor;
+  border-radius:12px;display:grid;place-items:center}
+.nav .tbox svg{width:20px;height:20px}
+.fab{width:62px;height:62px;border-radius:50%;background:var(--circ);
+  color:var(--circ-ink);display:grid;place-items:center;flex:0 0 62px}
+.fab svg{width:24px;height:24px}
+
+/* ============ screens 2+3 — BOTH MOODS (authored, review round 2) ==
+   The body cards are WHITE on the dark canvas in BOTH moods — the
+   source's own device (review crop): dark mood separates by the
+   canvas tone step alone; light mood (white canvas) adds a hairline.
+   Card-to-card vertical gaps are halved per the same review. */
+.zone-dark{background:var(--canvas);color:var(--ink-inv);padding-bottom:8px}
+.body-lite{background:var(--canvas);color:var(--ink-inv);flex:1;min-height:0}
+
+.dtl .big{padding:14px 20px 0;display:flex;align-items:flex-start;justify-content:space-between}
+.dtl .big .acts{display:flex;gap:10px;margin-top:8px}
+
+.assignee{margin:20px 20px 0;background:var(--mint);color:var(--ink);
+  border-radius:var(--r-big);padding:14px 18px;display:flex;align-items:center;gap:12px}
+.assignee .ava{width:40px;height:40px}
+.assignee small{display:block;font-size:10.5px;font-weight:500;color:rgba(30,30,30,.55)}
+.assignee strong{font-size:15px;font-weight:600}
+.assignee .due{margin-left:auto;display:flex;align-items:center;gap:10px;text-align:left}
+.assignee .cal{width:40px;height:40px;border-radius:50%;background:rgba(30,30,30,.07);
+  display:grid;place-items:center}
+.assignee .cal svg{width:17px;height:17px}
+
+.wcard{margin:7px 20px 0;background:var(--panel);border:1px solid var(--panel-line);
+  border-radius:var(--r-in);padding:18px;color:var(--ink)}
+.wcard h6{font-size:16.5px;font-weight:600}
+.wcard .row{display:flex;align-items:center;justify-content:space-between}
+/* the pill is a DISPLAY badge on the white card: dark outline + ink text */
+.pill-state{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(30,30,30,.3);border-radius:9999px;padding:5px 11px;color:var(--ink)}
+.pill-state.done{background:var(--chip);border-color:var(--chip);color:#fff}
+.prog{display:flex;align-items:center;justify-content:space-between;margin-top:16px}
+.prog span{font-size:12.5px;color:var(--muted);font-weight:500}
+.prog b{font-size:14px;font-weight:600}
+.bar{height:10px;border-radius:9999px;margin-top:8px;position:relative;overflow:hidden}
+.bar .fill{position:absolute;inset:0 auto 0 0;width:48%;border-radius:9999px;background:var(--live)}
+.bar .rest{position:absolute;inset:0;background:
+  repeating-linear-gradient(45deg, rgba(140,218,134,.55) 0 1.5px, transparent 1.5px 6.5px)}
+.desc{font-size:12.5px;line-height:1.62;color:var(--muted);margin-top:10px;font-weight:500}
+.file{display:flex;align-items:center;gap:12px;margin-top:14px}
+.file .fic{width:42px;height:42px;border-radius:50%;border:1.5px solid rgba(30,30,30,.7);
+  display:grid;place-items:center;color:var(--ink)}
+.file .fic svg{width:18px;height:18px}
+.file b{font-size:13.5px;font-weight:600;display:block}
+.file small{font-size:10.5px;color:var(--muted);font-weight:500}
+.file .del{margin-left:auto;color:var(--red)}
+.file .del svg{width:18px;height:18px}
+/* the + circle is CHIP BLACK on the white card — constant in both moods */
+.crew-add{width:36px;height:36px;border-radius:50%;background:var(--chip);color:#fff;
+  display:grid;place-items:center}
+.crew-add svg{width:15px;height:15px}
+.members{display:flex;margin-top:14px}
+.members img{width:30px;height:30px;border-radius:50%;object-fit:cover;
+  border:2px solid var(--panel)}
+.members img + img{margin-left:-9px}
+
+/* ============ screen 3 — summary ============================= */
+.chart-card{margin:20px 20px 0;background:var(--mint);color:var(--ink);
+  border-radius:var(--r-big);padding:18px 18px 12px}
+.chart-card .head{display:flex;align-items:flex-start;justify-content:space-between}
+.chart-card h5{font-size:21px;font-weight:600}
+.chart-card .sub{font-size:12.5px;font-weight:500;color:rgba(30,30,30,.6);margin-top:4px}
+.chart{display:grid;grid-template-columns:24px 1fr;gap:0 6px;margin-top:14px}
+.chart .yaxis{position:relative;height:128px}
+.chart .yaxis span{position:absolute;right:0;transform:translateY(-50%);
+  font-size:9.5px;font-weight:600;color:rgba(30,30,30,.5)}
+.chart .plot{position:relative;height:128px}
+.chart .grid{position:absolute;left:0;right:0;height:1px;
+  background:rgba(30,30,30,.10)}
+.chart .bars{position:absolute;inset:0;display:flex;align-items:flex-end;
+  justify-content:space-between;padding:0 4px}
+.chart .bar{width:24px;height:calc(var(--h) * 1%);border-radius:12px;position:relative}
+.chart .bar--hatch{background:repeating-linear-gradient(45deg,
+  rgba(140,218,134,.9) 0 1.5px, transparent 1.5px 6.5px)}
+.chart .bar--live{background:var(--live)}
+.days{display:grid;grid-template-columns:24px 1fr;gap:0 6px;margin-top:8px}
+.days .ds{display:flex;justify-content:space-between;padding:0 4px}
+.days .ds span{width:24px;text-align:center;font-size:10.5px;font-weight:600;
+  color:rgba(30,30,30,.6)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:7px 20px 0}
+.stat{border-radius:var(--r-in);padding:14px 16px;color:var(--ink);position:relative}
+.stat .up{position:absolute;top:14px;right:16px;font-size:11px;font-weight:600;
+  color:rgba(30,30,30,.55)}
+.stat b{font-size:32px;font-weight:600;display:block}
+.stat small{font-size:11.5px;font-weight:500;color:rgba(30,30,30,.6)}
+.stat--lilac{background:var(--lilac)}
+.stat--butter{background:var(--butter)}
+.ovw{margin:6px 20px 22px;background:var(--panel);border:1px solid var(--panel-line);
+  border-radius:var(--r-in);padding:18px;color:var(--ink)}
+.ovw .head{display:flex;align-items:center;justify-content:space-between}
+.ovw h6{font-size:19px;font-weight:600}
+.ovw .spend{display:flex;align-items:baseline;justify-content:space-between;margin-top:14px}
+.ovw .spend span{font-size:12px;color:var(--muted);font-weight:500}
+.ovw .spend b{font-size:14.5px;font-weight:600}
+.stack{display:flex;gap:3px;height:16px;margin-top:10px}
+.stack .seg{border-radius:9999px;height:100%}
+.seg--live{background:var(--live)}
+.seg--lilac{background:var(--lilac)}
+.seg--butter{background:var(--butter)}
+.seg--hatch{background:repeating-linear-gradient(45deg,
+  rgba(140,218,134,.55) 0 1.5px, transparent 1.5px 6px);flex:1}
+.legend{margin-top:6px}
+.legend .lrow{display:flex;align-items:center;gap:9px;padding:9px 0;
+  border-bottom:1px solid var(--line-l)}
+.legend .lrow:last-child{border-bottom:0;padding-bottom:2px}
+.legend .dot{width:10px;height:10px;border-radius:3px;flex:0 0 10px}
+.legend .lrow span{font-size:12.5px;font-weight:500}
+.legend .lrow b{margin-left:auto;font-size:12.5px;font-weight:600}
+
+/* ============ motion pre-hide + reduced motion =============== */
+.js [data-r]{opacity:0}
+@media (prefers-reduced-motion:reduce){
+  .js [data-r]{opacity:1}
+}
+@media (max-width:1420px){ .stage{gap:16px;padding-left:14px;padding-right:14px} }
+@media (max-width:1240px){ .stage{padding-top:84px} }
+</style>
+</head>
+<body class="js">
+
+<!-- ============ presentation mat — authored, not design ============ -->
+<header class="mat-head" data-r>
+  <span class="mat-cap"><b>REFERENCE 27043819</b> — TASK MANAGEMENT MOBILE APP · STUDY RECREATION</span>
+  <button class="mat-toggle" id="themeBtn" aria-label="Toggle presentation theme"><i data-lucide="sun-moon"></i></button>
+</header>
+
+<main class="stage">
+
+  <!-- ======== screen 1 — home: dark edge to edge ======== -->
+  <div class="phone" data-r>
+    <div class="screen home">
+
+      <div class="sb" data-r>
+        <span>9:41</span>
+        <span class="sicons"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span>
+      </div>
+
+      <div class="who" data-r>
+        <img class="ava" alt="Jasper Collins" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&q=70" />
+        <span><small>Welcome back,</small><strong>Jasper Collins</strong></span>
+        <button class="bell" aria-label="Notifications"><i data-lucide="bell"></i></button>
+      </div>
+
+      <div class="stepper" data-r>
+        <button class="circ" aria-label="Previous week"><i data-lucide="chevron-left"></i></button>
+        <span class="lbl"><small>Monday, April 26</small><strong>This Week</strong></span>
+        <button class="circ" aria-label="Next week"><i data-lucide="chevron-right"></i></button>
+      </div>
+
+      <section class="hero" data-r aria-label="Current tasks">
+        <span class="kick">Current tasks</span>
+        <h3>App Design</h3>
+        <span class="hcirc">
+          <button class="wc" aria-label="Share task"><i data-lucide="share-2"></i></button>
+          <button class="blackcirc" aria-label="Open task"><i data-lucide="arrow-up-right"></i></button>
+        </span>
+        <span class="delta"><span class="mini"><i data-lucide="trending-up"></i></span><b>+12%</b></span>
+        <span class="chips"><span>Design</span><span>UI/UX</span></span>
+        <span class="gauge">
+          <svg viewBox="0 0 158 86" aria-hidden="true">
+            <defs>
+              <pattern id="gaugeHatch" width="6.5" height="6.5" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+                <rect width="1.6" height="6.5" fill="rgba(140,218,134,.9)"></rect>
+              </pattern>
+            </defs>
+            <path d="M 11 79 A 68 68 0 0 1 147 79" fill="none"
+                  stroke="url(#gaugeHatch)" stroke-width="13" stroke-linecap="round" />
+            <path id="gaugeArc" d="M 11 79 A 68 68 0 0 1 147 79" fill="none"
+                  stroke="#8CDA86" stroke-width="13" stroke-linecap="round"
+                  pathLength="100" stroke-dasharray="100" stroke-dashoffset="19" />
+          </svg>
+          <b>81%</b>
+        </span>
+      </section>
+
+      <div class="listhead" data-r>
+        <h4>All Tasks</h4>
+        <button>See All</button>
+      </div>
+
+      <article class="task-card task-card--lilac" data-r>
+        <span class="tx">
+          <h5>3D Making Project</h5>
+          <small>Team Project Working On Figma</small>
+          <span class="crew">
+            <span class="avs">
+              <img alt="" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&q=60" />
+              <img alt="" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&q=60" />
+              <img alt="" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&q=60" />
+            </span>
+            <em>10 participants</em>
+          </span>
+        </span>
+        <span class="ring">
+          <svg viewBox="0 0 54 54" aria-hidden="true">
+            <circle cx="27" cy="27" r="22" fill="none" stroke="rgba(30,30,30,.14)" stroke-width="5" />
+            <circle class="arc" cx="27" cy="27" r="22" fill="none" stroke="#1E1E1E" stroke-width="5"
+                    stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="30" />
+          </svg>
+          <b>70%</b>
+        </span>
+      </article>
+
+      <article class="task-card task-card--butter" data-r>
+        <span class="tx">
+          <h5>Illustration</h5>
+          <small>Team Project Working On Figma</small>
+          <span class="crew">
+            <span class="avs">
+              <img alt="" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&q=60" />
+              <img alt="" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&q=60" />
+              <img alt="" src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=60&q=60" />
+            </span>
+            <em>10 participants</em>
+          </span>
+        </span>
+        <span class="ring">
+          <svg viewBox="0 0 54 54" aria-hidden="true">
+            <circle cx="27" cy="27" r="22" fill="none" stroke="rgba(30,30,30,.14)" stroke-width="5" />
+            <circle class="arc" cx="27" cy="27" r="22" fill="none" stroke="#1E1E1E" stroke-width="5"
+                    stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="83" />
+          </svg>
+          <b>17%</b>
+        </span>
+      </article>
+
+      <nav class="nav" aria-label="App tabs">
+        <button class="tbtn on" aria-label="Home"><i data-lucide="house"></i></button>
+        <button class="tbtn" aria-label="Statistics"><span class="tbox"><i data-lucide="chart-no-axes-column"></i></span></button>
+        <button class="fab" aria-label="New task"><i data-lucide="plus"></i></button>
+        <button class="tbtn" aria-label="Filters"><i data-lucide="sliders-horizontal"></i></button>
+        <button class="tbtn" aria-label="Profile"><i data-lucide="user"></i></button>
+      </nav>
+
+    </div>
+  </div>
+
+  <!-- ======== screen 2 — task details (flips with the mount) ======== -->
+  <div class="phone" data-r>
+    <div class="screen dtl">
+
+      <div class="zone-dark">
+        <div class="sb" data-r>
+          <span>9:41</span>
+          <span class="sicons"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span>
+        </div>
+        <div class="zrow" data-r>
+          <button class="circ" aria-label="Back"><i data-lucide="arrow-left"></i></button>
+          <span class="ztitle">Task Details</span>
+          <button class="circ" aria-label="More"><i data-lucide="ellipsis"></i></button>
+        </div>
+        <div class="big" data-r>
+          <span>
+            <span class="stitle">App Design</span>
+            <span class="skit">Task manger ui kit</span>
+          </span>
+          <span class="acts">
+            <button class="whitecirc" aria-label="Share"><i data-lucide="share-2"></i></button>
+            <button class="whitecirc" aria-label="Edit"><i data-lucide="pencil-line"></i></button>
+          </span>
+        </div>
+      </div>
+
+      <div class="body-lite">
+
+        <section class="assignee" data-r>
+          <img class="ava" alt="Adom Shafi" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&q=70" />
+          <span><small>Assigned to</small><strong>Adom Shafi</strong></span>
+          <span class="due">
+            <span class="cal"><i data-lucide="calendar-days"></i></span>
+            <span><small>Due date</small><strong>May 20</strong></span>
+          </span>
+        </section>
+
+        <section class="wcard" id="statusCard" data-r>
+          <div class="row">
+            <h6>Task Status</h6>
+            <button class="pill-state" id="statePill">In Progress</button>
+          </div>
+          <div class="prog"><span>Progress</span><b id="progPct">48%</b></div>
+          <div class="bar"><span class="rest"></span><span class="fill" id="progFill"></span></div>
+        </section>
+
+        <section class="wcard" data-r>
+          <h6>Description</h6>
+          <p class="desc">Our task manager app boasts a sleek, modern design with user-friendly
+          navigation. We&rsquo;ve incorporated all essential task management features, including
+          customizable categories, due dates, and progress tracking. Stay organized and boost
+          productivity with our intuitive.</p>
+        </section>
+
+        <section class="wcard" data-r>
+          <h6>Attach File</h6>
+          <div class="file">
+            <span class="fic"><i data-lucide="file-text"></i></span>
+            <span><b>Project Brief.pdf</b><small>1.24 Mb &middot; August 21, 2022</small></span>
+            <button class="del" aria-label="Delete file"><i data-lucide="trash-2"></i></button>
+          </div>
+        </section>
+
+        <section class="wcard" data-r>
+          <div class="row">
+            <h6>Team Member</h6>
+            <button class="crew-add" aria-label="Add member"><i data-lucide="plus"></i></button>
+          </div>
+          <div class="members">
+            <img alt="" src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=80&q=60" />
+            <img alt="" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&q=60" />
+            <img alt="" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&q=60" />
+            <img alt="" src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&q=60" />
+            <img alt="" src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=80&q=60" />
+            <img alt="" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&q=60" />
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== screen 3 — summary (flips with the mount) ======== -->
+  <div class="phone" data-r>
+    <div class="screen">
+
+      <div class="zone-dark">
+        <div class="sb" data-r>
+          <span>9:41</span>
+          <span class="sicons"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span>
+        </div>
+        <div class="zrow" data-r>
+          <button class="circ" aria-label="Back"><i data-lucide="arrow-left"></i></button>
+          <span class="ztitle">Summary</span>
+          <button class="circ" aria-label="More"><i data-lucide="ellipsis"></i></button>
+        </div>
+      </div>
+
+      <div class="body-lite">
+
+        <section class="chart-card" data-r>
+          <div class="head">
+            <span>
+              <h5>Task Activity</h5>
+              <span class="sub">Avg 3 Hours per day</span>
+            </span>
+            <button class="blackcirc" aria-label="Open activity"><i data-lucide="arrow-up-right"></i></button>
+          </div>
+          <div class="chart" aria-label="Hours per day, week of April 26">
+            <span class="yaxis">
+              <span style="top:0%">8h</span><span style="top:25%">6h</span>
+              <span style="top:50%">4h</span><span style="top:75%">2h</span>
+              <span style="top:100%">0h</span>
+            </span>
+            <span class="plot">
+              <span class="grid" style="top:0%"></span><span class="grid" style="top:25%"></span>
+              <span class="grid" style="top:50%"></span><span class="grid" style="top:75%"></span>
+              <span class="grid" style="top:100%"></span>
+              <span class="bars">
+                <span class="bar bar--hatch" style="--h:37"></span>
+                <span class="bar bar--hatch" style="--h:81"></span>
+                <span class="bar bar--hatch" style="--h:50"></span>
+                <span class="bar bar--live"  style="--h:100"></span>
+                <span class="bar bar--hatch" style="--h:31"></span>
+                <span class="bar bar--hatch" style="--h:62"></span>
+                <span class="bar bar--hatch" style="--h:56"></span>
+              </span>
+            </span>
+          </div>
+          <div class="days">
+            <span></span>
+            <span class="ds"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></span>
+          </div>
+        </section>
+
+        <div class="stats">
+          <section class="stat stat--lilac" data-r>
+            <span class="up">+12</span><b>13h</b><small>Total Focus</small>
+          </section>
+          <section class="stat stat--butter" data-r>
+            <span class="up">+12</span><b>43</b><small>Tasks Done</small>
+          </section>
+        </div>
+
+        <section class="ovw" data-r>
+          <div class="head">
+            <h6>Task Overview</h6>
+            <button class="blackcirc" aria-label="Open overview"><i data-lucide="arrow-up-right"></i></button>
+          </div>
+          <div class="spend"><span>Total spending</span><b>$2,580.00</b></div>
+          <div class="stack" aria-label="Completion split">
+            <span class="seg seg--live" style="width:43%"></span>
+            <span class="seg seg--lilac" style="width:25%"></span>
+            <span class="seg seg--butter" style="width:10%"></span>
+            <span class="seg seg--hatch"></span>
+          </div>
+          <div class="legend">
+            <div class="lrow"><span class="dot" style="background:var(--live)"></span><span>Completed</span><b>43%</b></div>
+            <div class="lrow"><span class="dot" style="background:var(--lilac)"></span><span>In Progress</span><b>25%</b></div>
+            <div class="lrow"><span class="dot" style="background:var(--butter)"></span><span>On Hold</span><b>10%</b></div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="mat-foot" data-r>
+  Original design — <a href="https://dribbble.com/shots/27043819-Task-Management-Mobile-App-Design-UI-UX" target="_blank" rel="noopener">Dribbble 27043819</a>
+  (byline pending verification). Study recreation — the credit is the original designer&rsquo;s.
+</footer>
+
+<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.17/dist/motion.min.js"></script>
+<script>
+(function(){
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var g = window.gsap;
+
+  /* fonts verified, not assumed — the house rule */
+  var fontsOK = false;
+  try { fontsOK = document.fonts.check('600 16px "Plus Jakarta Sans"'); } catch (e) {}
+  document.documentElement.dataset.fonts = fontsOK ? "verified" : "fallback";
+  if (window.lucide) {
+    lucide.createIcons({ attrs: { "stroke-width": 1.7, width: 17, height: 17 } });
+    /* icon-name drift check: any unconverted <i data-lucide> means a bad name */
+    var missed = document.querySelectorAll("i[data-lucide]");
+    if (missed.length) console.warn("lucide icons unresolved:", [...missed].map(i => i.getAttribute("data-lucide")));
+  }
+
+  /* theme toggle — flips the mat AND the screens (human review, 15 Sep 2026) */
+  var themeBtn = document.getElementById("themeBtn");
+  themeBtn.addEventListener("click", function(){
+    var root = document.documentElement;
+    root.setAttribute("data-theme", root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+  });
+
+  /* cheap real interactivity */
+  document.querySelectorAll(".nav .tbtn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      document.querySelectorAll(".nav .tbtn").forEach(b => b.classList.remove("on"));
+      btn.classList.add("on");
+    });
+  });
+  var done = false;
+  var statePill = document.getElementById("statePill");
+  statePill.addEventListener("click", function(){
+    done = !done;
+    statePill.classList.toggle("done", done);
+    statePill.textContent = done ? "Completed" : "In Progress";
+    document.getElementById("progPct").textContent = done ? "100%" : "48%";
+    var fill = document.getElementById("progFill");
+    if (g && !reduce) g.to(fill, { width: done ? "100%" : "48%", duration: .45, ease: "power3.out" });
+    else fill.style.width = done ? "100%" : "48%";
+  });
+  if (window.Motion && Motion.animate && !reduce) {
+    document.querySelectorAll(".fab, .circ, .whitecirc, .blackcirc, .bell, .crew-add")
+      .forEach(function(el){
+        el.addEventListener("pointerenter", function(){
+          Motion.animate(el, { scale: 1.06 }, { type: "spring", stiffness: 350, damping: 22 }); });
+        el.addEventListener("pointerleave", function(){
+          Motion.animate(el, { scale: 1 }, { type: "spring", stiffness: 350, damping: 26 }); });
+      });
+  }
+
+  if (!g || reduce) { document.body.classList.remove("js"); return; }
+
+  /* entry: phones rise in sequence, then per-screen cascade, state marks LAST */
+  var tl = g.timeline({ defaults: { ease: "power3.out" },
+    onComplete: function(){ document.body.classList.remove("js"); } });
+
+  tl.fromTo(".mat-head", { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: .4 }, 0)
+    .fromTo(".phone", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: .55, stagger: .12, clearProps: "transform" }, .1)
+    .fromTo(".mat-foot", { opacity: 0 }, { opacity: 1, duration: .5 }, 1.15);
+
+  /* per screen: status bar → header rows → cards; state lands last */
+  document.querySelectorAll(".screen").forEach(function(screen, si){
+    var at = .35 + si * .22;
+    var parts = screen.querySelectorAll(".sb, .zrow, .who, .stepper");
+    var cards = screen.querySelectorAll(".hero, .listhead, .task-card, .big, .assignee, .wcard, .chart-card, .stat, .ovw");
+    tl.fromTo(parts, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .4, stagger: .06, clearProps: "transform" }, at);
+    tl.fromTo(cards, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .45, stagger: .07, clearProps: "transform" }, at + .18);
+
+    /* state marks: gauge arc draws, rings pop, bars rise, fills slide */
+    var gauge = screen.querySelector("#gaugeArc");
+    if (gauge) tl.fromTo(gauge, { strokeDashoffset: 100 },
+      { strokeDashoffset: 19, duration: .8, ease: "power2.inOut" }, at + .5);
+    screen.querySelectorAll(".ring .arc").forEach(function(arc, ri){
+      var end = parseFloat(arc.getAttribute("stroke-dashoffset"));
+      tl.fromTo(arc, { strokeDashoffset: 100 },
+        { strokeDashoffset: end, duration: .7, ease: "power2.inOut" }, at + .55 + ri * .1);
+    });
+    screen.querySelectorAll(".chart .bar").forEach(function(bar, bi){
+      tl.fromTo(bar, { scaleY: 0 }, { scaleY: 1, duration: .5, ease: "power2.out",
+        transformOrigin: "bottom", clearProps: "transform" }, at + .45 + bi * .05);
+    });
+    var fill = screen.querySelector("#progFill");
+    if (fill) tl.fromTo(fill, { width: 0 }, { width: "48%", duration: .6, ease: "power3.out" }, at + .6);
+    var segs = screen.querySelectorAll(".stack .seg");
+    if (segs.length) tl.fromTo(segs, { scaleX: 0 }, { scaleX: 1, duration: .45, stagger: .07,
+      transformOrigin: "left", ease: "power2.out", clearProps: "transform" }, at + .6);
+  });
+
+  /* safety net: never leave the page hidden */
+  setTimeout(function(){ document.body.classList.remove("js"); }, 4200);
+})();
+</script>
+</body>
+</html>
