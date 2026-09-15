@@ -190,6 +190,102 @@ const RULES = {
     absent: ["footer"],
     present: [".top", ".navgrp", ".tiles", ".tile", ".promo", ".panel", ".tabs",
               ".st--move", ".st--done", ".acts", ".kebab"]
+  },
+
+  /* VITA — the border-divided catalog tool: hairlines everywhere, pills the
+     only radius, and the logo cell locked to the sidebar column so one
+     vertical rule runs the full page height. ("vita" -> travel.html.) */
+  vita: {
+    url: "designs/travel.html",
+    /* 999px = Chrome's clamped computed value for a 9999px pill on a small
+       chip — the used value, not a distinct radius. */
+    allowedRadii: ["0px", "9999px", "999px"],
+    inkNotPureWhite: "--ink",
+    noGradients: { except: [] },
+    equalWidth: [[".hdr__logo", ".side"]],
+    /* ratings carry the reserved star hue, never the brand accent */
+    accentNotOn: { token: "--accent", selectors: [".stars"] },
+    exactCount: { ".row": 4 },
+    present: [".hdr", ".hero", ".side", ".results", ".row", ".row__rule", ".stars"]
+  },
+
+  /* Blockio — tint-separated bento: the card sits exactly one step lighter
+     than the field in BOTH themes, the stepped radius decreases inward,
+     and the accent is never a button fill. ("blockio" -> crypto.html.) */
+  blockio: {
+    url: "designs/crypto.html",
+    inkNotPureWhite: "--ink",
+    panelDirection: { canvas: "--field", panel: "--card", expect: "lift",
+                      alsoUnder: [{ attr: "data-theme", value: "light" }, { attr: "data-theme", value: "dark" }] },
+    radiusLadder: [[".card", ".coin"], [".coin", ".btn"]],
+    accentNotOn: { token: "--accent", selectors: [".btn"] },
+    /* the primary CTA and the inverted band are near-black, not accent */
+    fillWith: { token: "--ink", selectors: [".btn--dark", ".cta"] },
+    exactCount: { ".feat--dark": 1 },
+    noGradients: { except: [] },
+    present: [".phone", ".screen", ".feat", ".cta", ".num"]
+  },
+
+  /* Vertex — notched containers are THE signature, and the tint step IS
+     the separation model: both are checked mechanically. ("vertex" ->
+     realestate.html.) */
+  vertex: {
+    url: "designs/realestate.html",
+    inkNotPureWhite: "--ink",
+    maskedNotches: { selector: ".hero__bg", minNotches: 1, requireClip: true },
+    tintStep: { page: "--panel", card: "--card", min: 8, max: 12,
+                alsoUnder: [{ attr: "data-theme", value: "light" }, { attr: "data-theme", value: "dark" }] },
+    /* one card of each pastel hue must be in the rotation */
+    present: [".hero__bg", ".fy", ".fb", ".fp", ".fr", ".specs", ".calc", ".pill"]
+  },
+
+  /* Art Course — border-bottom ONLY separation (no vertical rules
+     anywhere), sharp-cornered collage, quiet headings. ("artcourse" ->
+     elearning.html.) */
+  artcourse: {
+    url: "designs/elearning.html",
+    inkNotPureWhite: "--ink",
+    headings: { weight: "500" },
+    borderSides: { only: "Bottom", selectors: [".why__i", ".rev", ".faq__i", ".post"] },
+    noGradients: { except: [] },
+    accentOn: { selector: ".btn--accent", token: "--accent" },
+    exactCount: { ".hero .art": 10 },
+    present: [".art", ".why__i", ".rev", ".faq__i", ".post", ".block--accent"]
+  },
+
+  /* EcoVolt — conversion-led solar: two-tone headings do the emphasis so
+     every heading stays at 500; hairlines both directions; the active nav
+     pill is solid ink. ("ecovolt" -> solar.html.) */
+  ecovolt: {
+    url: "designs/solar.html",
+    inkNotPureWhite: "--ink",
+    headings: { weight: "500" },
+    twoTone: { part: ".dim" },
+    fillWith: { token: "--ink", selectors: [".np--on"] },
+    exactCount: { ".np--on": 1 },
+    noGradients: { except: [] },
+    present: [".np", ".np--ico", ".ring", ".dark"]
+  },
+
+  /* HireLaw — soft-charcoal ink with PURE black reserved for exactly two
+     things (primary buttons + the footer field); chips are the only pills;
+     the pastel cast is the signature. ("hirelaw" -> law.html.) */
+  hirelaw: {
+    url: "designs/law.html",
+    inkNotPureWhite: "--ink",
+    twoTone: { part: ".dim" },
+    radiusLadder: [[".chip", ".btn"]],
+    /* pure black is RESERVED: buttons + footer field. Exception: the button
+       INSIDE the black CTA band inverts to white — the band itself is
+       recorded as authored in the spec's divergence table, and black-on-
+       black would be invisible. */
+    fillWith: { token: "--solid", selectors: [".btn--solid:not(.cta .btn--solid)", ".foot"] },
+    exactCount: { ".cast .fig": 6 },
+    /* the one gradient is the attorney cards' caption scrim — functional
+       legibility over photography, not decoration (cf. Numéro's
+       sanctioned stroke-opacity fade) */
+    noGradients: { except: [".who__f"] },
+    present: [".cast", ".fig", ".quotes", ".chips", ".foot"]
   }
 };
 
@@ -524,6 +620,123 @@ function PAGE_RUNNER(cfg) {
       const got = document.querySelectorAll(sel).length;
       ok("absent: " + sel, got === 0, got + " found");
     });
+  }
+
+  /* --- the alignment IS the structure (VITA): two cells locked to one
+     width so a single rule runs unbroken down the page. --- */
+  if (cfg.equalWidth) {
+    const bad = [];
+    let pairs = 0;
+    cfg.equalWidth.forEach(pr => {
+      const a = document.querySelector(pr[0]), b = document.querySelector(pr[1]);
+      if (!a || !b) { bad.push("missing " + (!a ? pr[0] : pr[1])); return; }
+      pairs++;
+      const d = Math.abs(a.getBoundingClientRect().width - b.getBoundingClientRect().width);
+      if (d > 1) bad.push(pr[0] + " != " + pr[1] + " (" + d.toFixed(1) + "px)");
+    });
+    ok("locked widths: " + cfg.equalWidth.map(p => p.join(" == ")).join(", "),
+      pairs > 0 && bad.length === 0,
+      bad.length ? bad.slice(0, 3).join(" | ") : pairs + " pairs aligned");
+  }
+
+  /* --- notched containers as a REAL mask subtraction (Vertex's signature):
+     the element must carry a multi-layer mask with exclude compositing.
+     Opaque overlay squares would pass every other check we have. --- */
+  if (cfg.maskedNotches) {
+    const els = [...document.querySelectorAll(cfg.maskedNotches.selector)];
+    const bad = [];
+    els.forEach(el => {
+      const s = getComputedStyle(el);
+      const mi = s.maskImage || s.webkitMaskImage || "";
+      const layers = (mi.match(/url\(/g) || []).length;
+      const comp = (s.maskComposite || "") + " " + (s.webkitMaskComposite || "");
+      if (layers < cfg.maskedNotches.minNotches) bad.push("only " + layers + " mask cut layers");
+      if (comp.indexOf("exclude") === -1 && comp.indexOf("xor") === -1) bad.push("no exclude compositing");
+      /* edge-touching cuts live in an SVG clip-path: subtracting a rounded
+         rect from an EDGE cannot draw the concave fillet — only a path can,
+         by alternating arc sweep directions. requireClip asserts it. */
+      if (cfg.maskedNotches.requireClip && (s.clipPath || "none") === "none")
+        bad.push("no clip-path for the edge cuts");
+      else if (cfg.maskedNotches.requireClip && (s.clipPath || "").indexOf("url(") === -1)
+        bad.push("clip-path is not a path reference");
+    });
+    ok(cfg.maskedNotches.selector + " is notched by real subtraction (clip-path + mask)",
+      els.length > 0 && bad.length === 0,
+      els.length === 0 ? "VACUOUS — no " + cfg.maskedNotches.selector + " found"
+        : (bad.length ? bad.slice(0, 2).join(" | ") : els.length + " element(s): clip + " +
+           ((getComputedStyle(els[0]).maskImage || getComputedStyle(els[0]).webkitMaskImage || "").match(/url\(/g) || []).length + " mask cut(s), excluded"));
+  }
+
+  /* --- the tint step IS the separation model (Vertex): the page->card
+     channel delta must sit in range under EVERY theme — the first build
+     shipped a delta of 1 and the layout had no structure at all. --- */
+  if (cfg.tintStep) {
+    const check = label => {
+      const p = hex(css(cfg.tintStep.page)), c = hex(css(cfg.tintStep.card));
+      const d = Math.max(Math.abs(p[0] - c[0]), Math.abs(p[1] - c[1]), Math.abs(p[2] - c[2]));
+      ok("page->card tint step " + cfg.tintStep.min + "-" + cfg.tintStep.max + label,
+        d >= cfg.tintStep.min && d <= cfg.tintStep.max, "delta " + d);
+    };
+    check("");
+    (cfg.tintStep.alsoUnder || []).forEach(t => {
+      const root = document.documentElement;
+      const prev = root.getAttribute(t.attr);
+      root.setAttribute(t.attr, t.value);
+      check(" [" + t.attr + "=" + t.value + "]");
+      if (prev === null) root.removeAttribute(t.attr); else root.setAttribute(t.attr, prev);
+    });
+  }
+
+  /* --- one-sided hairlines (Art Course): the listed cards carry a border
+     on the given side and NOTHING else — no vertical rules anywhere. --- */
+  if (cfg.borderSides) {
+    const side = cfg.borderSides.only;
+    const others = ["Top", "Right", "Bottom", "Left"].filter(k => k !== side);
+    const els = [];
+    cfg.borderSides.selectors.forEach(sel =>
+      [...document.querySelectorAll(sel)].forEach(el => els.push(el)));
+    const bad = els.filter(el => {
+      const s = getComputedStyle(el);
+      if (parseFloat(s["border" + side + "Width"]) <= 0 || s["border" + side + "Style"] === "none") return true;
+      return others.some(k => parseFloat(s["border" + k + "Width"]) > 0 && s["border" + k + "Style"] !== "none");
+    });
+    ok(cfg.borderSides.selectors.join(" ") + " carry a " + side.toLowerCase() + " border only",
+      els.length > 0 && bad.length === 0,
+      els.length === 0 ? "VACUOUS — none found"
+        : (bad.length ? bad.length + " wrong" : els.length + " clean"));
+  }
+
+  /* --- headings stay quiet: one weight (scale and the two-tone device do
+     the hierarchy, never bold), optionally all-caps. --- */
+  if (cfg.headings) {
+    const els = [...document.querySelectorAll("h1,h2,h3,h4")];
+    const bad = els.filter(el => {
+      const s = getComputedStyle(el);
+      if (cfg.headings.weight && s.fontWeight !== cfg.headings.weight) return true;
+      return false;
+    });
+    ok("headings sit at weight " + (cfg.headings.weight || "any"),
+      els.length > 0 && bad.length === 0,
+      bad.length ? bad.slice(0, 3).map(e => e.tagName + " " + getComputedStyle(e).fontWeight).join(" | ")
+        : els.length + " headings clean");
+  }
+
+  /* --- the two-tone heading device: the grey words must live INSIDE
+     headings — a stray grey span elsewhere is not the device. --- */
+  if (cfg.twoTone) {
+    const parts = [...document.querySelectorAll(cfg.twoTone.part)];
+    const strays = parts.filter(el => {
+      let p = el.parentElement;
+      while (p && p !== document.body) {
+        if (/^H[1-4]$/.test(p.tagName)) return false;
+        p = p.parentElement;
+      }
+      return true;
+    });
+    ok("two-tone parts live inside headings (" + cfg.twoTone.part + ")",
+      parts.length > 0 && strays.length === 0,
+      parts.length === 0 ? "VACUOUS — no " + cfg.twoTone.part + " found"
+        : (strays.length ? strays.length + " stray" : parts.length + " in headings"));
   }
 
   /* --- an explicit TONE ORDER: lightest > mid > dark tokens. RIVA's
