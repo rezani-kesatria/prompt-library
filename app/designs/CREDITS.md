@@ -91,19 +91,19 @@ ARCHE and RIVA are **built** and have moved to the table above.
 |---|---|---|
 | [AI SaaS Dashboard – Dark Mode](https://dribbble.com/shots/25825708-AI-SaaS-Dashboard-Dark-Mode) | **Robert Licau** | — |
 | ~~[ShiftPulse — Healthcare Workforce Scheduling](https://dribbble.com/shots/27578135-Healthcare-Workforce-Scheduling-SaaS-Dashboard-ShiftPulse)~~ ✗ **rejected** — shown on an *angled* laptop mockup; perspective corrupts every proportion and radius, so no rule set can be extracted | **Noryn** | — |
-| [Fitness Dashboard UI Design \| Health Analytics Dashboard](https://dribbble.com/shots/27537811-Fitness-Dashboard-UI-Design-Health-Analytics-Dashboard) — **picked 14 Oct 2026**, spec + build starting (PLAN-fitness-reference.md at repo root); byline pending by-eye re-confirmation — note below | **Abdullah Al Mamun ❂** *(unverified)* | — |
+| [Fitness Dashboard UI Design \| Health Analytics Dashboard](https://dribbble.com/shots/27537811-Fitness-Dashboard-UI-Design-Health-Analytics-Dashboard) — **picked 14 Oct 2026**, spec + build starting (PLAN-fitness-reference.md at repo root) | **Mavero Studio** ✅ — see note below | — |
 | [AI-Powered Analytics Overview](https://dribbble.com/shots/27139230-AI-Powered-Analytics-Overview) | **Outcrowd** | — |
 | [Rinesk — Call Centre Dashboard Concept](https://dribbble.com/shots/26662554-Rinesk-Call-centre-Dashboard-Concept) | **Anastasiia Cherniak** | — |
 | [Charts Mega UI Kit — Dashboard UI](https://me.muz.li/vladyslavtyzun/charts-mega-ui-kit-dashboard-ui-2) *(Muzli)* | **Vlad Tyzun** | — |
 | [Modern Finance Management Dashboard \| Financia](https://me.muz.li/orbix-studio/modern-finance-management-dashboard-financia) *(Muzli)* | **Orbix Studio** | — |
 
-> ⚠️ **Byline for 27537811 is UNVERIFIED — the name above is carried over from curation and
-> recorded before any build (HANDOFF §4.8) so it can't get lost.** Dribbble WAF-blocks scripted
-> fetches — 405 "Human Verification" reproduced on 14 Oct 2026 via both `webfetch` and a
-> scripted browser. Web search turned up no secondary post of this shot ID, and *several
-> different* Dribbble/Behance designers share the name "Abdullah Al Mamun" (one posts same-domain
-> fitness shots), so the byline must be confirmed by eye in the owner's browser — the shot ID is
-> authoritative, the slug is not. Replace this note with the verified byline, or strike the credit.
+> ✅ **Byline verified by eye, 14 Oct 2026:** `/shots/27537811` resolves to *"Fitness Dashboard UI
+> Design | Health Analytics Dashboard by Mavero Studio"*, confirmed in the owner's real browser.
+> The shortlist had carried the **wrong name** ("Abdullah Al Mamun ❂") since curation — Dribbble
+> WAF-blocks scripted fetches (405 reproduced this session via `webfetch` and a scripted browser)
+> and web search only surfaced several *unrelated* same-named designers, so the error was
+> catchable only by eye. Another slug-trap lesson: the ID was right, the credit wasn't. Source
+> still saved on disk (`image_reference/aa4c4f3c…webp`) — flat, full-bleed screen, no mockup frame.
 
 ---
 
