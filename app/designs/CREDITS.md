@@ -14,7 +14,7 @@ memory — never reconstructed from a URL slug or a filename.
 
 ---
 
-## Built — the twelve recreations
+## Built — the thirteen recreations
 
 Each ships an HTML recreation plus a `*.design-language.md` spec ending in a copy-paste prompt payload.
 
@@ -30,6 +30,7 @@ Each ships an HTML recreation plus a `*.design-language.md` spec ending in a cop
 | **MoveIQ** — fleet workbench<br>[`fleet.html`](fleet.html) · [spec](fleet.design-language.md) | [Logistics & Fleet Management Dashboard UI](https://dribbble.com/shots/26849863-Logistics-Fleet-Management-Dashboard-UI) | **Ronas IT \| UI/UX Team** | — |
 | **ARCHE** — commerce board<br>[`saas.html`](saas.html) · [spec](saas.design-language.md) | [SaaS Dashboard](https://dribbble.com/shots/26666273-SaaS-Dashboard) | **Juice Lab** | UI/UX Development Agency |
 | **Metric** — analytics board<br>[`metrics.html`](metrics.html) · [spec](metrics.design-language.md) | [Dark Dashboard UI — SaaS Startup Metrics & Analytics Panel](https://dribbble.com/shots/27207977-Dark-Dashboard-UI-SaaS-Startup-Metrics-Analytics-Panel) | **Igor Zeru** | — |
+| **RIVA** — AI integrations board<br>[`riva.html`](riva.html) · [spec](riva.design-language.md) | [RIVA – AI Integrations Dashboard \| Dark SaaS UI](https://dribbble.com/shots/27285217-RIVA-AI-Integrations-Dashboard-Dark-SaaS-UI-Qudra) | **Md Forhad Alam** | for Qudra |
 | **SARA** — task management app 🚩<br>[`sara.html`](sara.html) · [spec](sara.design-language.md) | [Task Management Mobile App](https://dribbble.com/shots/26300878-Task-Management-Mobile-App) | **byline pending verification** ⚠️ — see the shortlist note below | — |
 | **TASK KIT** — task management app 🚩<br>[`taskkit.html`](taskkit.html) · [spec](taskkit.design-language.md) | [Task Management Mobile App Design UI/UX](https://dribbble.com/shots/27043819-Task-Management-Mobile-App-Design-UI-UX) | **byline pending verification** ⚠️ — see the shortlist note below | — |
 
@@ -84,18 +85,25 @@ brand palette — TENON's shellac amber `#FBE9CB` is its own, tuned to satisfy t
 ## Shortlist — dashboards ▶ *(ACTIVE)*
 
 Candidates for data-dense product UI. Three are built (Numéro — audited 4 Sep 2026, MoveIQ, Metric);
-ARCHE is **built** and has moved to the table above.
+ARCHE and RIVA are **built** and have moved to the table above.
 
 | Shot | Designer | Studio / team |
 |---|---|---|
 | [AI SaaS Dashboard – Dark Mode](https://dribbble.com/shots/25825708-AI-SaaS-Dashboard-Dark-Mode) | **Robert Licau** | — |
-| [RIVA – AI Integrations Dashboard \| Dark SaaS UI](https://dribbble.com/shots/27285217-RIVA-AI-Integrations-Dashboard-Dark-SaaS-UI-Qudra) — **spec written 4 Sep 2026** ([riva.design-language.md](riva.design-language.md)), build next. Byline verified against the designer's LinkedIn post + the Qudra Behance case study; source still saved on disk and pixel-scanned | **Md Forhad Alam** | for Qudra |
 | ~~[ShiftPulse — Healthcare Workforce Scheduling](https://dribbble.com/shots/27578135-Healthcare-Workforce-Scheduling-SaaS-Dashboard-ShiftPulse)~~ ✗ **rejected** — shown on an *angled* laptop mockup; perspective corrupts every proportion and radius, so no rule set can be extracted | **Noryn** | — |
-| [Fitness Dashboard UI Design \| Health Analytics Dashboard](https://dribbble.com/shots/27537811-Fitness-Dashboard-UI-Design-Health-Analytics-Dashboard) | **Abdullah Al Mamun ❂** | — |
+| [Fitness Dashboard UI Design \| Health Analytics Dashboard](https://dribbble.com/shots/27537811-Fitness-Dashboard-UI-Design-Health-Analytics-Dashboard) — **picked 14 Oct 2026**, spec + build starting (PLAN-fitness-reference.md at repo root); byline pending by-eye re-confirmation — note below | **Abdullah Al Mamun ❂** *(unverified)* | — |
 | [AI-Powered Analytics Overview](https://dribbble.com/shots/27139230-AI-Powered-Analytics-Overview) | **Outcrowd** | — |
 | [Rinesk — Call Centre Dashboard Concept](https://dribbble.com/shots/26662554-Rinesk-Call-centre-Dashboard-Concept) | **Anastasiia Cherniak** | — |
 | [Charts Mega UI Kit — Dashboard UI](https://me.muz.li/vladyslavtyzun/charts-mega-ui-kit-dashboard-ui-2) *(Muzli)* | **Vlad Tyzun** | — |
 | [Modern Finance Management Dashboard \| Financia](https://me.muz.li/orbix-studio/modern-finance-management-dashboard-financia) *(Muzli)* | **Orbix Studio** | — |
+
+> ⚠️ **Byline for 27537811 is UNVERIFIED — the name above is carried over from curation and
+> recorded before any build (HANDOFF §4.8) so it can't get lost.** Dribbble WAF-blocks scripted
+> fetches — 405 "Human Verification" reproduced on 14 Oct 2026 via both `webfetch` and a
+> scripted browser. Web search turned up no secondary post of this shot ID, and *several
+> different* Dribbble/Behance designers share the name "Abdullah Al Mamun" (one posts same-domain
+> fitness shots), so the byline must be confirmed by eye in the owner's browser — the shot ID is
+> authoritative, the slug is not. Replace this note with the verified byline, or strike the credit.
 
 ---
 
@@ -137,5 +145,5 @@ the same ground is not re-covered.
 
 ---
 
-*Last updated 15 September 2026. When a shortlisted shot gets built, move it into the table above and
+*Last updated 14 October 2026. When a shortlisted shot gets built, move it into the table above and
 record its designer in the spec's Source row as well.*
