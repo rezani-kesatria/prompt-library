@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FITNESS — Health &amp; Activity Dashboard</title>
+<meta name="description" content="Dark glassmorphic health dashboard — one accent per metric, frosted panels over a solid dark canvas." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   FITNESS — design language studied from the Mavero Studio shot
+   (see fitness.design-language.md). Geometry pixel-scanned off
+   the source still; colour values carry the glass caveat.
+   ============================================================ */
+:root{
+  --ink:#FFFFFF;               /* measured pure white — NOT the library's off-white law */
+  --muted:#9AA0A2;
+  --faint:#6E7577;
+  --canvas:#15181A;            /* solid canvas — replaced the photograph (authored, 16 Oct 2026) */
+  --glass:rgba(30,34,38,.52);  /* one translucent fill for every panel */
+  --glass-bright:rgba(46,52,58,.55);
+  --accent:#FE6628;            /* measured on the one opaque surface: the active rail chip */
+  --rose:#E8446A;
+  --green:#4ADE67;
+  --green-deep:#84B53B;
+  --red:#F44236;
+  --r-card:20px;
+  --f:"Plus Jakarta Sans",system-ui,sans-serif;
+  --m:25px;                    /* the uniform outer margin */
+  --g:8px;                     /* the tight uniform gutter */
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--f);color:var(--ink);font-size:15px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;overflow:hidden}
+svg{display:block}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input{font:inherit}
+::selection{background:rgba(254,102,40,.35)}
+
+/* ============ the canvas — SOLID DARK, no gradient and no photograph.
+   Authored divergence (human request, 16 Oct 2026): the source's backdrop
+   photo is replaced by one flat tone; the glass blur now samples the flat
+   canvas, which keeps every panel's composite colour deterministic. The
+   noise film stays so the flat field still reads as material, not void. */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--canvas)}
+.bg .noise{position:absolute;inset:0;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E")}
+
+/* ============ shell: inset rail + header + one scored slab ============ */
+.app{position:relative;z-index:1;display:grid;grid-template-columns:94px 1fr;
+  gap:var(--m);padding:var(--m);height:100vh}
+
+/* ---- icon rail: glass column, glyphs only, one opaque orange chip ---- */
+.rail{background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.15);
+  backdrop-filter:blur(18px) saturate(1.15);border-radius:24px;
+  display:flex;flex-direction:column;align-items:center;padding:18px 0}
+.rail__nav{display:flex;flex-direction:column;gap:8px}
+.rail__nav button{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;
+  color:var(--muted);transition:color .2s}
+.rail__nav button svg{width:22px;height:22px}
+.rail__nav button:hover{color:var(--ink)}
+.rail__nav button.on{background:var(--accent);color:#1A1008;
+  box-shadow:0 6px 22px rgba(254,102,40,.35)}   /* the ONLY opaque object */
+.rail__theme{margin-top:auto;display:flex;flex-direction:column;gap:14px;align-items:center}
+.rail__theme button{color:var(--faint);width:36px;height:36px;display:grid;place-items:center}
+.rail__theme button svg{width:19px;height:19px}
+.rail__theme button:hover{color:var(--ink)}
+.rail__theme button.on{color:var(--ink)}
+
+/* ---- right side: header + slab. The slab has a FLOOR: below ~660px of
+   viewport height the body scrolls rather than crushing the cards
+   (charts and chips keep their anatomy). ---- */
+.body{display:flex;flex-direction:column;min-width:0;min-height:0;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.10) transparent}
+.body::-webkit-scrollbar{width:5px}
+.body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.10);border-radius:4px}
+
+.top{display:flex;align-items:center;gap:16px;flex:0 0 auto}
+.greet{margin-right:auto;flex:0 0 auto}
+.greet h1{font-size:clamp(28px,2.9vw,40px);font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.greet p{font-size:16px;color:var(--muted);margin-top:4px}
+.search{flex:0 1 430px;min-width:200px;display:flex;align-items:center;gap:12px;background:var(--glass);
+  -webkit-backdrop-filter:blur(18px) saturate(1.15);backdrop-filter:blur(18px) saturate(1.15);
+  border-radius:999px;height:60px;padding:0 24px}
+.search svg{width:19px;height:19px;color:var(--muted);flex:0 0 19px}
+.search input{flex:1;border:0;outline:none;background:none;color:var(--ink);font-size:15px}
+.search input::placeholder{color:var(--muted)}
+.bell{width:60px;height:60px;border-radius:50%;background:var(--glass);
+  -webkit-backdrop-filter:blur(18px) saturate(1.15);backdrop-filter:blur(18px) saturate(1.15);
+  display:grid;place-items:center;color:var(--ink);position:relative;flex:0 0 60px}
+.bell svg{width:21px;height:21px}
+.bell i{position:absolute;top:15px;right:16px;width:7px;height:7px;border-radius:50%;
+  background:var(--accent)}
+.who{display:flex;align-items:center;gap:14px}
+.ava{width:60px;height:60px;border-radius:50%;background:linear-gradient(140deg,#8A6A54,#4A3A30);
+  display:grid;place-items:center;font-weight:600;font-size:20px;color:#F2E7DC;flex:0 0 60px}
+.who b{font-size:17px;font-weight:600;display:block}
+.who small{font-size:13.5px;color:var(--muted)}
+
+/* ---- the slab: tight uniform gutter, one 2-col span, 3+1 columns ---- */
+.slab{flex:1;min-height:660px;margin-top:44px;display:grid;gap:var(--g);
+  grid-template-columns:repeat(3,1fr) 1.18fr;
+  grid-template-rows:1.64fr 1fr 1.31fr}
+.card{background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.15);
+  backdrop-filter:blur(18px) saturate(1.15);border-radius:var(--r-card);
+  padding:22px;display:flex;flex-direction:column;min-height:0;overflow:hidden;position:relative}
+.stress{grid-column:4;grid-row:1}
+.cal  {grid-column:1;grid-row:2}
+.hrt  {grid-column:2;grid-row:2}
+.steps{grid-column:3;grid-row:2}
+.sleep{grid-column:1/3;grid-row:3}
+.work {grid-column:3;grid-row:3}
+.goals{grid-column:4;grid-row:2/4}
+
+/* ---- metric card anatomy: chip / label / micro / series / value ---- */
+.mcard__hd{display:flex;align-items:center;gap:13px}
+.chip{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;flex:0 0 50px}
+.chip svg{width:22px;height:22px;color:#FFF}
+.chip--accent{background:var(--accent)}
+.chip--rose{background:var(--rose)}
+.chip--green{background:var(--green)}
+.chip--dark{background:rgba(255,255,255,.08)}
+.mcard__hd b{font-size:21px;font-weight:500;white-space:nowrap}
+.mcard__hd .micro{margin-left:auto;font-size:12.5px;color:var(--muted);white-space:nowrap}
+.mcard__series{flex:1;min-height:0;display:flex;align-items:flex-end;padding:10px 2px 0;overflow:hidden}
+.mcard__val{font-size:30px;font-weight:600;letter-spacing:-.01em}
+.mcard__val small{font-size:15px;font-weight:500;color:var(--muted);margin-left:6px}
+
+/* calories: thin rounded-top orange bars, mixed dim/bright rhythm */
+.bars{display:flex;align-items:flex-end;justify-content:center;gap:16px;width:100%;height:100%;padding:0 4px}
+.bars i{width:7px;border-radius:4px 4px 0 0;background:var(--accent);opacity:var(--o,.9);
+  transform-origin:bottom;height:calc(var(--v) * 1%)}
+
+/* heart rate: apex line, rose — axis floor/ceiling leaves the headroom
+   the source ECG has (sparkline otherwise stretches min-max to full box) */
+.chart-line{flex:1;min-height:0 !important;margin:4px -8px 0}
+/* !important is load-bearing: ApexCharts writes an inline min-height on the
+   box at every (re)render; against min-height:0 it would ratchet the box
+   (and the next measured height) +15px per resize tick, forever. */
+
+/* steps: dot-matrix columns — green stack capped by a WHITE top dot. NOT bars. */
+.dots{display:flex;gap:12px;align-items:flex-end;width:100%;height:100%;padding:2px 10px 0}
+.dots .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:5px;height:100%}
+.dots .col i{width:9px;height:9px;border-radius:50%;background:var(--green);align-self:center;flex:0 0 9px}
+.dots .col i.cap{background:#FFF}
+
+/* ---- sleep: multi-lane hypogram (Awake/REM/Core/Deep rows over time),
+   moon->sun dotted axis, stacked legend ---- */
+.lanes{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;
+  padding:10px 4px 8px;margin-top:8px}
+.lane{position:relative;height:9px;flex:0 0 9px}
+.lane i{position:absolute;top:0;height:9px;border-radius:999px;transform-origin:left center}
+.sleep__axis{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted);margin-top:10px}
+.sleep__axis b{font-weight:500}
+.sleep__axis .t{flex:1;height:3px;
+  background-image:radial-gradient(circle,rgba(255,255,255,.30) 1px,transparent 1.4px);
+  background-size:13px 3px;background-position:0 50%;background-repeat:repeat-x}
+.sleep__axis svg{width:14px;height:14px;color:var(--muted);flex:0 0 14px}
+.legend{display:flex;justify-content:space-between;gap:16px;margin-top:auto;padding-top:10px;flex-wrap:wrap}
+.legend div{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--muted)}
+.legend .nm{display:flex;align-items:center;gap:8px}
+.legend i{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+.legend b{color:var(--ink);font-weight:600;font-size:16px}
+
+/* ---- workout: apex area + legend ---- */
+.work__hd{display:flex;align-items:center;gap:16px;font-size:13.5px;color:var(--muted)}
+.work__hd i{width:8px;height:8px;border-radius:50%;flex:0 0 8px}
+.chart-area{flex:1;min-height:0 !important;margin:6px -6px 0}
+
+/* ---- stress: radial tick gauge + white pill + wave ---- */
+.sc__hd{display:flex;align-items:flex-start;justify-content:space-between}
+.sc__hd b{font-size:21px;font-weight:500;white-space:nowrap}
+.kebab{color:var(--muted);letter-spacing:2px;font-weight:600}
+/* gauge scales with its card (flex space, svg keeps its viewBox) — never
+   a fixed px island that overflows on shorter viewports */
+.gauge{flex:1;min-height:0;width:100%;display:grid;place-items:center;margin:8px 0 0}
+.gauge svg{grid-area:1/1;height:100%;width:auto;max-width:100%}
+.gauge__txt{grid-area:1/1;text-align:center;transform:translateY(14px)}
+.gauge__txt b{font-size:21px;font-weight:600;display:block}
+.gauge__txt small{font-size:12.5px;color:var(--muted)}
+.sc__pill{align-self:center;margin-top:12px;background:#FFF;color:#17191B;border-radius:999px;
+  padding:7px 20px;font-size:13.5px;font-weight:600}
+.sc__wave{margin-top:auto;padding-top:10px}
+.sc__ft{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-top:8px}
+
+/* ---- goals: icon row + label + RIGHT checkbox, dashed separators ---- */
+.goals__hd{display:flex;align-items:center;justify-content:space-between}
+.goals__hd b{font-size:21px;font-weight:500;white-space:nowrap}
+.gedit{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.07);
+  display:grid;place-items:center;color:var(--muted);flex:0 0 38px}
+.gedit svg{width:17px;height:17px}
+.glist{display:flex;flex-direction:column;flex:1;min-height:0;margin-top:8px}
+.grow{display:flex;align-items:center;gap:14px;flex:1 1 0;min-height:42px;padding:0 2px;
+  font-size:15.5px;color:var(--ink);border-bottom:1px dashed rgba(255,255,255,.10)}
+.grow:last-child{border-bottom:0}
+.gico{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.07);
+  display:grid;place-items:center;flex:0 0 36px}
+.gico svg{width:17px;height:17px;color:#FFF}
+.gbox{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.10);
+  display:grid;place-items:center;flex:0 0 24px;margin-left:auto}
+.gbox svg{width:13px;height:13px;color:#FFF}
+.grow.done{color:rgba(255,255,255,.38)}
+.grow.done .gico{background:rgba(255,255,255,.05)}
+.grow.done .gico svg{color:rgba(255,255,255,.30)}
+.grow.done .gbox{background:var(--accent)}
+.gbox .tick{display:none}
+.grow.done .tick{display:block}
+.grow.done s{text-decoration:line-through;text-decoration-color:rgba(255,255,255,.30);
+  text-decoration-thickness:1.5px}
+.gprog{margin-top:auto}
+.gtrack{height:14px;border-radius:999px;background:rgba(255,255,255,.92);overflow:hidden}
+.gfill{height:100%;width:40%;border-radius:999px;background:var(--accent)}
+.gprog__ft{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;
+  font-size:14px;color:var(--muted)}
+.gprog__ft b{font-size:19px;color:var(--accent);font-weight:600}
+
+/* ---- health summary: authored composite panel, row 1, columns 1-3.
+   The runner cutout is the panel's BACKGROUND (scaled until only head-to-
+   waist shows, bottom cropped by the card, centre biased slightly right);
+   foreground = the weekly score, three circle-progress domain rings, and
+   the Coach AI insight as its own highlighted glass section. ---- */
+.summ{grid-column:1/4;grid-row:1;container-type:size}
+/* the veil layer paints above static content (positioned z-0 beats in-flow),
+   so the header must be lifted or it reads dimmed through the gradient */
+.summ .mcard__hd{position:relative;z-index:1}
+/* background layer: transparent PNG floats over the canvas, oversized so
+   the waist line lands at the card's bottom edge. The veil is a canvas-
+   tinted gradient, not a black scrim — it keeps white foreground text
+   above 4.5:1 while the cutout stays readable as imagery. */
+.summ__bg{position:absolute;inset:0;z-index:0;pointer-events:none}
+.summ__bg img{position:absolute;top:0;left:50%;height:250%;width:auto;
+  transform:translateX(-26%)}
+.summ__bg::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg, rgba(21,24,26,.96) 0%, rgba(21,24,26,.88) 26%, rgba(21,24,26,.42) 44%, rgba(21,24,26,.22) 62%, rgba(21,24,26,.18) 100%)}
+.summ__bd{position:relative;z-index:1;flex:1;min-height:0;display:flex;align-items:center;
+  justify-content:space-between;gap:18px;padding-top:10px}
+.summ__left{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:6px}
+.summ__score{flex:0 0 auto}
+/* score: the 86/100 stat, ~2.5x the greeting (human feedback 19 Oct: a bit
+   bigger than the first toned-down pass) */
+.summ__num{display:flex;align-items:baseline;gap:10px}
+.summ__num b{font-size:clamp(44px,30cqh,84px);font-weight:600;letter-spacing:-.03em;line-height:.95}
+.summ__num small{font-size:17px;font-weight:500;color:var(--muted)}
+.summ__delta{margin-top:10px;display:flex;align-items:center;gap:10px}
+.summ__delta .pill{display:inline-flex;align-items:center;gap:5px;background:#FFF;color:#15181A;
+  border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600}
+.summ__delta .pill svg{width:13px;height:13px}
+.summ__delta .vs{font-size:12.5px;color:var(--muted)}
+/* domain rings: the panel's own chart species — one circle gauge per
+   domain, side by side UNDER the score, each wearing its OWN accent
+   (Activity orange, Heart rose, Sleep green). Track is 10% white; the arc
+   arrives by stroke-dashoffset, the number counts up inside. */
+/* guaranteed minimum air between the score block and the rings row —
+   human feedback 19 Oct: the two contents were reading as one block */
+.summ__rings{display:flex;align-items:center;gap:18px;flex:0 1 auto;min-width:0;
+  margin-top:22px;margin-bottom:8px}
+.ringwrap{display:flex;flex-direction:column;align-items:center;flex:0 1 auto;min-width:0}
+.ring{position:relative;width:clamp(48px,22cqh,72px);height:clamp(48px,22cqh,72px)}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:8;stroke-linecap:round}
+.ring circle.track{stroke:rgba(255,255,255,.10)}
+.ring .val{position:absolute;inset:0;display:grid;place-items:center;
+  font-size:clamp(12px,6.5cqh,19px);font-weight:600;letter-spacing:-.01em;
+  text-shadow:0 1px 10px rgba(21,24,26,.65)}
+.ring__lbl{font-size:12.5px;color:var(--muted);margin-top:6px}
+/* Coach AI: highlighted glass section over the runner background — the
+   same one glass tone as the cards, readable against the imagery. */
+.summ__coachbox{flex:0 0 272px;align-self:center;background:rgba(30,34,38,.62);
+  -webkit-backdrop-filter:blur(18px) saturate(1.15);backdrop-filter:blur(18px) saturate(1.15);
+  border-radius:20px;padding:24px 26px}
+.summ__coachbox-hd{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;
+  color:rgba(255,255,255,.88)}
+.summ__coachbox-hd svg{width:17px;height:17px;color:var(--accent)}
+.summ__coachbox p{margin-top:12px;font-size:15px;line-height:1.6;color:#FFF}
+.summ__coachbox p b{font-weight:600}
+
+/* entry pre-hide — every [data-a] is animated back with fromTo */
+body.js [data-a]{opacity:0}
+
+@media (prefers-reduced-motion: reduce){
+  body.js [data-a]{opacity:1}
+  .bars i{transform:none!important}
+}
+</style>
+</head>
+<body class="js">
+<div class="bg" aria-hidden="true">
+  <div class="noise"></div>
+</div>
+
+<div class="app">
+  <nav class="rail" data-a aria-label="Primary">
+    <div class="rail__nav">
+      <button class="on" aria-label="Dashboard"><i data-lucide="layout-grid"></i></button>
+      <button aria-label="Programs"><i data-lucide="notebook-text"></i></button>
+      <button aria-label="Schedule"><i data-lucide="calendar-days"></i></button>
+      <button aria-label="History"><i data-lucide="clock"></i></button>
+      <button aria-label="Community"><i data-lucide="users"></i></button>
+      <button aria-label="Settings"><i data-lucide="settings"></i></button>
+    </div>
+    <div class="rail__theme">
+      <button class="on" aria-label="Dark theme"><i data-lucide="moon"></i></button>
+      <button aria-label="Light theme"><i data-lucide="sun"></i></button>
+    </div>
+  </nav>
+
+  <div class="body">
+    <header class="top">
+      <div class="greet" data-a>
+        <h1>Good Morning, Alvie <span aria-hidden="true">👋</span></h1>
+        <p>Let's do some workout today</p>
+      </div>
+      <label class="search" data-a>
+        <i data-lucide="search"></i>
+        <input type="text" placeholder="Search something here..." aria-label="Search" />
+      </label>
+      <button class="bell" data-a aria-label="Notifications"><i data-lucide="bell"></i><i class="dot"></i></button>
+      <div class="who" data-a>
+        <div class="ava">AW</div>
+        <div><b>Alvie Wahed</b><small>Product manager</small></div>
+      </div>
+    </header>
+
+    <main class="slab">
+      <!-- ============ row 1: the weekly summary panel + stress card ============ -->
+      <section class="card summ" data-a aria-label="Health summary">
+        <div class="mcard__hd">
+          <span class="chip chip--accent"><i data-lucide="activity"></i></span>
+          <b>Health Summary</b>
+          <span class="micro">This week</span>
+        </div>
+        <div class="summ__bg" aria-hidden="true">
+          <img src="assets/fitness/summary-tile.png" alt="">
+        </div>
+        <div class="summ__bd">
+          <div class="summ__left">
+            <div class="summ__score">
+              <div class="summ__num"><b><span data-count="86">0</span></b><small>/ 100</small></div>
+              <div class="summ__delta">
+                <span class="pill"><i data-lucide="trending-up"></i>+4 pts</span>
+                <span class="vs">vs last week</span>
+              </div>
+            </div>
+            <div class="summ__rings" role="img" aria-label="Circle progress of this week's domain scores: Activity 82, Heart 78, Sleep 94">
+            <div class="ringwrap">
+              <div class="ring">
+                <svg viewBox="0 0 106 106" aria-hidden="true">
+                  <circle class="track" cx="53" cy="53" r="46"/>
+                  <circle cx="53" cy="53" r="46" stroke="var(--accent)" data-p="82"
+                    style="stroke-dasharray:289.03;stroke-dashoffset:52.02"/>
+                </svg>
+                <span class="val" aria-hidden="true"><span data-count="82">0</span></span>
+              </div>
+              <span class="ring__lbl">Activity</span>
+            </div>
+            <div class="ringwrap">
+              <div class="ring">
+                <svg viewBox="0 0 106 106" aria-hidden="true">
+                  <circle class="track" cx="53" cy="53" r="46"/>
+                  <circle cx="53" cy="53" r="46" stroke="var(--rose)" data-p="78"
+                    style="stroke-dasharray:289.03;stroke-dashoffset:63.59"/>
+                </svg>
+                <span class="val" aria-hidden="true"><span data-count="78">0</span></span>
+              </div>
+              <span class="ring__lbl">Heart</span>
+            </div>
+            <div class="ringwrap">
+              <div class="ring">
+                <svg viewBox="0 0 106 106" aria-hidden="true">
+                  <circle class="track" cx="53" cy="53" r="46"/>
+                  <circle cx="53" cy="53" r="46" stroke="var(--green)" data-p="94"
+                    style="stroke-dasharray:289.03;stroke-dashoffset:17.34"/>
+                </svg>
+                <span class="val" aria-hidden="true"><span data-count="94">0</span></span>
+              </div>
+              <span class="ring__lbl">Sleep</span>
+            </div>
+          </div>
+          </div>
+          <div class="summ__coachbox">
+            <div class="summ__coachbox-hd"><i data-lucide="sparkles"></i>Coach AI</div>
+            <p><b>Sleep</b> leads the week at <b>94</b>.
+               <b>Heart</b> lags at <b>78</b> — ease the late sessions.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ row 2: the three accent-owned metric cards ============ -->
+      <section class="card cal" data-a aria-label="Calories">
+        <div class="mcard__hd">
+          <span class="chip chip--accent"><i data-lucide="flame"></i></span>
+          <b>Calories</b>
+          <span class="micro">Last 7 days</span>
+        </div>
+        <div class="mcard__series"><div class="bars" aria-hidden="true">
+          <i style="--v:52;--o:.55"></i><i style="--v:78;--o:.95"></i><i style="--v:38;--o:.5"></i><i style="--v:95;--o:1"></i>
+          <i style="--v:60;--o:.6"></i><i style="--v:84;--o:.9"></i><i style="--v:40;--o:.5"></i>
+          <i style="--v:88;--o:.95"></i><i style="--v:47;--o:.55"></i>
+        </div></div>
+        <div class="mcard__val"><span data-count="1428">0</span><small>Kcal</small></div>
+      </section>
+
+      <section class="card hrt" data-a aria-label="Heart rate">
+        <div class="mcard__hd">
+          <span class="chip chip--rose"><i data-lucide="heart-pulse"></i></span>
+          <b>Heart Rate</b>
+          <span class="micro">Last 7 days</span>
+        </div>
+        <div class="chart-line" id="hrChart"></div>
+        <div class="mcard__val"><span data-count="104">0</span><small>bpm/day</small></div>
+      </section>
+
+      <section class="card steps" data-a aria-label="Steps">
+        <div class="mcard__hd">
+          <span class="chip chip--green"><i data-lucide="person-standing"></i></span>
+          <b>Steps</b>
+          <span class="micro">Last 7 days</span>
+        </div>
+        <div class="mcard__series"><div class="dots" id="stepDots" aria-hidden="true"></div></div>
+        <div class="mcard__val"><span data-count="9886">0</span><small>Steps</small></div>
+      </section>
+
+      <!-- ============ row 2: sleep (2-col span, swallows the gutter) ============ -->
+      <section class="card sleep" data-a aria-label="Sleep">
+        <div class="mcard__hd">
+          <span class="chip chip--dark"><i data-lucide="moon"></i></span>
+          <b>Sleep</b>
+          <span class="micro">Last 7 days</span>
+        </div>
+        <div class="lanes" id="sleepLanes" aria-hidden="true"></div>
+        <div class="sleep__axis" aria-hidden="true">
+          <i data-lucide="moon"></i><b>01:38</b><span class="t"></span><b>07:12</b><i data-lucide="sun"></i>
+        </div>
+        <div class="legend">
+          <div><span class="nm"><i style="background:var(--red)"></i>Awake</span><b>20 min</b></div>
+          <div><span class="nm"><i style="background:var(--rose)"></i>REM</span><b>1h 9min</b></div>
+          <div><span class="nm"><i style="background:var(--green-deep)"></i>Core</span><b>4h 17min</b></div>
+          <div><span class="nm"><i style="background:var(--green)"></i>Deep</span><b>18min</b></div>
+        </div>
+      </section>
+
+      <section class="card work" data-a aria-label="Workout activity">
+        <div class="sc__hd"><b>Workout Activity</b></div>
+        <div class="work__hd" style="margin-top:10px">
+          <span style="display:flex;align-items:center;gap:7px"><i style="background:#FFF"></i>Online</span>
+          <span style="display:flex;align-items:center;gap:7px"><i style="background:var(--accent)"></i>Offline</span>
+        </div>
+        <div class="chart-area" id="workChart"></div>
+      </section>
+
+      <!-- ============ right column: stress + goals ============ -->
+      <section class="card stress" data-a aria-label="Stress level">
+        <div class="sc__hd"><b>Stress Level</b><button class="kebab" aria-label="More">···</button></div>
+        <div class="gauge">
+          <svg viewBox="0 0 238 150" id="gaugeSvg" aria-hidden="true"></svg>
+          <div class="gauge__txt"><b>Low Stress</b><small>Current Level</small></div>
+        </div>
+        <span class="sc__pill" data-a>High Level</span>
+        <div class="sc__wave" aria-hidden="true">
+          <svg viewBox="0 0 260 34" width="100%" height="34" preserveAspectRatio="none">
+            <path d="M0 22 C 22 10, 40 30, 62 20 S 100 8, 124 20 S 164 32, 190 16 S 236 12, 260 20"
+              fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.6"/>
+            <circle cx="124" cy="19" r="3" fill="var(--accent)"/>
+          </svg>
+        </div>
+        <div class="sc__ft"><span>Daily Dynamic</span><span>01:00 PM</span></div>
+      </section>
+
+      <section class="card goals" data-a aria-label="Daily goals">
+        <div class="goals__hd"><b>Daily Goals</b><span class="gedit"><i data-lucide="square-pen"></i></span></div>
+        <div class="glist">
+          <div class="grow done"><span class="gico"><i data-lucide="moon"></i></span><s>Sleep 7h30m</s><span class="gbox"><i data-lucide="check" class="tick"></i></span></div>
+          <div class="grow done"><span class="gico"><i data-lucide="glass-water"></i></span><s>Drink 2L of Water</s><span class="gbox"><i data-lucide="check" class="tick"></i></span></div>
+          <div class="grow"><span class="gico"><i data-lucide="person-standing"></i></span>Complete workout<span class="gbox"></span></div>
+          <div class="grow"><span class="gico"><i data-lucide="footprints"></i></span>10,000 Steps<span class="gbox"></span></div>
+          <div class="grow"><span class="gico"><i data-lucide="apple"></i></span>1,500 Calories<span class="gbox"></span></div>
+        </div>
+        <div class="gprog" data-a>
+          <div class="gtrack"><div class="gfill" id="gfill"></div></div>
+          <div class="gprog__ft"><span>Compered</span><b>40%</b></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<script>if(window.lucide)lucide.createIcons({attrs:{"stroke-width":1.6}});</script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.54.1/dist/apexcharts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.17/dist/motion.min.js"></script>
+<script>
+(function(){
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var g = window.gsap;
+
+  /* ---- steps: dot-matrix columns, green stack with a WHITE cap dot ---- */
+  var stepHeights = [5,6,5,6,6,5,6];
+  var host = document.getElementById("stepDots");
+  stepHeights.forEach(function(h){
+    var col = document.createElement("div"); col.className = "col";
+    for (var j = 0; j < h; j++) {
+      var d = document.createElement("i");
+      if (j === h - 1) d.className = "cap";
+      col.appendChild(d);
+    }
+    host.appendChild(col);
+  });
+
+  /* ---- sleep: multi-lane hypogram — one lane per stage, segments along
+     the night timeline (percent of the 01:38 -> 07:12 axis) ---- */
+  var sleepData = [
+    { color: "var(--red)",        segs: [[0,1.8],[47.5,1.6],[71,1.3],[88.5,1.6]] },
+    { color: "var(--rose)",       segs: [[3.5,5.5],[14.5,2.5],[27,3.5],[38,2.5],[55,2.8],[63.5,3.2],[79,4.5]] },
+    { color: "var(--green-deep)", segs: [[5,12],[21.5,6.5],[33,15],[51.5,8.5],[67.5,6],[79.5,12.5]] },
+    { color: "var(--green)",      segs: [[9.5,2],[30,1.5],[49,1.5],[75,1.2],[92.5,2]] }
+  ];
+  var lanesHost = document.getElementById("sleepLanes");
+  sleepData.forEach(function(lane){
+    var row = document.createElement("div"); row.className = "lane";
+    lane.segs.forEach(function(s){
+      var seg = document.createElement("i");
+      seg.style.left = s[0] + "%";
+      seg.style.width = s[1] + "%";
+      seg.style.background = lane.color;
+      row.appendChild(seg);
+    });
+    lanesHost.appendChild(row);
+  });
+
+  /* ---- stress gauge: arc of radial ticks, orange to the needle side ---- */
+  var NS = "http://www.w3.org/2000/svg";
+  var gv = document.getElementById("gaugeSvg");
+  var cx = 119, cy = 132, r = 100;
+  for (var i = 0; i <= 40; i++) {
+    var t = Math.PI * (1 + i / 40);            /* 180deg -> 360deg, upper half */
+    var big = i % 5 === 0;
+    var r2 = r - (big ? 16 : 10);
+    var x1 = cx + Math.cos(t) * (r - 2), y1 = cy + Math.sin(t) * (r - 2);
+    var x2 = cx + Math.cos(t) * r2,       y2 = cy + Math.sin(t) * r2;
+    var ln = document.createElementNS(NS, "line");
+    ln.setAttribute("x1", x1.toFixed(1)); ln.setAttribute("y1", y1.toFixed(1));
+    ln.setAttribute("x2", x2.toFixed(1)); ln.setAttribute("y2", y2.toFixed(1));
+    ln.setAttribute("stroke", i <= 14 ? "var(--accent)" : "rgba(255,255,255,.22)");
+    ln.setAttribute("stroke-width", big ? "2.4" : "1.4");
+    ln.setAttribute("stroke-linecap", "round");
+    gv.appendChild(ln);
+  }
+  var needle = document.createElementNS(NS, "line");
+  needle.setAttribute("x1", cx); needle.setAttribute("y1", cy);
+  needle.setAttribute("x2", cx); needle.setAttribute("y2", cy - 58);
+  needle.setAttribute("stroke", "var(--accent)"); needle.setAttribute("stroke-width", "3");
+  needle.setAttribute("stroke-linecap", "round");
+  /* initial park angle lives in the SVG transform ATTRIBUTE — a CSS inline
+     transform here makes GSAP merge the two and derive a wild origin */
+  needle.setAttribute("transform", "rotate(-90 " + cx + " " + cy + ")");
+  gv.appendChild(needle);
+  var hub = document.createElementNS(NS, "circle");
+  hub.setAttribute("cx", cx); hub.setAttribute("cy", cy); hub.setAttribute("r", "5");
+  hub.setAttribute("fill", "var(--accent)");
+  gv.appendChild(hub);
+
+  /* ---- heart rate + workout: apex charts. Charts get EXPLICIT pixel
+     sizes measured off their laid-out parents (height:'100%' inside a
+     flex/stretch parent resolves before layout settles) and re-fit on
+     resize. ---- */
+  var apexCharts = [];
+  /* last-applied measurements: re-render is the page's heaviest op, so
+     each chart only re-fits when its own measured size actually changed
+     (fonts.ready and every resize burst call mountCharts) */
+  var lastHrH, lastWkH, lastWkW;
+  function mountCharts() {
+    var hrBox = document.querySelector("#hrChart");
+    var wkBox = document.querySelector("#workChart");
+    /* measure the CHART BOX, never the card: the box is what flex sized,
+       and the card's padding is not the chart's business */
+    var hrH = hrBox.clientHeight;
+    var wkH = wkBox.clientHeight;
+    var wkW = wkBox.clientWidth + 12;
+    if (apexCharts.length) {
+      /* redrawPaths=true: the svg keeps its mount-time pixel height unless
+         re-rendered — updateOptions alone resizes nothing. Compare APPLIED
+         (clamped) values, not raw measures: a redraw can perturb the next
+         measure, so a raw-measure cache re-fires on every tick. 1px of
+         drift is layout noise, not a size change. */
+      var hrApplied = Math.max(hrH, 24);
+      var wkApplied = Math.max(wkH, 24);
+      if (lastHrH == null || Math.abs(hrApplied - lastHrH) > 1) {
+        apexCharts[0].updateOptions({ chart: { height: hrApplied } }, true, false);
+        lastHrH = hrApplied;
+      }
+      if (lastWkH == null || Math.abs(wkApplied - lastWkH) > 1 || lastWkW == null || Math.abs(wkW - lastWkW) > 1) {
+        apexCharts[1].updateOptions({ chart: { height: wkApplied, width: wkW } }, true, false);
+        lastWkH = wkApplied; lastWkW = wkW;
+      }
+      return;
+    }
+    if (!window.ApexCharts) return;
+    var hrOpts = {
+      chart: { type: "line", height: Math.max(hrH, 24), sparkline: { enabled: true }, animations: { enabled: !reduce } },
+      series: [{ name: "Heart Rate", data: (function(){
+        var d = [];
+        for (var b = 0; b < 6; b++) d.push(96,95,97,95,110,88,102,96,95,94);
+        return d;
+      })() }],
+      colors: ["#E8446A"],
+      stroke: { curve: "straight", width: 1.8 },
+      yaxis: { min: 84, max: 116 },
+      tooltip: { enabled: false }
+    };
+    apexCharts.push(new ApexCharts(hrBox, hrOpts));
+
+    var wkOpts = {
+      chart: { type: "area", height: Math.max(wkH, 24), width: wkW, fontFamily: "inherit", foreColor: "#9AA0A2",
+        toolbar: { show: false }, zoom: { enabled: false }, animations: { enabled: !reduce } },
+      series: [
+        { name: "Online",  data: [30,36,32,46,34,40,32] },
+        { name: "Offline", data: [42,55,40,36,50,45,48] }
+      ],
+      colors: ["#FFFFFF", "#FE6628"],
+      stroke: { curve: "smooth", width: [1.8, 2] },
+      fill: { type: "gradient", gradient: { shadeIntensity: 0, opacityFrom: .3, opacityTo: 0 } },
+      dataLabels: { enabled: false },
+      grid: { show: false },
+      xaxis: { categories: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+        axisBorder: { show: false }, axisTicks: { show: false },
+        labels: { style: { colors: "#8A9092", fontSize: "11.5px", fontFamily: "inherit" } } },
+      yaxis: { min: 0, max: 60, tickAmount: 3,
+        labels: { show: true, formatter: function(v){ return Math.round(v) + "%"; },
+          style: { colors: "#8A9092", fontSize: "11.5px", fontFamily: "inherit" } } },
+      annotations: {
+        xaxis: [{ x: "Wed", strokeDashArray: 0, strokeWidth: 2, borderColor: "#FE6628" }],
+        points: [{ x: "Wed", y: 46,
+          marker: { size: 5, fillColor: "#FE6628", strokeColor: "#FFF", strokeWidth: 2, strokeOpacity: .9 },
+          label: { text: "57 kg", orientation: "horizontal", offsetY: -16, borderWidth: 0,
+            style: { background: "#FE6628", color: "#FFF",
+              fontFamily: "inherit", fontSize: "11.5px", fontWeight: 600,
+              paddingLeft: 9, paddingRight: 9, paddingTop: 3, paddingBottom: 3 } } }]
+      },
+      tooltip: { enabled: false },
+      legend: { show: false }
+    };
+    apexCharts.push(new ApexCharts(wkBox, wkOpts));
+
+    apexCharts.forEach(function(c){ c.render(); });
+    lastHrH = Math.max(hrH, 24); lastWkH = Math.max(wkH, 24); lastWkW = wkW;
+  }
+  mountCharts();
+  var rT;
+  window.addEventListener("resize", function(){ clearTimeout(rT); rT = setTimeout(mountCharts, 150); });
+  /* webfonts change text metrics after first layout — re-measure once they
+     land, or the charts mount at pre-font box heights and clip */
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ mountCharts(); });
+
+  if (!g || reduce) { document.body.classList.remove("js"); return; }
+
+  /* Lenis is house stack; the dashboard is a single viewport, so keep it
+     inert unless something overflows — its rAF loop only exists when the
+     scroll region actually does. */
+  var scrollBody = document.querySelector(".body");
+  if (window.Lenis && scrollBody && scrollBody.scrollHeight > scrollBody.clientHeight) {
+    /* bind to the real scroll region: the window never scrolls here
+       (body overflow hidden), and content=wrapper keeps the limit honest
+       because .body has two children (header + slab) */
+    var lenis = new Lenis({ wrapper: scrollBody, content: scrollBody, duration: .7 });
+    function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+  }
+
+  /* entry: backdrop world first, chrome, then cards in reading order,
+     then the charts perform and the numbers arrive last. */
+  var tl = g.timeline({ defaults: { ease: "power3.out" },
+    onComplete: function(){ document.body.classList.remove("js"); } });
+
+  tl.fromTo(".bg", { opacity: 0, scale: 1.04 },
+      { opacity: 1, scale: 1, duration: .9, ease: "power2.out", clearProps: "transform" }, 0)
+    .fromTo(".rail", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: .5, clearProps: "transform" }, .15)
+    .fromTo(".top [data-a]", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .5, stagger: .07, clearProps: "transform" }, .25);
+
+  var cards = Array.prototype.slice.call(document.querySelectorAll(".card"));
+  cards.forEach(function(card, i){
+    var at = .42 + i * .09;
+    tl.fromTo(card, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .5, clearProps: "transform" }, at);
+    var bars = card.querySelectorAll(".bars i");
+    if (bars.length) {
+      g.set(bars, { scaleY: 0 });
+      tl.to(bars, { scaleY: 1, duration: .55, stagger: .045, ease: "power2.out",
+        onStart: (function(list){ return function(){ g.set(list, { scaleY: 0 }); }; })(bars) }, at + .18);
+    }
+    var dots = card.querySelectorAll(".dots i");
+    if (dots.length) {
+      tl.fromTo(dots, { scale: 0 }, { scale: 1, duration: .3, stagger: .012,
+        ease: "back.out(2)", clearProps: "transform" }, at + .2);
+    }
+    var segs = card.querySelectorAll(".lanes i");
+    if (segs.length) {
+      tl.fromTo(segs, { scaleX: 0 }, { scaleX: 1, duration: .45, stagger: .02,
+        ease: "power2.out", clearProps: "transform" }, at + .2);
+    }
+    var arcs = card.querySelectorAll(".ring circle[data-p]");
+    if (arcs.length) {
+      arcs.forEach(function(arc, k){
+        var r = parseFloat(arc.getAttribute("r"));
+        var C = 2 * Math.PI * r;
+        var p = parseFloat(arc.getAttribute("data-p")) / 100;
+        tl.fromTo(arc, { attr: { "stroke-dashoffset": C } },
+          { attr: { "stroke-dashoffset": C * (1 - p) }, duration: .8, ease: "power2.out" }, at + .25 + k * .08);
+      });
+    }
+  });
+
+  /* the needle springs to its value after its card lands. GSAP with an
+     explicit svgOrigin — Motion's default transform-origin resolves against
+     the line's bounding box, which has zero width, and the sweep lands
+     sideways. Mid-page tween, not post-View-Transition, so the idle-ticker
+     trap does not apply. */
+  tl.add(function(){
+    g.to(needle, { rotation: -27, svgOrigin: "119 132", duration: .9, ease: "power3.out" });
+  }, .42 + 3 * .09 + .4);
+
+  /* progress fill grows; values count up last */
+  tl.fromTo("#gfill", { width: 0 }, { width: "40%", duration: .7, ease: "power2.out" }, 1.15);
+  document.querySelectorAll("[data-count]").forEach(function(el, i){
+    var end = parseInt(el.getAttribute("data-count"), 10);
+    var obj = { v: 0 };
+    tl.to(obj, { v: end, duration: .9, ease: "power1.out",
+      onUpdate: function(){ el.textContent = Math.round(obj.v).toLocaleString("en-US"); } }, 1.2 + i * .08);
+  });
+
+  /* hover: glass brightens + 2px lift; press springs on chips and boxes */
+  if (window.Motion && Motion.animate) {
+    document.querySelectorAll(".card").forEach(function(card){
+      card.style.transition = "background-color .25s";
+      card.addEventListener("pointerenter", function(){ card.style.backgroundColor = "rgba(46,52,58,.55)"; });
+      card.addEventListener("pointerleave", function(){ card.style.backgroundColor = ""; });
+    });
+    document.querySelectorAll(".chip, .gbox, .rail__nav button, .bell").forEach(function(el){
+      el.addEventListener("pointerdown", function(){
+        Motion.animate(el, { scale: .92 }, { type: "spring", stiffness: 500, damping: 24 }); });
+      el.addEventListener("pointerup", function(){
+        Motion.animate(el, { scale: 1 }, { type: "spring", stiffness: 400, damping: 20 }); });
+    });
+  }
+
+  /* safety net: never leave the page hidden */
+  setTimeout(function(){ document.body.classList.remove("js"); }, 4000);
+})();
+</script>
+</body>
+</html>
